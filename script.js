@@ -37,6 +37,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('cart-modal')?.addEventListener('click', (e) => {
         if (e.target.id === 'cart-modal') closeModal();
     });
+
+    // Eventos do Modal de Rastreio
+    document.getElementById('btn-open-tracking')?.addEventListener('click', openTrackingModal);
+    document.getElementById('close-tracking-modal')?.addEventListener('click', closeTrackingModal);
+    document.getElementById('btn-search-tracking')?.addEventListener('click', searchOrderStatus);
+
+    document.getElementById('tracking-modal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'tracking-modal') closeTrackingModal();
+    });
 });
 
 async function loadProducts() {
@@ -51,7 +60,6 @@ async function loadProducts() {
         const buffer = await response.arrayBuffer();
         let csvText = new TextDecoder('utf-8').decode(buffer);
 
-        // CORREÇÃO: Verifica se há caractere corrompido real () em vez de string vazia
         if (csvText.includes('\ufffd')) {
             csvText = new TextDecoder('iso-8859-1').decode(buffer);
         }
@@ -312,46 +320,6 @@ function closeModal() {
     document.getElementById('cart-modal')?.classList.remove('active');
 }
 
-function sendToWhatsApp() {
-    if (cart.length === 0) {
-        alert("Seu carrinho está vazio! Adicione produtos antes de finalizar.");
-        return;
-    }
-
-    let message = "🛍️ *NOVO PEDIDO - VIVÍCIA*\n\n";
-    message += "*Itens do Pedido:*\n";
-
-    let total = 0;
-    cart.forEach(item => {
-        const itemTotal = item.price * item.quantity;
-        total += itemTotal;
-        message += `• ${item.quantity}x ${item.name} - R$ ${itemTotal.toFixed(2).replace('.', ',')}\n`;
-    });
-
-    message += `\n💰 *Total:* R$ ${total.toFixed(2).replace('.', ',')}\n\n`;
-    message += "Olá! Gostaria de finalizar o pagamento do meu pedido.";
-
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/${PHONE_NUMBER}?text=${encodedMessage}`;
-
-    window.open(whatsappUrl, '_blank');
-}
-
-/* =================================================idu
-   MÓDULO DE RASTREIO DE PEDIDOS (ADICIONADO)
-   ==================================================== */
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Eventos do Modal de Rastreio (se existirem na sua página)
-    document.getElementById('btn-open-tracking')?.addEventListener('click', openTrackingModal);
-    document.getElementById('close-tracking-modal')?.addEventListener('click', closeTrackingModal);
-    document.getElementById('btn-search-tracking')?.addEventListener('click', searchOrderStatus);
-
-    document.getElementById('tracking-modal')?.addEventListener('click', (e) => {
-        if (e.target.id === 'tracking-modal') closeTrackingModal();
-    });
-});
-
 function openTrackingModal() {
     document.getElementById('tracking-modal')?.classList.add('active');
 }
@@ -360,9 +328,7 @@ function closeTrackingModal() {
     document.getElementById('tracking-modal')?.classList.remove('active');
 }
 
-// Sobrescrevemos / atualizamos a função sendToWhatsApp para salvar o pedido localmente antes de abrir o link
-const originalSendToWhatsApp = window.sendToWhatsApp || sendToWhatsApp;
-sendToWhatsApp = function() {
+function sendToWhatsApp() {
     if (cart.length === 0) {
         alert("Seu carrinho está vazio! Adicione produtos antes de finalizar.");
         return;
@@ -384,16 +350,14 @@ sendToWhatsApp = function() {
     message += `📦 *Código do Pedido:* ${orderId}\n\n`;
     message += "Olá! Gostaria de finalizar o pagamento do meu pedido.";
 
-    // Salva o pedido no localStorage para rastreio imediato
     saveLocalOrder(orderId, 'Recebido', cart, total);
 
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${PHONE_NUMBER}?text=${encodedMessage}`;
 
-    // Limpa o carrinho e atualiza a UI se as funções existirem
     cart = [];
-    if (typeof updateCartUI === 'function') updateCartUI();
-    if (typeof closeModal === 'function') closeModal();
+    updateCartUI();
+    closeModal();
 
     window.open(whatsappUrl, '_blank');
 }
@@ -424,16 +388,39 @@ async function searchOrderStatus() {
 
     let orderStatus = null;
 
-    // Procura primeiro nos pedidos salvos localmente no navegador
-    const localOrders = JSON.parse(localStorage.getItem('ig_orders')) || {};
-    if (localOrders[code]) {
-        orderStatus = localOrders[code].status;
+    // 1. Tenta buscar direto do Google Sheets publicado
+    if (typeof GOOGLE_SHEETS_CSV_URL !== 'undefined' && GOOGLE_SHEETS_CSV_URL !== "") {
+        try {
+            const response = await fetch(GOOGLE_SHEETS_CSV_URL);
+            const csvText = await response.text();
+            const rows = csvText.replace(/\r/g, '').split('\n');
+            
+            for (let i = 0; i < rows.length; i++) {
+                const delimiter = rows[i].includes(';') ? ';' : ',';
+                const cols = rows[i].split(delimiter);
+                
+                if (cols[0] && cols[0].replace(/"/g, '').trim().toUpperCase() === code) {
+                    orderStatus = cols[1] ? cols[1].replace(/"/g, '').trim() : 'Recebido';
+                    break;
+                }
+            }
+        } catch (e) {
+            console.warn('Erro ao consultar o Google Sheets. Tentando dados locais...', e);
+        }
+    }
+
+    // 2. Se não achar na planilha, busca no cache local do navegador
+    if (!orderStatus) {
+        const localOrders = JSON.parse(localStorage.getItem('ig_orders')) || {};
+        if (localOrders[code]) {
+            orderStatus = localOrders[code].status;
+        }
     }
 
     if (orderStatus) {
         renderTrackingTimeline(code, orderStatus, resultDiv);
     } else {
-        resultDiv.innerHTML = `<p class="error-msg" style="color:#d9534f; margin-top:10px;">Pedido <strong>#${code}</strong> não encontrado. Verifique se o código está correto ou se foi finalizado neste navegador.</p>`;
+        resultDiv.innerHTML = `<p class="error-msg" style="color:#d9534f; margin-top:10px;">Pedido <strong>#${code}</strong> não encontrado na base de dados.</p>`;
     }
 }
 
@@ -456,56 +443,4 @@ function renderTrackingTimeline(code, currentStatus, container) {
             `).join('')}
         </div>
     `;
-}
-async function searchOrderStatus() {
-    const codeInput = document.getElementById('tracking-code-input');
-    const resultDiv = document.getElementById('tracking-result');
-    if (!codeInput || !resultDiv) return;
-
-    const code = codeInput.value.trim().toUpperCase();
-    if (!code) {
-        resultDiv.innerHTML = '<p class="error-msg" style="color:#d9534f; margin-top:10px;">Por favor, digite o código do pedido.</p>';
-        return;
-    }
-
-    resultDiv.innerHTML = '<p class="loading-msg" style="margin-top:10px; color:#666;">Consultando status...</p>';
-
-    let orderStatus = null;
-
-    // 1. Tenta buscar direto do Google Sheets publicado
-    if (typeof GOOGLE_SHEETS_CSV_URL !== 'undefined' && GOOGLE_SHEETS_CSV_URL !== "") {
-        try {
-            const response = await fetch(GOOGLE_SHEETS_CSV_URL);
-            const csvText = await response.text();
-            const rows = csvText.replace(/\r/g, '').split('\n');
-            
-            for (let i = 0; i < rows.length; i++) {
-                // Suporta separador por vírgula (padrão do Google Sheets) ou ponto e vírgula
-                const delimiter = rows[i].includes(';') ? ';' : ',';
-                const cols = rows[i].split(delimiter);
-                
-                if (cols[0] && cols[0].replace(/"/g, '').trim().toUpperCase() === code) {
-                    orderStatus = cols[1] ? cols[1].replace(/"/g, '').trim() : 'Recebido';
-                    break;
-                }
-            }
-        } catch (e) {
-            console.warn('Erro ao consultar o Google Sheets. Tentando dados locais...', e);
-        }
-    }
-
-    // 2. Se não achar na planilha, busca no cache local do navegador
-    if (!orderStatus) {
-        const localOrders = JSON.parse(localStorage.getItem('ig_orders')) || {};
-        if (localOrders[code]) {
-            orderStatus = localOrders[code].status;
-        }
-    }
-
-    // Exibe o resultado na tela
-    if (orderStatus) {
-        renderTrackingTimeline(code, orderStatus, resultDiv);
-    } else {
-        resultDiv.innerHTML = `<p class="error-msg" style="color:#d9534f; margin-top:10px;">Pedido <strong>#${code}</strong> não encontrado na base de dados.</p>`;
-    }
 }
