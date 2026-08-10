@@ -2,17 +2,16 @@ const PHONE_NUMBER = "5585991251320";
 const GOOGLE_SHEETS_CSV_URL = ""; // Cole aqui a URL do CSV publicado do Google Sheets, se houver
 
 let cart = [];
-let allProducts = []; // Armazena a lista completa para o filtro funcionar
+let allProducts = []; // Guarda a lista de produtos original para filtrar
 
 document.addEventListener('DOMContentLoaded', () => {
     loadProducts();
 
-    // Evento do Filtro/Busca
+    // Eventos do Filtro e Busca
     document.getElementById('search-input')?.addEventListener('input', filterProducts);
     document.getElementById('brand-filter')?.addEventListener('change', filterProducts);
 
     // Eventos do WhatsApp
-    document.getElementById('btn-whatsapp')?.addEventListener('click', sendToWhatsApp);
     document.getElementById('btn-whatsapp-modal')?.addEventListener('click', sendToWhatsApp);
 
     // Eventos do Modal do Carrinho
@@ -139,11 +138,11 @@ function renderProducts(products) {
 
     mainGrid.innerHTML = '';
 
-    // Imagem SVG de placeholder embutida localmente (garante exibição sem quebrar)
+    // Imagem SVG de fallback local (garante que sempre carregará sem depender de internet)
     const fallbackImage = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='250' height='220' viewBox='0 0 250 220'><rect width='100%' height='100%' fill='%23fceeee'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='20' font-weight='bold' fill='%23111111'>Viv%C3%ADcia</text></svg>";
 
     if (products.length === 0) {
-        mainGrid.innerHTML = `<p class="no-products">Nenhum produto encontrado.</p>`;
+        mainGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #888;">Nenhum produto encontrado.</p>`;
         return;
     }
 
@@ -313,11 +312,11 @@ async function searchOrderStatus() {
 
     const code = codeInput.value.trim().toUpperCase();
     if (!code) {
-        resultDiv.innerHTML = '<p class="error-msg">Por favor, digite o código do pedido.</p>';
+        resultDiv.innerHTML = '<p class="error-msg" style="color:red; margin-top:10px;">Por favor, digite o código do pedido.</p>';
         return;
     }
 
-    resultDiv.innerHTML = '<p class="loading-msg">Consultando status...</p>';
+    resultDiv.innerHTML = '<p class="loading-msg" style="margin-top:10px;">Consultando status...</p>';
 
     let orderStatus = null;
 
@@ -349,7 +348,7 @@ async function searchOrderStatus() {
     if (orderStatus) {
         renderTrackingTimeline(code, orderStatus, resultDiv);
     } else {
-        resultDiv.innerHTML = `<p class="error-msg">Pedido <strong>#${code}</strong> não encontrado.</p>`;
+        resultDiv.innerHTML = `<p class="error-msg" style="color:red; margin-top:10px;">Pedido <strong>#${code}</strong> não encontrado.</p>`;
     }
 }
 
@@ -359,9 +358,9 @@ function renderTrackingTimeline(code, currentStatus, container) {
     const activeIdx = currentIndex !== -1 ? currentIndex : 0;
 
     container.innerHTML = `
-        <div class="order-info-header">
+        <div style="margin-top: 15px;">
             <h4>Pedido: <span>#${code}</span></h4>
-            <span class="status-badge">${stages[activeIdx]}</span>
+            <p>Status Atual: <strong>${stages[activeIdx]}</strong></p>
         </div>
         <div class="timeline">
             ${stages.map((stage, idx) => `
