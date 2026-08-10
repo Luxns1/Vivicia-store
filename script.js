@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function loadProducts() {
     try {
-        const response = await fetch('/produtos.csv');
+        const response = await fetch('/Produtos disponiveis(Pro site).csv');
         
         if (!response.ok) {
             console.error(`Erro ao carregar produtos.csv! Status HTTP: ${response.status}`);
