@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vivícia - Charme que Transforma</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- CABEÇALHO -->
+    <header class="main-header">
+        <div class="header-container">
+            <!-- Certifique-se de que a imagem da logo está na mesma pasta -->
+            <img src="logo.png" alt="Vivícia Logo" class="logo-img">
+        </div>
+    </header>
+
+    <!-- CONTAINER PRINCIPAL -->
+    <main class="container">
+        <h1 class="section-title">Promoções Exclusivas</h1>
+        
+        <div class="product-grid">
+            
+            <!-- PRODUTO 1 -->
+            <div class="product-card" data-id="1" data-name="Vivícia Serum" data-price="89.90">
+                <div class="product-image-container">
+                    <img src="serum.png" alt="Vivícia Serum" class="product-image">
+                    <span class="badge promo">SUPER PROMOÇÃO</span>
+                </div>
+                <div class="product-details">
+                    <h2 class="product-name">Vivícia Serum</h2>
+                    <div class="product-pricing">
+                        <span class="old-price">R$ 150,00</span>
+                        <span class="current-price">R$ 89,90</span>
+                    </div>
+                    <button class="btn-add-cart">Adicionar ao Carrinho</button>
+                </div>
+            </div>
+
+            <!-- PRODUTO 2 -->
+            <div class="product-card" data-id="2" data-name="Vivícia Palette" data-price="75.00">
+                <div class="product-image-container">
+                    <img src="palette.png" alt="Vivícia Palette" class="product-image">
+                    <span class="badge offer">OFERTA</span>
+                </div>
+                <div class="product-details">
+                    <h2 class="product-name">Vivícia Palette</h2>
+                    <div class="product-pricing">
+                        <span class="old-price">R$ 110,00</span>
+                        <span class="current-price">R$ 75,00</span>
+                    </div>
+                    <button class="btn-add-cart">Adicionar ao Carrinho</button>
+                </div>
+            </div>
+
+            <!-- PRODUTO 3 -->
+            <div class="product-card" data-id="3" data-name="Vivícia Lipstick" data-price="49.90">
+                <div class="product-image-container">
+                    <img src="lipstick.png" alt="Vivícia Lipstick" class="product-image">
+                    <span class="badge offer">COMPRE 2 LEVE 1</span>
+                </div>
+                <div class="product-details">
+                    <h2 class="product-name">Vivícia Lipstick</h2>
+                    <div class="product-pricing">
+                        <span class="current-price">R$ 49,90</span>
+                    </div>
+                    <button class="btn-add-cart">Adicionar ao Carrinho</button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- BARRA FIXA INFERIOR DE CHECKOUT -->
+    <div class="cart-bar">
+        <div class="cart-bar-container">
+            <div class="cart-info">
+                <div class="cart-icon-wrapper">
+                    🛒 <span class="cart-badge" id="cart-count">0</span>
+                </div>
+                <div class="cart-total-text">
+                    <span>Total:</span>
+                    <strong id="cart-total-value">R$ 0,00</strong>
+                </div>
+            </div>
+            <button class="btn-checkout-whatsapp" id="btn-whatsapp">
+                Confirmar via WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
