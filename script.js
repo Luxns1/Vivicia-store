@@ -57,10 +57,21 @@ async function loadProducts() {
             return;
         }
 
-        // Lê como ArrayBuffer e força a decodificação UTF-8 para evitar caracteres '??'
+        // Lê o buffer do arquivo e decodifica como ISO-8859-1 (corrigindo os acentos '??')
         const buffer = await response.arrayBuffer();
-        const decoder = new TextDecoder('utf-8');
-        const csvText = decoder.decode(buffer);
+        let csvText = '';
+        try {
+            const decoderIso = new TextDecoder('iso-8859-1');
+            csvText = decoderIso.decode(buffer);
+            // Se encontrar o caractere de substituição (), tenta UTF-8 como fallback
+            if (csvText.includes('')) {
+                const decoderUtf = new TextDecoder('utf-8');
+                csvText = decoderUtf.decode(buffer);
+            }
+        } catch (e) {
+            const decoder = new TextDecoder('utf-8');
+            csvText = decoder.decode(buffer);
+        }
 
         allProducts = parseCSV(csvText);
 
