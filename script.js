@@ -1,4 +1,4 @@
-const PHONE_NUMBER = "5585999999999"; 
+const PHONE_NUMBER = "5585991251320"; 
 
 let cart = [];
 let allProducts = [];      // Armazena todos os produtos do CSV
