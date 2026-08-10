@@ -5,7 +5,7 @@ let cart = [];
 document.addEventListener('DOMContentLoaded', async () => {
     // Carrega e converte o CSV automaticamente
     try {
-        const response = await fetch('produtos.csv');
+        const response = await fetch('produtos disponiveis(Pro site).csv');
         const csvData = await response.text();
         const products = parseCSV(csvData);
         renderProducts(products);
