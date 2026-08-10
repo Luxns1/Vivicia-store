@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-whatsapp')?.addEventListener('click', sendToWhatsApp);
     document.getElementById('btn-whatsapp-modal')?.addEventListener('click', sendToWhatsApp);
 
-    // Eventos do Modal
+    // Eventos do Modal do Carrinho
     document.getElementById('cart-info-trigger')?.addEventListener('click', openModal);
     document.getElementById('close-modal')?.addEventListener('click', closeModal);
 
@@ -57,21 +57,10 @@ async function loadProducts() {
             return;
         }
 
-        // Lê o buffer do arquivo e decodifica como ISO-8859-1 (corrigindo os acentos '??')
-        const buffer = await response.arrayBuffer();
-        let csvText = '';
-        try {
-            const decoderIso = new TextDecoder('iso-8859-1');
-            csvText = decoderIso.decode(buffer);
-            // Se encontrar o caractere de substituição (), tenta UTF-8 como fallback
-            if (csvText.includes('')) {
-                const decoderUtf = new TextDecoder('utf-8');
-                csvText = decoderUtf.decode(buffer);
-            }
-        } catch (e) {
-            const decoder = new TextDecoder('utf-8');
-            csvText = decoder.decode(buffer);
-        }
+        const blob = await response.blob();
+        
+        // Lê o arquivo forçando explicitamente a codificação ISO-8859-1 (Latin-1)
+        const csvText = await readBlobAsText(blob, 'iso-8859-1');
 
         allProducts = parseCSV(csvText);
 
@@ -90,17 +79,32 @@ async function loadProducts() {
     }
 }
 
+// Leitor nativo via FileReader para garantir o encoding sem perdas
+function readBlobAsText(blob, encoding) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsText(blob, encoding);
+    });
+}
+
 function parseCSV(csvText) {
-    // Remove quebras de linha invisíveis e divide em linhas
-    const lines = csvText.replace(/\r/g, '').split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    // Normaliza quebras de linha e separa em linhas não vazias
+    const lines = csvText.replace(/\r/g, '').split('\n').filter(l => l.trim().length > 0);
 
     if (lines.length <= 1) return [];
 
-    // O separador do CSV é ponto e vírgula (;)
+    // O separador do CSV de Excel em português costuma ser ponto e vírgula (;)
     const delimiter = ';';
 
-    // Normaliza os cabeçalhos (remove espaços extras e caracteres invisíveis)
-    const headers = lines[0].split(delimiter).map(h => h.replace(/[\u1680\u180E\u2000-\u200B\u202F\u205F\u3000\uFEFF]/g, '').trim().toLowerCase());
+    // Normaliza cabeçalhos removendo BOM/caracteres invisíveis
+    const headers = lines[0].split(delimiter).map(h => 
+        h.replace(/[\u1680\u180E\u2000-\u200B\u202F\u205F\u3000\uFEFF]/g, '')
+         .replace(//g, '')
+         .trim()
+         .toLowerCase()
+    );
 
     const products = [];
 
@@ -112,18 +116,18 @@ function parseCSV(csvText) {
             row[header] = values[idx] || '';
         });
 
-        // Mapeia colunas buscando palavras-chave (ex: 'id', 'marca', 'produto', 'valor' / 'venda')
-        const idKey = Object.keys(row).find(k => k.includes('id')) || '';
+        // Mapeia as colunas buscando palavras-chave flexíveis
+        const idKey = Object.keys(row).find(k => k.includes('id') || k.includes('cod')) || '';
         const brandKey = Object.keys(row).find(k => k.includes('marca')) || '';
-        const nameKey = Object.keys(row).find(k => k.includes('produto')) || '';
-        const priceKey = Object.keys(row).find(k => k.includes('valor') || k.includes('venda')) || '';
+        const nameKey = Object.keys(row).find(k => k.includes('produto') || k.includes('nome') || k.includes('item')) || '';
+        const priceKey = Object.keys(row).find(k => k.includes('valor') || k.includes('venda') || k.includes('preço') || k.includes('preco')) || '';
 
         const id = row[idKey] || String(i);
         const brand = (row[brandKey] || 'Vivícia').trim();
         const name = (row[nameKey] || '').trim();
         let rawPrice = row[priceKey] || '';
 
-        // Tratamento do valor da venda (ex: R$ 39,90 ou 39,90)
+        // Tratamento numérico para valores monetários em padrão BR (ex: R$ 39,90 ou 39,90)
         rawPrice = rawPrice.replace('R$', '').replace(/\s/g, '');
 
         if (rawPrice.includes(',') && rawPrice.includes('.')) {
