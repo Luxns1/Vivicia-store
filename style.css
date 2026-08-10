@@ -477,3 +477,158 @@ body {
         flex-wrap: wrap;
     }
 }
+/* ==================================================
+   ESTILOS DO MODAL DE RASTREIO E TIMELINE
+   ================================================== */
+
+.tracking-subtitle {
+    font-size: 0.95rem;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+.tracking-search-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.tracking-search-box input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid #dfb373;
+    border-radius: 25px;
+    font-size: 0.95rem;
+    outline: none;
+    background-color: #ffffff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.tracking-search-box input:focus {
+    border-color: #b8863b;
+    box-shadow: 0 0 8px rgba(212, 163, 89, 0.3);
+}
+
+.tracking-search-box button {
+    background-color: #d4a359;
+    color: #fff;
+    border: none;
+    padding: 0 20px;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.tracking-search-box button:hover {
+    background-color: #b8863b;
+}
+
+.tracking-error-msg {
+    background-color: #fdf2f2;
+    color: #b71c1c;
+    border: 1px solid #f9d8d8;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    margin-top: 15px;
+    text-align: center;
+}
+
+.order-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fceeee;
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+    border: 1px solid #ebd0d0;
+}
+
+.order-info-header .badge {
+    background-color: #d4a359;
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* --- LINHA DO TEMPO (TIMELINE) --- */
+.timeline {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    margin-top: 25px;
+    padding: 0 10px;
+}
+
+/* Linha conectora de fundo */
+.timeline::before {
+    content: '';
+    position: absolute;
+    top: 22px;
+    left: 40px;
+    right: 40px;
+    height: 4px;
+    background-color: #ebd0d0;
+    z-index: 1;
+}
+
+.timeline-step {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    flex: 1;
+}
+
+.timeline-step .step-icon {
+    width: 45px;
+    height: 45px;
+    background-color: #ffffff;
+    border: 2px solid #ebd0d0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 8px auto;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.timeline-step p {
+    font-size: 0.75rem;
+    color: #888;
+    font-weight: 500;
+    margin: 0;
+}
+
+/* Estados da Timeline controlados pelo JS */
+.timeline-step.completed .step-icon {
+    background-color: #25d366;
+    border-color: #25d366;
+    color: #fff;
+}
+
+.timeline-step.completed p {
+    color: #1e8e3e;
+    font-weight: 600;
+}
+
+.timeline-step.current .step-icon,
+.timeline-step.active .step-icon {
+    background-color: #d4a359;
+    border-color: #d4a359;
+    color: #fff;
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(212, 163, 89, 0.4);
+}
+
+.timeline-step.current p,
+.timeline-step.active p {
+    color: #b8863b;
+    font-weight: 700;
+}

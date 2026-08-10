@@ -2,14 +2,13 @@ const PHONE_NUMBER = "558591251320";
 const GOOGLE_SHEETS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR7PJLBEA-DSFQYrozFbAJgvL00ZEHptPlNWIvdjM2m5m0WeCj_gm-P6fj-Xw7_sg7SMYz_kg6JIlao/pub?gid=0&single=true&output=csv";
 
 let cart = [];
-let allProducts = [];      // Armazena todos os produtos do CSV
-let selectedBrand = 'todas'; // Marca selecionada no filtro
-let searchQuery = '';      // Texto de busca digitado
+let allProducts = [];      
+let selectedBrand = 'todas'; 
+let searchQuery = '';      
 
 document.addEventListener('DOMContentLoaded', () => {
     loadProducts();
 
-    // Eventos de Busca e Filtro
     const searchInput = document.getElementById('search-input');
     const clearBtn = document.getElementById('btn-clear-search');
 
@@ -26,11 +25,9 @@ document.addEventListener('DOMContentLoaded', () => {
         applyFilters();
     });
 
-    // Eventos do WhatsApp
     document.getElementById('btn-whatsapp')?.addEventListener('click', sendToWhatsApp);
     document.getElementById('btn-whatsapp-modal')?.addEventListener('click', sendToWhatsApp);
 
-    // Eventos do Modal
     document.getElementById('cart-info-trigger')?.addEventListener('click', openModal);
     document.getElementById('close-modal')?.addEventListener('click', closeModal);
 
@@ -38,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.id === 'cart-modal') closeModal();
     });
 
-    // Eventos do Modal de Rastreio
+    // Eventos do Modal de Rastreio (Usando os IDs exatos do seu HTML)
     document.getElementById('btn-open-tracking')?.addEventListener('click', openTrackingModal);
     document.getElementById('close-tracking-modal')?.addEventListener('click', closeTrackingModal);
     document.getElementById('btn-search-tracking')?.addEventListener('click', searchOrderStatus);
@@ -374,21 +371,21 @@ function saveLocalOrder(orderId, status, items, total) {
 }
 
 async function searchOrderStatus() {
-    const codeInput = document.getElementById('tracking-code-input');
+    const codeInput = document.getElementById('tracking-input'); // Ajustado para o ID correto do seu HTML
     const resultDiv = document.getElementById('tracking-result');
-    if (!codeInput || !resultDiv) return;
+    const errorDiv = document.getElementById('tracking-error');
+    
+    if (!codeInput) return;
 
     const code = codeInput.value.trim().toUpperCase();
     if (!code) {
-        resultDiv.innerHTML = '<p class="error-msg" style="color:#d9534f; margin-top:10px;">Por favor, digite o código do pedido.</p>';
+        alert("Por favor, digite o código do pedido.");
         return;
     }
 
-    resultDiv.innerHTML = '<p class="loading-msg" style="margin-top:10px; color:#666;">Consultando status...</p>';
-
     let orderStatus = null;
 
-    // 1. Tenta buscar direto do Google Sheets publicado
+    // 1. Tenta buscar no Google Sheets
     if (typeof GOOGLE_SHEETS_CSV_URL !== 'undefined' && GOOGLE_SHEETS_CSV_URL !== "") {
         try {
             const response = await fetch(GOOGLE_SHEETS_CSV_URL);
@@ -409,7 +406,7 @@ async function searchOrderStatus() {
         }
     }
 
-    // 2. Se não achar na planilha, busca no cache local do navegador
+    // 2. Se não achar na planilha, busca no cache local
     if (!orderStatus) {
         const localOrders = JSON.parse(localStorage.getItem('ig_orders')) || {};
         if (localOrders[code]) {
@@ -417,30 +414,44 @@ async function searchOrderStatus() {
         }
     }
 
+    // Exibe os resultados usando o HTML que você já preparou
     if (orderStatus) {
-        renderTrackingTimeline(code, orderStatus, resultDiv);
+        if (resultDiv) resultDiv.style.display = 'block';
+        if (errorDiv) errorDiv.style.display = 'none';
+
+        // Atualiza o ID do pedido no HTML
+        const orderIdSpan = document.getElementById('track-order-id');
+        if (orderIdSpan) orderIdSpan.innerText = '#' + code;
+
+        // Atualiza o texto do Badge de Status
+        const statusBadge = document.getElementById('track-status-badge');
+        if (statusBadge) statusBadge.innerText = orderStatus;
+
+        // Ativa visualmente a Timeline do seu HTML
+        updateTimelineVisuals(orderStatus);
     } else {
-        resultDiv.innerHTML = `<p class="error-msg" style="color:#d9534f; margin-top:10px;">Pedido <strong>#${code}</strong> não encontrado na base de dados.</p>`;
+        if (resultDiv) resultDiv.style.display = 'none';
+        if (errorDiv) errorDiv.style.display = 'block';
     }
 }
 
-function renderTrackingTimeline(code, currentStatus, container) {
+function updateTimelineVisuals(currentStatus) {
     const stages = ['Recebido', 'Em Separação', 'Saiu p/ Entrega', 'Entregue'];
     const currentIndex = stages.findIndex(s => s.toLowerCase() === currentStatus.toLowerCase());
     const activeIdx = currentIndex !== -1 ? currentIndex : 0;
 
-    container.innerHTML = `
-        <div style="margin-top: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
-            <h4 style="color: #333;">Pedido: <span style="color: #e91e63;">#${code}</span></h4>
-            <p style="font-size: 14px; color: #666; margin-top: 4px;">Status Atual: <strong style="color: #2196f3;">${stages[activeIdx]}</strong></p>
-        </div>
-        <div class="timeline" style="margin-top: 15px; display: flex; flex-direction: column; gap: 12px;">
-            ${stages.map((stage, idx) => `
-                <div class="timeline-step ${idx <= activeIdx ? 'completed' : ''} ${idx === activeIdx ? 'current' : ''}" style="display: flex; align-items: center; gap: 10px; color: ${idx <= activeIdx ? '#4caf50' : '#ccc'}; font-weight: ${idx === activeIdx ? 'bold' : 'normal'};">
-                    <div class="step-icon" style="width: 26px; height: 26px; border-radius: 50%; border: 2px solid currentColor; display: flex; align-items: center; justify-content: center; font-size: 12px;">${idx <= activeIdx ? '✓' : idx + 1}</div>
-                    <span class="step-label">${stage}</span>
-                </div>
-            `).join('')}
-        </div>
-    `;
+    // Seleciona os blocos de passos que já existem no seu HTML (.step-1, .step-2, .step-3, .step-4)
+    for (let i = 1; i <= 4; i++) {
+        const stepElement = document.querySelector(`.timeline-step.step-${i}`);
+        if (!stepElement) continue;
+
+        // Remove classes antigas para resetar
+        stepElement.classList.remove('completed', 'current', 'active');
+
+        if (i - 1 < activeIdx) {
+            stepElement.classList.add('completed');
+        } else if (i - 1 === activeIdx) {
+            stepElement.classList.add('current', 'active');
+        }
+    }
 }
