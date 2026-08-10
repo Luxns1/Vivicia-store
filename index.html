@@ -3,80 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vivícia - Catálogo e Loja</title>
+    <title>𝑽𝑰𝑽Í𝑪𝑰𝑨 - Charme que Transforma</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,500&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <!-- Cabeçalho -->
-    <header class="header">
+    <!-- CABEÇALHO -->
+    <header class="main-header">
         <div class="header-container">
-            <h1 class="logo">Vivícia</h1>
-            <div class="header-actions">
-                <button id="btn-open-tracking" class="btn-secondary">📦 Rastrear Pedido</button>
-                <button id="cart-info-trigger" class="btn-cart">
-                    🛒 Carrinho (<span id="cart-count">0</span>) - <span id="cart-total-value">R$ 0,00</span>
-                </button>
+            <img src="Logo - " alt="Vivícia Logo" class="logo-img" onerror="this.style.display='none'">
+            <div class="header-text-brand">
+                <h1 class="brand-title">Vivícia</h1>
+                <p class="brand-slogan">Charme que transforma</p>
+                <p class="brand-subtitle">Encontre seus produtos favoritos</p>
             </div>
+            <button id="btn-open-tracking" class="btn-tracking">📦 Acompanhar Pedido</button>
         </div>
     </header>
 
-    <main class="main-content">
-        <!-- Barra de Filtros e Pesquisa -->
-        <section class="filter-container">
-            <div class="search-box">
-                <input type="text" id="search-input" placeholder="Buscar por produto...">
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="container">
+        
+        <!-- SEÇÃO DE FILTROS E BUSCA -->
+        <section class="filter-section">
+            <div class="search-box-wrapper">
+                <input type="text" id="search-input" placeholder="🔍 Buscar por nome do produto..." autocomplete="off">
+                <button id="btn-clear-search" class="btn-clear" style="display: none;">✕</button>
             </div>
-            <div class="filter-box">
-                <select id="brand-filter">
-                    <option value="">Todas as Marcas</option>
-                </select>
+
+            <div class="brand-filter-wrapper" id="brand-filters">
+                <!-- Botões de marca gerados via JS -->
+            </div>
+
+            <div class="results-info">
+                <span id="results-count">Mostrando produtos...</span>
             </div>
         </section>
 
-        <!-- Grade de Produtos -->
-        <section id="product-grid" class="product-grid">
-            <!-- Produtos inseridos via JS -->
+        <!-- GRID DE PRODUTOS -->
+        <section class="products-section">
+            <div class="product-grid" id="product-grid">
+                <!-- Produtos renderizados via JS -->
+            </div>
+            <div id="no-products-msg" class="no-products" style="display: none;">
+                <p>Nenhum produto encontrado para essa busca. 🙁</p>
+            </div>
         </section>
+
     </main>
 
-    <!-- Modal do Carrinho -->
-    <div id="cart-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Seu Carrinho</h2>
-                <button id="close-modal" class="close-btn">&times;</button>
+    <!-- BARRA FIXA INFERIOR DE CHECKOUT -->
+    <div class="cart-bar">
+        <div class="cart-bar-container">
+            <div class="cart-info" id="cart-info-trigger" style="cursor: pointer;">
+                <div class="cart-icon-wrapper">
+                    🛒 <span class="cart-badge" id="cart-count">0</span>
+                </div>
+                <div class="cart-total-text">
+                    <span>Total (clique p/ ver):</span>
+                    <strong id="cart-total-value">R$ 0,00</strong>
+                </div>
             </div>
-            <div id="cart-items-container" class="cart-items-container">
-                <p class="cart-empty-text">Seu carrinho está vazio.</p>
+            <button class="btn-checkout-whatsapp" id="btn-whatsapp">
+                Confirmar via WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL DO CARRINHO -->
+    <div class="cart-modal-overlay" id="cart-modal">
+        <div class="cart-modal-content">
+            <div class="cart-modal-header">
+                <h2>Seu Carrinho 🛍️</h2>
+                <button class="close-modal-btn" id="close-modal">&times;</button>
             </div>
-            <div class="modal-footer">
-                <div class="cart-summary">
-                    <span>Total:</span>
+            <div class="cart-modal-body" id="cart-items-container">
+                <!-- Renderizado via JS -->
+            </div>
+            <div class="cart-modal-footer">
+                <div class="modal-total-wrapper">
+                    <span>Valor Total:</span>
                     <strong id="modal-total-value">R$ 0,00</strong>
                 </div>
-                <button id="btn-whatsapp-modal" class="btn-whatsapp">Finalizar via WhatsApp</button>
+                <button class="btn-checkout-whatsapp" id="btn-whatsapp-modal">
+                    Finalizar via WhatsApp
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Modal de Rastreio de Pedido -->
-    <div id="tracking-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Rastreamento de Pedido</h2>
-                <button id="close-tracking-modal" class="close-btn">&times;</button>
+    <!-- MODAL DE RASTREIO DE PEDIDO -->
+    <div class="cart-modal-overlay" id="tracking-modal">
+        <div class="cart-modal-content">
+            <div class="cart-modal-header">
+                <h2>Área do Cliente - Rastreio 📦</h2>
+                <button class="close-modal-btn" id="close-tracking-modal">&times;</button>
             </div>
-            <div class="tracking-search">
-                <input type="text" id="tracking-code-input" placeholder="Digite o código (ex: VV-1234)">
-                <button id="btn-search-tracking" class="btn-primary">Consultar</button>
-            </div>
-            <div id="tracking-result" class="tracking-result">
-                <!-- Linha do tempo inserida via JS -->
+            <div class="cart-modal-body">
+                <p class="tracking-subtitle">Digite o código do seu pedido recebido no WhatsApp:</p>
+                <div class="tracking-search-box">
+                    <input type="text" id="tracking-input" placeholder="Ex: VV-1082" autocomplete="off">
+                    <button id="btn-search-tracking">Consultar</button>
+                </div>
+
+                <div id="tracking-result" style="display: none; margin-top: 25px;">
+                    <div class="order-info-header">
+                        <p>Pedido: <strong id="track-order-id">#VV-1082</strong></p>
+                        <p>Status: <span id="track-status-badge" class="badge">Em Processamento</span></p>
+                    </div>
+
+                    <!-- LINHA DO TEMPO DO STATUS -->
+                    <div class="timeline">
+                        <div class="timeline-step step-1">
+                            <div class="step-icon">📝</div>
+                            <p>Recebido</p>
+                        </div>
+                        <div class="timeline-step step-2">
+                            <div class="step-icon">📦</div>
+                            <p>Em Separação</p>
+                        </div>
+                        <div class="timeline-step step-3">
+                            <div class="step-icon">🛵</div>
+                            <p>Saiu p/ Entrega</p>
+                        </div>
+                        <div class="timeline-step step-4">
+                            <div class="step-icon">✅</div>
+                            <p>Entregue</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="tracking-error" class="tracking-error-msg" style="display: none;">
+                    <p>Pedido não encontrado. Verifique o código enviado no seu WhatsApp.</p>
+                </div>
             </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- RODAPÉ -->
+    <footer class="main-footer">
+        <div class="container">
+            <p>Sobre Nós | Dúvidas | Seguir @ViviciaOficial</p>
+        </div>
+    </footer>
+
+    <script src="script.js" charset="UTF-8"></script>
 </body>
 </html>
