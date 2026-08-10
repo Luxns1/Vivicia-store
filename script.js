@@ -2,69 +2,95 @@ const PHONE_NUMBER = "5585999999999";
 
 let cart = [];
 
-document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        const response = await fetch('Produtos disponiveis(Pro site).csv');
-        
-        if (!response.ok) {
-            throw new Error(`Erro HTTP: ${response.status}`);
-        }
+document.addEventListener('DOMContentLoaded', () => {
+    loadProducts();
 
-        const csvData = await response.text();
-        const products = parseCSV(csvData);
-        
-        renderProducts(products);
-    } catch (error) {
-        console.error("Erro ao carregar o arquivo CSV:", error);
-    }
+    // Eventos do WhatsApp
+    document.getElementById('btn-whatsapp')?.addEventListener('click', sendToWhatsApp);
+    document.getElementById('btn-whatsapp-modal')?.addEventListener('click', sendToWhatsApp);
 
-    // Listeners para os botões do WhatsApp
-    document.getElementById('btn-whatsapp').addEventListener('click', sendToWhatsApp);
-    document.getElementById('btn-whatsapp-modal').addEventListener('click', sendToWhatsApp);
+    // Eventos do Modal
+    document.getElementById('cart-info-trigger')?.addEventListener('click', openModal);
+    document.getElementById('close-modal')?.addEventListener('click', closeModal);
 
-    // Listeners para abrir e fechar o modal
-    document.getElementById('cart-info-trigger').addEventListener('click', openModal);
-    document.getElementById('close-modal').addEventListener('click', closeModal);
-
-    // Fechar modal clicando fora dele
-    document.getElementById('cart-modal').addEventListener('click', (e) => {
+    document.getElementById('cart-modal')?.addEventListener('click', (e) => {
         if (e.target.id === 'cart-modal') closeModal();
     });
 });
 
-// Converter CSV tratando padronização do Excel BR para as colunas: Id, marca, produto, valor
+async function loadProducts() {
+    try {
+        const response = await fetch('/produtos.csv');
+        
+        if (!response.ok) {
+            console.error(`Erro ao carregar produtos.csv! Status HTTP: ${response.status}`);
+            return;
+        }
+
+        const csvText = await response.text();
+        const products = parseCSV(csvText);
+
+        if (products.length === 0) {
+            console.error("Nenhum produto foi processado do CSV.");
+            return;
+        }
+
+        renderProducts(products);
+    } catch (error) {
+        console.error("Erro na leitura do CSV:", error);
+    }
+}
+
 function parseCSV(csvText) {
-    const cleanText = csvText.replace(/\r/g, '').trim();
-    const lines = cleanText.split('\n');
+    // Remove quebras de linha invisíveis e divide em linhas
+    const lines = csvText.replace(/\r/g, '').split('\n').map(l => l.trim()).filter(l => l.length > 0);
 
     if (lines.length <= 1) return [];
 
-    const delimiter = lines[0].includes(';') ? ';' : ',';
-    const headers = lines[0].split(delimiter).map(h => h.trim().toLowerCase());
+    // O separador do seu CSV é ponto e vírgula (;)
+    const delimiter = ';';
 
-    return lines.slice(1).map(line => {
-        if (!line.trim()) return null;
-        const values = line.split(delimiter).map(v => v.trim());
-        let obj = {};
+    // Normaliza os cabeçalhos (remove espaços extras e caracteres invisíveis)
+    const headers = lines[0].split(delimiter).map(h => h.replace(/[\u1680\u180E\u2000-\u200B\u202F\u205F\u3000\uFEFF]/g, '').trim().toLowerCase());
 
-        headers.forEach((header, index) => {
-            obj[header] = values[index] || '';
+    const products = [];
+
+    for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(delimiter).map(v => v.trim());
+        let row = {};
+
+        headers.forEach((header, idx) => {
+            row[header] = values[idx] || '';
         });
 
-        const parsePrice = (val) => {
-            if (!val) return null;
-            const cleanVal = val.replace('R$', '').replace(/\./g, '').replace(',', '.').trim();
-            const num = parseFloat(cleanVal);
-            return isNaN(num) ? null : num;
-        };
+        // Mapeia colunas buscando palavras-chave (ex: 'produto', 'valor')
+        const idKey = Object.keys(row).find(k => k.includes('id')) || '';
+        const brandKey = Object.keys(row).find(k => k.includes('marca')) || '';
+        const nameKey = Object.keys(row).find(k => k.includes('produto')) || '';
+        const priceKey = Object.keys(row).find(k => k.includes('valor') || k.includes('venda')) || '';
 
-        return {
-            id: obj.id || obj.id,
-            brand: obj.marca || 'Vivícia',
-            name: obj.produto || 'Produto Sem Nome',
-            price: parsePrice(obj.valor)
-        };
-    }).filter(p => p !== null && p.price !== null);
+        const id = row[idKey] || String(i);
+        const brand = row[brandKey] || 'Vivícia';
+        const name = row[nameKey] || '';
+        let rawPrice = row[priceKey] || '';
+
+        // Tratamento do valor da venda (ex: R$ 39,90 ou 39,90)
+        rawPrice = rawPrice.replace('R$', '').replace(/\s/g, '');
+
+        if (rawPrice.includes(',') && rawPrice.includes('.')) {
+            rawPrice = rawPrice.replace(/\./g, '').replace(',', '.');
+        } else if (rawPrice.includes(',')) {
+            rawPrice = rawPrice.replace(',', '.');
+        }
+
+        const price = parseFloat(rawPrice);
+
+        if (name && !isNaN(price)) {
+            products.push({ id, brand, name, price });
+        }
+    }
+
+    return products;
 }
 
 function renderProducts(products) {
@@ -72,7 +98,6 @@ function renderProducts(products) {
     if (!mainGrid) return;
 
     mainGrid.innerHTML = '';
-
     const defaultImage = 'https://via.placeholder.com/250x220/fceeee/111111?text=Viv%C3%ADcia';
 
     products.forEach(product => {
@@ -172,11 +197,11 @@ function updateCartUI() {
 }
 
 function openModal() {
-    document.getElementById('cart-modal').classList.add('active');
+    document.getElementById('cart-modal')?.classList.add('active');
 }
 
 function closeModal() {
-    document.getElementById('cart-modal').classList.remove('active');
+    document.getElementById('cart-modal')?.classList.remove('active');
 }
 
 function sendToWhatsApp() {
