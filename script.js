@@ -1,5 +1,4 @@
 const PHONE_NUMBER = "5585991251320"; 
-const LOGO_FILE = "Logo - Vivi.png";
 const GOOGLE_SHEETS_CSV_URL = ""; // Cole aqui a URL do CSV publicado do Google Sheets, se houver
 
 let cart = [];
@@ -8,7 +7,6 @@ let selectedBrand = 'todas'; // Marca selecionada no filtro
 let searchQuery = '';      // Texto de busca digitado
 
 document.addEventListener('DOMContentLoaded', () => {
-    setupLogo();
     loadProducts();
 
     // Eventos de Busca e Filtro
@@ -24,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     clearBtn?.addEventListener('click', () => {
         if (searchInput) searchInput.value = '';
         searchQuery = '';
-        clearBtn.style.display = 'none';
+        if (clearBtn) clearBtn.style.display = 'none';
         applyFilters();
     });
 
@@ -32,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-whatsapp')?.addEventListener('click', sendToWhatsApp);
     document.getElementById('btn-whatsapp-modal')?.addEventListener('click', sendToWhatsApp);
 
-    // Eventos do Modal do Carrinho
+    // Eventos do Modal
     document.getElementById('cart-info-trigger')?.addEventListener('click', openModal);
     document.getElementById('close-modal')?.addEventListener('click', closeModal);
 
@@ -50,13 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-function setupLogo() {
-    const logoImg = document.getElementById('site-logo');
-    if (logoImg) {
-        logoImg.src = LOGO_FILE;
-    }
-}
-
 async function loadProducts() {
     try {
         const response = await fetch('/Produtos disponiveis(Pro site).csv');
@@ -66,8 +57,11 @@ async function loadProducts() {
             return;
         }
 
-        // Lê o arquivo garantindo suporte ao padrão UTF-8
-        const csvText = await response.text();
+        // Lê como ArrayBuffer e força a decodificação UTF-8 para evitar caracteres '??'
+        const buffer = await response.arrayBuffer();
+        const decoder = new TextDecoder('utf-8');
+        const csvText = decoder.decode(buffer);
+
         allProducts = parseCSV(csvText);
 
         if (allProducts.length === 0) {
@@ -338,13 +332,11 @@ function sendToWhatsApp() {
     message += `📦 *Código do Pedido:* ${orderId}\n\n`;
     message += "Olá! Gostaria de finalizar o pagamento do meu pedido.";
 
-    // Salva o pedido localmente para permitir a consulta via código de rastreio
     saveLocalOrder(orderId, 'Recebido', cart, total);
 
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${PHONE_NUMBER}?text=${encodedMessage}`;
 
-    // Limpa o carrinho e fecha o modal
     cart = [];
     updateCartUI();
     closeModal();
@@ -352,7 +344,6 @@ function sendToWhatsApp() {
     window.open(whatsappUrl, '_blank');
 }
 
-// Guarda as informações do pedido no armazenamento do navegador
 function saveLocalOrder(orderId, status, items, total) {
     const orders = JSON.parse(localStorage.getItem('ig_orders')) || {};
     orders[orderId] = {
@@ -364,7 +355,6 @@ function saveLocalOrder(orderId, status, items, total) {
     localStorage.setItem('ig_orders', JSON.stringify(orders));
 }
 
-// Realiza a busca do pedido via Google Sheets (se configurado) ou LocalStorage
 async function searchOrderStatus() {
     const codeInput = document.getElementById('tracking-code-input');
     const resultDiv = document.getElementById('tracking-result');
@@ -380,7 +370,6 @@ async function searchOrderStatus() {
 
     let orderStatus = null;
 
-    // 1. Tenta consultar na planilha do Google Sheets (se houver URL inserida)
     if (GOOGLE_SHEETS_CSV_URL) {
         try {
             const response = await fetch(GOOGLE_SHEETS_CSV_URL);
@@ -399,7 +388,6 @@ async function searchOrderStatus() {
         }
     }
 
-    // 2. Busca local no navegador
     if (!orderStatus) {
         const localOrders = JSON.parse(localStorage.getItem('ig_orders')) || {};
         if (localOrders[code]) {
@@ -407,7 +395,6 @@ async function searchOrderStatus() {
         }
     }
 
-    // Exibe a linha do tempo do pedido
     if (orderStatus) {
         renderTrackingTimeline(code, orderStatus, resultDiv);
     } else {
