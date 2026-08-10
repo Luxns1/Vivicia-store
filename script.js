@@ -320,3 +320,50 @@ function sendToWhatsApp() {
 
     window.open(whatsappUrl, '_blank');
 }
+function getGenericImageForProduct(productName, brandName) {
+    const name = productName.toLowerCase();
+
+    // Banco de imagens genéricas de alta qualidade por categoria (Unsplash)
+    const images = {
+        esfoliante: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=500&q=80",
+        locao_creme: "https://images.unsplash.com/photo-1608248597263-0007823f6d71?auto=format&fit=crop&w=500&q=80",
+        sabonete: "https://images.unsplash.com/photo-1607006344380-b6775a0824a7?auto=format&fit=crop&w=500&q=80",
+        serum: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=500&q=80",
+        gloss_lip: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=500&q=80",
+        cabelo: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=500&q=80",
+        kit: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=500&q=80",
+        perfume: "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=500&q=80"
+    };
+
+    // 1. Kits de presentes / Combos
+    if (name.includes('kit')) {
+        return images.kit;
+    }
+    // 2. Cuidados com Lábios (Lip Gloss, Fruit Juice)
+    if (name.includes('gloss') || name.includes('lip') || name.includes('fruit juice')) {
+        return images.gloss_lip;
+    }
+    // 3. Esfoliantes
+    if (name.includes('esfoliante')) {
+        return images.esfoliante;
+    }
+    // 4. Séruns e Óleos Faciais
+    if (name.includes('serum') || name.includes('sérum')) {
+        return images.serum;
+    }
+    // 5. Cabelos (Reparador de Pontas)
+    if (name.includes('reparador') || name.includes('pontas') || name.includes('shampoo') || name.includes('capilar')) {
+        return images.cabelo;
+    }
+    // 6. Sabonetes e Gel de Limpeza (Facial, Corporal, Íntimo)
+    if (name.includes('sabonete') || name.includes('limpeza')) {
+        return images.sabonete;
+    }
+    // 7. Loções, Cremes, Manteigas, Firmadores e Gel Hidratante
+    if (name.includes('loção') || name.includes('locao') || name.includes('creme') || name.includes('manteiga') || name.includes('gel') || name.includes('bumbum') || name.includes('firmador')) {
+        return images.locao_creme;
+    }
+
+    // Fallback com capa estilizada contendo a marca
+    return `https://placehold.co/400x350/f7e6e8/8a3b50?text=${encodeURIComponent(brandName.toUpperCase())}`;
+}
