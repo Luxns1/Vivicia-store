@@ -335,3 +335,124 @@ function sendToWhatsApp() {
 
     window.open(whatsappUrl, '_blank');
 }
+
+/* =================================================idu
+   MÓDULO DE RASTREIO DE PEDIDOS (ADICIONADO)
+   ==================================================== */
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Eventos do Modal de Rastreio (se existirem na sua página)
+    document.getElementById('btn-open-tracking')?.addEventListener('click', openTrackingModal);
+    document.getElementById('close-tracking-modal')?.addEventListener('click', closeTrackingModal);
+    document.getElementById('btn-search-tracking')?.addEventListener('click', searchOrderStatus);
+
+    document.getElementById('tracking-modal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'tracking-modal') closeTrackingModal();
+    });
+});
+
+function openTrackingModal() {
+    document.getElementById('tracking-modal')?.classList.add('active');
+}
+
+function closeTrackingModal() {
+    document.getElementById('tracking-modal')?.classList.remove('active');
+}
+
+// Sobrescrevemos / atualizamos a função sendToWhatsApp para salvar o pedido localmente antes de abrir o link
+const originalSendToWhatsApp = window.sendToWhatsApp || sendToWhatsApp;
+sendToWhatsApp = function() {
+    if (cart.length === 0) {
+        alert("Seu carrinho está vazio! Adicione produtos antes de finalizar.");
+        return;
+    }
+
+    const orderId = 'VV-' + Math.floor(1000 + Math.random() * 9000);
+    let total = 0;
+
+    let message = `🛍️ *NOVO PEDIDO (#${orderId}) - VIVÍCIA*\n\n`;
+    message += "*Itens do Pedido:*\n";
+
+    cart.forEach(item => {
+        const itemTotal = item.price * item.quantity;
+        total += itemTotal;
+        message += `• ${item.quantity}x ${item.name} - R$ ${itemTotal.toFixed(2).replace('.', ',')}\n`;
+    });
+
+    message += `\n💰 *Total:* R$ ${total.toFixed(2).replace('.', ',')}\n`;
+    message += `📦 *Código do Pedido:* ${orderId}\n\n`;
+    message += "Olá! Gostaria de finalizar o pagamento do meu pedido.";
+
+    // Salva o pedido no localStorage para rastreio imediato
+    saveLocalOrder(orderId, 'Recebido', cart, total);
+
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/${PHONE_NUMBER}?text=${encodedMessage}`;
+
+    // Limpa o carrinho e atualiza a UI se as funções existirem
+    cart = [];
+    if (typeof updateCartUI === 'function') updateCartUI();
+    if (typeof closeModal === 'function') closeModal();
+
+    window.open(whatsappUrl, '_blank');
+}
+
+function saveLocalOrder(orderId, status, items, total) {
+    const orders = JSON.parse(localStorage.getItem('ig_orders')) || {};
+    orders[orderId] = {
+        status: status,
+        date: new Date().toLocaleDateString('pt-BR'),
+        items: items,
+        total: total
+    };
+    localStorage.setItem('ig_orders', JSON.stringify(orders));
+}
+
+async function searchOrderStatus() {
+    const codeInput = document.getElementById('tracking-code-input');
+    const resultDiv = document.getElementById('tracking-result');
+    if (!codeInput || !resultDiv) return;
+
+    const code = codeInput.value.trim().toUpperCase();
+    if (!code) {
+        resultDiv.innerHTML = '<p class="error-msg" style="color:#d9534f; margin-top:10px;">Por favor, digite o código do pedido.</p>';
+        return;
+    }
+
+    resultDiv.innerHTML = '<p class="loading-msg" style="margin-top:10px; color:#666;">Consultando status...</p>';
+
+    let orderStatus = null;
+
+    // Procura primeiro nos pedidos salvos localmente no navegador
+    const localOrders = JSON.parse(localStorage.getItem('ig_orders')) || {};
+    if (localOrders[code]) {
+        orderStatus = localOrders[code].status;
+    }
+
+    if (orderStatus) {
+        renderTrackingTimeline(code, orderStatus, resultDiv);
+    } else {
+        resultDiv.innerHTML = `<p class="error-msg" style="color:#d9534f; margin-top:10px;">Pedido <strong>#${code}</strong> não encontrado. Verifique se o código está correto ou se foi finalizado neste navegador.</p>`;
+    }
+}
+
+function renderTrackingTimeline(code, currentStatus, container) {
+    const stages = ['Recebido', 'Em Separação', 'Saiu p/ Entrega', 'Entregue'];
+    const currentIndex = stages.findIndex(s => s.toLowerCase() === currentStatus.toLowerCase());
+    const activeIdx = currentIndex !== -1 ? currentIndex : 0;
+
+    container.innerHTML = `
+        <div style="margin-top: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
+            <h4 style="color: #333;">Pedido: <span style="color: #e91e63;">#${code}</span></h4>
+            <p style="font-size: 14px; color: #666; margin-top: 4px;">Status Atual: <strong style="color: #2196f3;">${stages[activeIdx]}</strong></p>
+        </div>
+        <div class="timeline" style="margin-top: 15px; display: flex; flex-direction: column; gap: 12px;">
+            ${stages.map((stage, idx) => `
+                <div class="timeline-step ${idx <= activeIdx ? 'completed' : ''} ${idx === activeIdx ? 'current' : ''}" style="display: flex; align-items: center; gap: 10px; color: ${idx <= activeIdx ? '#4caf50' : '#ccc'}; font-weight: ${idx === activeIdx ? 'bold' : 'normal'};">
+                    <div class="step-icon" style="width: 26px; height: 26px; border-radius: 50%; border: 2px solid currentColor; display: flex; align-items: center; justify-content: center; font-size: 12px;">${idx <= activeIdx ? '✓' : idx + 1}</div>
+                    <span class="step-label">${stage}</span>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
