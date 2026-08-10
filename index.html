@@ -29,7 +29,6 @@
             <h2 class="section-title">Nossos Produtos</h2>
             <div class="product-grid">
                 
-                <!-- Produto 1 -->
                 <div class="product-card" data-id="101" data-name="Batom Matte Vivícia" data-price="39.90">
                     <div class="product-image-container">
                         <img src="https://via.placeholder.com/250x220/fceeee/111111?text=Batom+Matte" alt="Batom Matte" class="product-image">
@@ -43,7 +42,6 @@
                     </div>
                 </div>
 
-                <!-- Produto 2 -->
                 <div class="product-card" data-id="102" data-name="Base Líquida HD" data-price="69.90">
                     <div class="product-image-container">
                         <img src="https://via.placeholder.com/250x220/fceeee/111111?text=Base+Liquida" alt="Base Líquida" class="product-image">
@@ -57,7 +55,6 @@
                     </div>
                 </div>
 
-                <!-- Produto 3 -->
                 <div class="product-card" data-id="103" data-name="Máscara de Cílios Volume" data-price="45.00">
                     <div class="product-image-container">
                         <img src="https://via.placeholder.com/250x220/fceeee/111111?text=Mascara+Cilios" alt="Máscara de Cílios" class="product-image">
@@ -79,7 +76,6 @@
             <h2 class="section-title">Promoções Imperdíveis 🔥</h2>
             <div class="product-grid">
                 
-                <!-- Promoção 1 -->
                 <div class="product-card" data-id="201" data-name="Kit Serum Facial + Glow" data-price="89.90">
                     <div class="product-image-container">
                         <img src="https://via.placeholder.com/250x220/fceeee/111111?text=Kit+Serum" alt="Kit Serum" class="product-image">
@@ -95,7 +91,6 @@
                     </div>
                 </div>
 
-                <!-- Promoção 2 -->
                 <div class="product-card" data-id="202" data-name="Paleta de Sombras Luxe" data-price="75.00">
                     <div class="product-image-container">
                         <img src="https://via.placeholder.com/250x220/fceeee/111111?text=Paleta+Luxe" alt="Paleta de Sombras" class="product-image">
@@ -119,18 +114,40 @@
     <!-- BARRA FIXA INFERIOR DE CHECKOUT -->
     <div class="cart-bar">
         <div class="cart-bar-container">
-            <div class="cart-info">
+            <div class="cart-info" id="cart-info-trigger" style="cursor: pointer;">
                 <div class="cart-icon-wrapper">
                     🛒 <span class="cart-badge" id="cart-count">0</span>
                 </div>
                 <div class="cart-total-text">
-                    <span>Total:</span>
+                    <span>Total (clique p/ ver):</span>
                     <strong id="cart-total-value">R$ 0,00</strong>
                 </div>
             </div>
             <button class="btn-checkout-whatsapp" id="btn-whatsapp">
                 Confirmar via WhatsApp
             </button>
+        </div>
+    </div>
+
+    <!-- MODAL DO CARRINHO (JANELA FLUTUANTE DE DETALHES) -->
+    <div class="cart-modal-overlay" id="cart-modal">
+        <div class="cart-modal-content">
+            <div class="cart-modal-header">
+                <h2>Seu Carrinho 🛍️</h2>
+                <button class="close-modal-btn" id="close-modal">&times;</button>
+            </div>
+            <div class="cart-modal-body" id="cart-items-container">
+                <!-- Itens serão renderizados via JavaScript -->
+            </div>
+            <div class="cart-modal-footer">
+                <div class="modal-total-wrapper">
+                    <span>Valor Total:</span>
+                    <strong id="modal-total-value">R$ 0,00</strong>
+                </div>
+                <button class="btn-checkout-whatsapp" id="btn-whatsapp-modal">
+                    Finalizar via WhatsApp
+                </button>
+            </div>
         </div>
     </div>
 
