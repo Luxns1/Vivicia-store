@@ -47,8 +47,15 @@ async function loadProducts() {
             return;
         }
 
-        // Lê o arquivo garantindo suporte ao padrão UTF-8
-        const csvText = await response.text();
+        // Lê o arquivo como ArrayBuffer para forçar a decodificação correta de acentos
+        const buffer = await response.arrayBuffer();
+        let csvText = new TextDecoder('utf-8').decode(buffer);
+
+        // Se detectar caractere de substituição (), tenta ler como ISO-8859-1 (padrão Excel)
+        if (csvText.includes('')) {
+            csvText = new TextDecoder('iso-8859-1').decode(buffer);
+        }
+
         allProducts = parseCSV(csvText);
 
         if (allProducts.length === 0) {
