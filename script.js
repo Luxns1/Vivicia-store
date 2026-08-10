@@ -1,315 +1,375 @@
-const PHONE_NUMBER = "5585991251320"; 
+// ================= ==========================================
+// CONFIGURAÇÕES GERAIS E ARQUIVOS
+// ============================================================
+const CONFIG = {
+    PHONE_NUMBER: '5585999999999', // Substitua pelo seu número com DDD (ex: 5585987654321)
+    CSV_FILE: 'Produtos disponiveis(Pro site).csv',
+    LOGO_FILE: 'Logo - Vivi.png',
+    GOOGLE_SHEETS_CSV_URL: '' // Cole aqui a URL do CSV publicado do Google Sheets, se houver
+};
 
-let cart = [];
-let allProducts = [];      // Armazena todos os produtos do CSV
-let selectedBrand = 'todas'; // Marca selecionada no filtro
-let searchQuery = '';      // Texto de busca digitado
+// ============================================================
+// ESTADO DA APLICAÇÃO
+// ============================================================
+let products = [];
+let cart = JSON.parse(localStorage.getItem('ig_cart')) || [];
+let activeCategory = 'Todos';
 
+// ============================================================
+// INICIALIZAÇÃO
+// ============================================================
 document.addEventListener('DOMContentLoaded', () => {
+    setupLogo();
     loadProducts();
-
-    // Eventos de Busca e Filtro
-    const searchInput = document.getElementById('search-input');
-    const clearBtn = document.getElementById('btn-clear-search');
-
-    searchInput?.addEventListener('input', (e) => {
-        searchQuery = e.target.value.toLowerCase().trim();
-        clearBtn.style.display = searchQuery ? 'block' : 'none';
-        applyFilters();
-    });
-
-    clearBtn?.addEventListener('click', () => {
-        if (searchInput) searchInput.value = '';
-        searchQuery = '';
-        clearBtn.style.display = 'none';
-        applyFilters();
-    });
-
-    // Eventos do WhatsApp
-    document.getElementById('btn-whatsapp')?.addEventListener('click', sendToWhatsApp);
-    document.getElementById('btn-whatsapp-modal')?.addEventListener('click', sendToWhatsApp);
-
-    // Eventos do Modal
-    document.getElementById('cart-info-trigger')?.addEventListener('click', openModal);
-    document.getElementById('close-modal')?.addEventListener('click', closeModal);
-
-    document.getElementById('cart-modal')?.addEventListener('click', (e) => {
-        if (e.target.id === 'cart-modal') closeModal();
-    });
+    setupEventListeners();
+    updateCart();
 });
 
+// Configura a Logo do Site
+function setupLogo() {
+    const logoImg = document.getElementById('site-logo');
+    if (logoImg) {
+        logoImg.src = CONFIG.LOGO_FILE;
+    }
+}
+
+// ============================================================
+// CARREGAMENTO E PARSER DE PRODUTOS (CSV)
+// ============================================================
 async function loadProducts() {
     try {
-        const response = await fetch('/Produtos disponiveis(Pro site).csv');
-        
-        if (!response.ok) {
-            console.error(`Erro ao carregar produtos.csv! Status HTTP: ${response.status}`);
-            return;
-        }
-
-        // Lê o arquivo garantindo suporte ao padrão UTF-8
-        const csvText = await response.text();
-        allProducts = parseCSV(csvText);
-
-        if (allProducts.length === 0) {
-            console.error("Nenhum produto foi processado do CSV.");
-            return;
-        }
-
-        // Monta os botões das marcas dinamicamente baseando-se no CSV
-        renderBrandFilters(allProducts);
-
-        // Renderiza os produtos inicialmente
-        applyFilters();
+        const response = await fetch(CONFIG.CSV_FILE);
+        const data = await response.text();
+        products = parseCSV(data);
+        renderCategories();
+        renderProducts(products);
     } catch (error) {
-        console.error("Erro na leitura do CSV:", error);
+        console.error('Erro ao carregar o arquivo CSV de produtos:', error);
     }
 }
 
 function parseCSV(csvText) {
-    // Remove quebras de linha invisíveis e divide em linhas
-    const lines = csvText.replace(/\r/g, '').split('\n').map(l => l.trim()).filter(l => l.length > 0);
-
+    const lines = csvText.split('\n').filter(line => line.trim() !== '');
     if (lines.length <= 1) return [];
 
-    // O separador do CSV é ponto e vírgula (;)
-    const delimiter = ';';
-
-    // Normaliza os cabeçalhos (remove espaços extras e caracteres invisíveis)
-    const headers = lines[0].split(delimiter).map(h => h.replace(/[\u1680\u180E\u2000-\u200B\u202F\u205F\u3000\uFEFF]/g, '').trim().toLowerCase());
-
-    const products = [];
-
-    for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(delimiter).map(v => v.trim());
-        let row = {};
-
-        headers.forEach((header, idx) => {
-            row[header] = values[idx] || '';
+    const headers = lines[0].split(';').map(h => h.trim().toLowerCase());
+    
+    return lines.slice(1).map((line, index) => {
+        const values = line.split(';').map(v => v.trim());
+        const item = {};
+        
+        headers.forEach((header, i) => {
+            item[header] = values[i] || '';
         });
 
-        // Mapeia colunas buscando palavras-chave (ex: 'id', 'marca', 'produto', 'valor' / 'venda')
-        const idKey = Object.keys(row).find(k => k.includes('id')) || '';
-        const brandKey = Object.keys(row).find(k => k.includes('marca')) || '';
-        const nameKey = Object.keys(row).find(k => k.includes('produto')) || '';
-        const priceKey = Object.keys(row).find(k => k.includes('valor') || k.includes('venda')) || '';
+        // Tratamento de preço e imagem
+        const rawPrice = item.preco || item.preço || item.price || '0';
+        const cleanPrice = parseFloat(rawPrice.replace('R$', '').replace('.', '').replace(',', '.').trim()) || 0;
 
-        const id = row[idKey] || String(i);
-        const brand = (row[brandKey] || 'Vivícia').trim();
-        const name = (row[nameKey] || '').trim();
-        let rawPrice = row[priceKey] || '';
-
-        // Tratamento do valor da venda (ex: R$ 39,90 ou 39,90)
-        rawPrice = rawPrice.replace('R$', '').replace(/\s/g, '');
-
-        if (rawPrice.includes(',') && rawPrice.includes('.')) {
-            rawPrice = rawPrice.replace(/\./g, '').replace(',', '.');
-        } else if (rawPrice.includes(',')) {
-            rawPrice = rawPrice.replace(',', '.');
-        }
-
-        const price = parseFloat(rawPrice);
-
-        if (name && !isNaN(price)) {
-            products.push({ id, brand, name, price });
-        }
-    }
-
-    return products;
+        return {
+            id: item.id || `prod-${index}`,
+            name: item.nome || item.produto || item.title || 'Produto sem nome',
+            category: item.categoria || item.category || 'Geral',
+            price: cleanPrice,
+            image: item.imagem || item.foto || item.image || 'https://via.placeholder.com/300?text=Sem+Foto',
+            description: item.descricao || item.descrição || ''
+        };
+    });
 }
 
-// Gera botões de filtro de marcas automaticamente
-function renderBrandFilters(products) {
-    const brandContainer = document.getElementById('brand-filters');
-    if (!brandContainer) return;
+// ============================================================
+// RENDERIZAÇÃO DE TELA (CATEGORIAS E PRODUTOS)
+// ============================================================
+function renderCategories() {
+    const categoryContainer = document.getElementById('category-filters');
+    if (!categoryContainer) return;
 
-    // Extrai marcas únicas
-    const brandsSet = new Set(products.map(p => p.brand).filter(b => b.length > 0));
-    const uniqueBrands = Array.from(brandsSet);
+    const categories = ['Todos', ...new Set(products.map(p => p.category))];
+    
+    categoryContainer.innerHTML = categories.map(cat => `
+        <button class="filter-btn ${cat === activeCategory ? 'active' : ''}" data-category="${cat}">
+            ${cat}
+        </button>
+    `).join('');
 
-    let html = `<button class="brand-btn active" data-brand="todas">Todas as Marcas</button>`;
-
-    uniqueBrands.forEach(brand => {
-        html += `<button class="brand-btn" data-brand="${brand}">${brand}</button>`;
-    });
-
-    brandContainer.innerHTML = html;
-
-    // Adiciona evento de clique aos botões de marca
-    document.querySelectorAll('.brand-btn').forEach(btn => {
+    categoryContainer.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            document.querySelectorAll('.brand-btn').forEach(b => b.classList.remove('active'));
+            activeCategory = e.target.dataset.category;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             e.target.classList.add('active');
-            selectedBrand = e.target.getAttribute('data-brand');
-            applyFilters();
+            filterProducts();
         });
     });
 }
 
-// Filtra os produtos por busca e marca
-function applyFilters() {
-    let filtered = allProducts;
+function renderProducts(items) {
+    const grid = document.getElementById('products-grid');
+    if (!grid) return;
 
-    // Filtro de Marca
-    if (selectedBrand !== 'todas') {
-        filtered = filtered.filter(p => p.brand.toLowerCase() === selectedBrand.toLowerCase());
+    if (items.length === 0) {
+        grid.innerHTML = `<p class="no-products">Nenhum produto encontrado.</p>`;
+        return;
     }
 
-    // Filtro de Busca (Nome ou Marca)
-    if (searchQuery) {
-        filtered = filtered.filter(p => 
-            p.name.toLowerCase().includes(searchQuery) || 
-            p.brand.toLowerCase().includes(searchQuery)
-        );
-    }
+    grid.innerHTML = items.map(product => `
+        <div class="product-card">
+            <img src="${product.image}" alt="${product.name}" class="product-image" onerror="this.src='https://via.placeholder.com/300?text=Sem+Foto'">
+            <div class="product-info">
+                <span class="product-category">${product.category}</span>
+                <h3 class="product-title">${product.name}</h3>
+                <p class="product-price">R$ ${product.price.toFixed(2).replace('.', ',')}</p>
+                <button class="btn-add-cart" onclick="addToCart('${product.id}')">Adicionar ao Carrinho</button>
+            </div>
+        </div>
+    `).join('');
+}
 
-    // Atualiza o contador de resultados
-    const countElement = document.getElementById('results-count');
-    if (countElement) {
-        countElement.innerText = `${filtered.length} produto(s) encontrado(s)`;
-    }
-
-    // Exibe ou oculta a mensagem de nenhum produto
-    const noProductsMsg = document.getElementById('no-products-msg');
-    if (noProductsMsg) {
-        noProductsMsg.style.display = filtered.length === 0 ? 'block' : 'none';
-    }
+function filterProducts() {
+    const searchTerm = document.getElementById('search-input')?.value.toLowerCase() || '';
+    
+    const filtered = products.filter(product => {
+        const matchesCategory = activeCategory === 'Todos' || product.category === activeCategory;
+        const matchesSearch = product.name.toLowerCase().includes(searchTerm) || 
+                              product.category.toLowerCase().includes(searchTerm);
+        return matchesCategory && matchesSearch;
+    });
 
     renderProducts(filtered);
 }
 
-function renderProducts(products) {
-    const mainGrid = document.getElementById('product-grid');
-    if (!mainGrid) return;
+// ============================================================
+// GERENCIAMENTO DO CARRINHO
+// ============================================================
+function addToCart(productId) {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
 
-    mainGrid.innerHTML = '';
-    const defaultImage = 'https://via.placeholder.com/250x220/fceeee/111111?text=Viv%C3%ADcia';
-
-    products.forEach(product => {
-        const cardHTML = `
-            <div class="product-card" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">
-                <div class="product-image-container">
-                    <img src="${defaultImage}" alt="${product.name}" class="product-image">
-                </div>
-                <div class="product-details">
-                    <span class="product-brand">${product.brand}</span>
-                    <h3 class="product-name">${product.name}</h3>
-                    <div class="product-pricing">
-                        <span class="current-price">R$ ${product.price.toFixed(2).replace('.', ',')}</span>
-                    </div>
-                    <button class="btn-add-cart">Adicionar ao Carrinho</button>
-                </div>
-            </div>
-        `;
-        mainGrid.innerHTML += cardHTML;
-    });
-
-    document.querySelectorAll('.btn-add-cart').forEach(button => {
-        button.addEventListener('click', addToCart);
-    });
-}
-
-function addToCart(event) {
-    const card = event.target.closest('.product-card');
-    const id = card.getAttribute('data-id');
-    const name = card.getAttribute('data-name');
-    const price = parseFloat(card.getAttribute('data-price'));
-
-    const existingItem = cart.find(item => item.id === id);
-
+    const existingItem = cart.find(item => item.id === productId);
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
-        cart.push({ id, name, price, quantity: 1 });
+        cart.push({ ...product, quantity: 1 });
     }
 
-    updateCartUI();
+    saveCart();
+    updateCart();
+    openCartModal();
 }
 
-function changeQuantity(id, change) {
-    const item = cart.find(item => item.id === id);
+function updateQuantity(productId, delta) {
+    const item = cart.find(i => i.id === productId);
     if (!item) return;
 
-    item.quantity += change;
-
+    item.quantity += delta;
     if (item.quantity <= 0) {
-        removeFromCart(id);
-    } else {
-        updateCartUI();
+        cart = cart.filter(i => i.id !== productId);
     }
+
+    saveCart();
+    updateCart();
 }
 
-function removeFromCart(id) {
-    cart = cart.filter(item => item.id !== id);
-    updateCartUI();
+function saveCart() {
+    localStorage.setItem('ig_cart', JSON.stringify(cart));
 }
 
-function updateCartUI() {
-    const cartCountElement = document.getElementById('cart-count');
-    const cartTotalElement = document.getElementById('cart-total-value');
-    const modalTotalElement = document.getElementById('modal-total-value');
-    const cartItemsContainer = document.getElementById('cart-items-container');
+function updateCart() {
+    const cartItemsContainer = document.getElementById('cart-items');
+    const cartCount = document.getElementById('cart-count');
+    const cartTotal = document.getElementById('cart-total');
 
-    const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
-    const totalPrice = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    // Atualiza contador do ícone
+    const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+    if (cartCount) cartCount.textContent = totalCount;
 
-    const formattedTotal = `R$ ${totalPrice.toFixed(2).replace('.', ',')}`;
-
-    if (cartCountElement) cartCountElement.innerText = totalItems;
-    if (cartTotalElement) cartTotalElement.innerText = formattedTotal;
-    if (modalTotalElement) modalTotalElement.innerText = formattedTotal;
-
+    // Atualiza modal do carrinho
     if (cartItemsContainer) {
         if (cart.length === 0) {
-            cartItemsContainer.innerHTML = `<p class="cart-empty-text">Seu carrinho está vazio.</p>`;
+            cartItemsContainer.innerHTML = '<p class="empty-cart">Seu carrinho está vazio.</p>';
         } else {
             cartItemsContainer.innerHTML = cart.map(item => `
                 <div class="cart-item">
-                    <div class="cart-item-info">
+                    <div class="cart-item-details">
                         <h4>${item.name}</h4>
-                        <p>R$ ${item.price.toFixed(2).replace('.', ',')} un.</p>
+                        <p>R$ ${item.price.toFixed(2).replace('.', ',')}</p>
                     </div>
-                    <div class="cart-item-actions">
-                        <button class="qty-btn" onclick="changeQuantity('${item.id}', -1)">-</button>
+                    <div class="cart-item-controls">
+                        <button onclick="updateQuantity('${item.id}', -1)">-</button>
                         <span>${item.quantity}</span>
-                        <button class="qty-btn" onclick="changeQuantity('${item.id}', 1)">+</button>
-                        <button class="remove-btn" onclick="removeFromCart('${item.id}')">🗑️</button>
+                        <button onclick="updateQuantity('${item.id}', 1)">+</button>
                     </div>
                 </div>
             `).join('');
         }
     }
+
+    // Atualiza total
+    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    if (cartTotal) cartTotal.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
 }
 
-function openModal() {
-    document.getElementById('cart-modal')?.classList.add('active');
-}
-
-function closeModal() {
-    document.getElementById('cart-modal')?.classList.remove('active');
-}
-
-function sendToWhatsApp() {
+// ============================================================
+// CHECKOUT E WHATSAPP
+// ============================================================
+function checkout() {
     if (cart.length === 0) {
-        alert("Seu carrinho está vazio! Adicione produtos antes de finalizar.");
+        alert('Seu carrinho está vazio!');
         return;
     }
 
-    let message = "🛍️ *NOVO PEDIDO - VIVÍCIA*\n\n";
-    message += "*Itens do Pedido:*\n";
+    const orderId = 'VV-' + Math.floor(1000 + Math.random() * 9000);
+    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-    let total = 0;
+    // Salva pedido localmente para o rastreio do cliente
+    saveLocalOrder(orderId, 'Recebido', cart, total);
+
+    let message = `*NOVO PEDIDO: #${orderId}*\n\n`;
+    message += `*Itens do Pedido:*\n`;
+    
     cart.forEach(item => {
-        const itemTotal = item.price * item.quantity;
-        total += itemTotal;
-        message += `• ${item.quantity}x ${item.name} - R$ ${itemTotal.toFixed(2).replace('.', ',')}\n`;
+        message += `- ${item.quantity}x ${item.name} (R$ ${(item.price * item.quantity).toFixed(2).replace('.', ',')})\n`;
     });
 
-    message += `\n💰 *Total:* R$ ${total.toFixed(2).replace('.', ',')}\n\n`;
-    message += "Olá! Gostaria de finalizar o pagamento do meu pedido.";
+    message += `\n*Total:* R$ ${total.toFixed(2).replace('.', ',')}\n`;
+    message += `\n_Código para Acompanhar Pedido no site:_ *${orderId}*`;
 
     const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/${PHONE_NUMBER}?text=${encodedMessage}`;
+    const whatsappUrl = `https://wa.me/${CONFIG.PHONE_NUMBER}?text=${encodedMessage}`;
+
+    // Limpa carrinho e redireciona
+    cart = [];
+    saveCart();
+    updateCart();
+    closeCartModal();
 
     window.open(whatsappUrl, '_blank');
+}
+
+// ============================================================
+// SISTEMA DE RASTREIO E MODAIS
+// ============================================================
+function saveLocalOrder(orderId, status, items, total) {
+    const orders = JSON.parse(localStorage.getItem('ig_orders')) || {};
+    orders[orderId] = {
+        status: status,
+        date: new Date().toLocaleDateString('pt-BR'),
+        items: items,
+        total: total
+    };
+    localStorage.setItem('ig_orders', JSON.stringify(orders));
+}
+
+async function searchOrderStatus() {
+    const codeInput = document.getElementById('tracking-code-input');
+    const resultDiv = document.getElementById('tracking-result');
+    if (!codeInput || !resultDiv) return;
+
+    const code = codeInput.value.trim().toUpperCase();
+    if (!code) {
+        resultDiv.innerHTML = '<p class="error-msg">Por favor, digite o código do pedido.</p>';
+        return;
+    }
+
+    resultDiv.innerHTML = '<p class="loading-msg">Consultando status...</p>';
+
+    let orderStatus = null;
+
+    // 1. Tenta buscar no Google Sheets (se configurado)
+    if (CONFIG.GOOGLE_SHEETS_CSV_URL) {
+        try {
+            const response = await fetch(CONFIG.GOOGLE_SHEETS_CSV_URL);
+            const csvText = await response.text();
+            const rows = csvText.split('\n');
+            
+            for (let i = 1; i < rows.length; i++) {
+                const cols = rows[i].split(';');
+                if (cols[0] && cols[0].trim().toUpperCase() === code) {
+                    orderStatus = cols[1] ? cols[1].trim() : 'Recebido';
+                    break;
+                }
+            }
+        } catch (e) {
+            console.warn('Erro ao consultar Google Sheets. Verificando dados locais...', e);
+        }
+    }
+
+    // 2. Fallback: Busca nos pedidos locais salvos no navegador
+    if (!orderStatus) {
+        const localOrders = JSON.parse(localStorage.getItem('ig_orders')) || {};
+        if (localOrders[code]) {
+            orderStatus = localOrders[code].status;
+        }
+    }
+
+    // Renderiza a linha do tempo do status
+    if (orderStatus) {
+        renderTrackingTimeline(code, orderStatus, resultDiv);
+    } else {
+        resultDiv.innerHTML = `<p class="error-msg">Pedido <strong>#${code}</strong> não encontrado.</p>`;
+    }
+}
+
+function renderTrackingTimeline(code, currentStatus, container) {
+    const stages = ['Recebido', 'Em Separação', 'Saiu p/ Entrega', 'Entregue'];
+    const currentIndex = stages.findIndex(s => s.toLowerCase() === currentStatus.toLowerCase());
+    const activeIdx = currentIndex !== -1 ? currentIndex : 0;
+
+    container.innerHTML = `
+        <div class="order-info-header">
+            <h4>Pedido: <span>#${code}</span></h4>
+            <span class="status-badge">${stages[activeIdx]}</span>
+        </div>
+        <div class="timeline">
+            ${stages.map((stage, idx) => `
+                <div class="timeline-step ${idx <= activeIdx ? 'completed' : ''} ${idx === activeIdx ? 'current' : ''}">
+                    <div class="step-icon">${idx <= activeIdx ? '✓' : idx + 1}</div>
+                    <span class="step-label">${stage}</span>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+// ============================================================
+// EVENT LISTENERS E MODAIS (IDs CORRIGIDOS)
+// ============================================================
+function setupEventListeners() {
+    // Campo de busca
+    document.getElementById('search-input')?.addEventListener('input', filterProducts);
+
+    // Modal do Carrinho
+    document.getElementById('btn-cart')?.addEventListener('click', openCartModal);
+    document.getElementById('close-cart-modal')?.addEventListener('click', closeCartModal);
+
+    // Modal de Rastreio (Acompanhar Pedido)
+    document.getElementById('btn-open-tracking')?.addEventListener('click', () => {
+        document.getElementById('tracking-modal')?.classList.add('active');
+    });
+
+    document.getElementById('close-tracking-modal')?.addEventListener('click', () => {
+        document.getElementById('tracking-modal')?.classList.remove('active');
+    });
+
+    // Botão de buscar no modal de rastreio
+    document.getElementById('btn-search-tracking')?.addEventListener('click', searchOrderStatus);
+
+    // Botão de checkout
+    document.getElementById('btn-checkout')?.addEventListener('click', checkout);
+
+    // Fechar modais ao clicar fora
+    window.addEventListener('click', (e) => {
+        const cartModal = document.getElementById('cart-modal');
+        const trackingModal = document.getElementById('tracking-modal');
+
+        if (e.target === cartModal) closeCartModal();
+        if (e.target === trackingModal) trackingModal.classList.remove('active');
+    });
+}
+
+function openCartModal() {
+    document.getElementById('cart-modal')?.classList.add('active');
+}
+
+function closeCartModal() {
+    document.getElementById('cart-modal')?.classList.remove('active');
 }
