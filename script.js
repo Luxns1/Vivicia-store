@@ -2,29 +2,9 @@ const PHONE_NUMBER = "5585991251320";
 const GOOGLE_SHEETS_CSV_URL = ""; // Cole aqui a URL do CSV publicado do Google Sheets, se houver
 
 let cart = [];
-let allProducts = [];      // Armazena todos os produtos do CSV
-let selectedBrand = 'todas'; // Marca selecionada no filtro
-let searchQuery = '';      // Texto de busca digitado
 
 document.addEventListener('DOMContentLoaded', () => {
     loadProducts();
-
-    // Eventos de Busca e Filtro
-    const searchInput = document.getElementById('search-input');
-    const clearBtn = document.getElementById('btn-clear-search');
-
-    searchInput?.addEventListener('input', (e) => {
-        searchQuery = e.target.value.toLowerCase().trim();
-        if (clearBtn) clearBtn.style.display = searchQuery ? 'block' : 'none';
-        applyFilters();
-    });
-
-    clearBtn?.addEventListener('click', () => {
-        if (searchInput) searchInput.value = '';
-        searchQuery = '';
-        if (clearBtn) clearBtn.style.display = 'none';
-        applyFilters();
-    });
 
     // Eventos do WhatsApp
     document.getElementById('btn-whatsapp')?.addEventListener('click', sendToWhatsApp);
@@ -57,54 +37,27 @@ async function loadProducts() {
             return;
         }
 
-        const blob = await response.blob();
-        
-        // Lê o arquivo forçando explicitamente a codificação ISO-8859-1 (Latin-1)
-        const csvText = await readBlobAsText(blob, 'iso-8859-1');
+        const csvText = await response.text();
+        const products = parseCSV(csvText);
 
-        allProducts = parseCSV(csvText);
-
-        if (allProducts.length === 0) {
+        if (products.length === 0) {
             console.error("Nenhum produto foi processado do CSV.");
             return;
         }
 
-        // Monta os botões das marcas dinamicamente baseando-se no CSV
-        renderBrandFilters(allProducts);
-
-        // Renderiza os produtos inicialmente
-        applyFilters();
+        renderProducts(products);
     } catch (error) {
         console.error("Erro na leitura do CSV:", error);
     }
 }
 
-// Leitor nativo via FileReader para garantir o encoding sem perdas
-function readBlobAsText(blob, encoding) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = () => reject(reader.error);
-        reader.readAsText(blob, encoding);
-    });
-}
-
 function parseCSV(csvText) {
-    // Normaliza quebras de linha e separa em linhas não vazias
-    const lines = csvText.replace(/\r/g, '').split('\n').filter(l => l.trim().length > 0);
+    const lines = csvText.replace(/\r/g, '').split('\n').map(l => l.trim()).filter(l => l.length > 0);
 
     if (lines.length <= 1) return [];
 
-    // O separador do CSV de Excel em português costuma ser ponto e vírgula (;)
     const delimiter = ';';
-
-    // Normaliza cabeçalhos removendo BOM/caracteres invisíveis
-    const headers = lines[0].split(delimiter).map(h => 
-        h.replace(/[\u1680\u180E\u2000-\u200B\u202F\u205F\u3000\uFEFF]/g, '')
-         .replace(//g, '')
-         .trim()
-         .toLowerCase()
-    );
+    const headers = lines[0].split(delimiter).map(h => h.trim().toLowerCase());
 
     const products = [];
 
@@ -116,18 +69,18 @@ function parseCSV(csvText) {
             row[header] = values[idx] || '';
         });
 
-        // Mapeia as colunas buscando palavras-chave flexíveis
-        const idKey = Object.keys(row).find(k => k.includes('id') || k.includes('cod')) || '';
+        const idKey = Object.keys(row).find(k => k.includes('id')) || '';
         const brandKey = Object.keys(row).find(k => k.includes('marca')) || '';
-        const nameKey = Object.keys(row).find(k => k.includes('produto') || k.includes('nome') || k.includes('item')) || '';
-        const priceKey = Object.keys(row).find(k => k.includes('valor') || k.includes('venda') || k.includes('preço') || k.includes('preco')) || '';
+        const nameKey = Object.keys(row).find(k => k.includes('produto')) || '';
+        const priceKey = Object.keys(row).find(k => k.includes('valor') || k.includes('venda')) || '';
+        const imageKey = Object.keys(row).find(k => k.includes('imagem') || k.includes('foto') || k.includes('img') || k.includes('url')) || '';
 
         const id = row[idKey] || String(i);
         const brand = (row[brandKey] || 'Vivícia').trim();
         const name = (row[nameKey] || '').trim();
+        const image = (row[imageKey] || '').trim();
         let rawPrice = row[priceKey] || '';
 
-        // Tratamento numérico para valores monetários em padrão BR (ex: R$ 39,90 ou 39,90)
         rawPrice = rawPrice.replace('R$', '').replace(/\s/g, '');
 
         if (rawPrice.includes(',') && rawPrice.includes('.')) {
@@ -139,71 +92,11 @@ function parseCSV(csvText) {
         const price = parseFloat(rawPrice);
 
         if (name && !isNaN(price)) {
-            products.push({ id, brand, name, price });
+            products.push({ id, brand, name, price, image });
         }
     }
 
     return products;
-}
-
-// Gera botões de filtro de marcas automaticamente
-function renderBrandFilters(products) {
-    const brandContainer = document.getElementById('brand-filters');
-    if (!brandContainer) return;
-
-    // Extrai marcas únicas
-    const brandsSet = new Set(products.map(p => p.brand).filter(b => b.length > 0));
-    const uniqueBrands = Array.from(brandsSet);
-
-    let html = `<button class="brand-btn active" data-brand="todas">Todas as Marcas</button>`;
-
-    uniqueBrands.forEach(brand => {
-        html += `<button class="brand-btn" data-brand="${brand}">${brand}</button>`;
-    });
-
-    brandContainer.innerHTML = html;
-
-    // Adiciona evento de clique aos botões de marca
-    document.querySelectorAll('.brand-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            document.querySelectorAll('.brand-btn').forEach(b => b.classList.remove('active'));
-            e.target.classList.add('active');
-            selectedBrand = e.target.getAttribute('data-brand');
-            applyFilters();
-        });
-    });
-}
-
-// Filtra os produtos por busca e marca
-function applyFilters() {
-    let filtered = allProducts;
-
-    // Filtro de Marca
-    if (selectedBrand !== 'todas') {
-        filtered = filtered.filter(p => p.brand.toLowerCase() === selectedBrand.toLowerCase());
-    }
-
-    // Filtro de Busca (Nome ou Marca)
-    if (searchQuery) {
-        filtered = filtered.filter(p => 
-            p.name.toLowerCase().includes(searchQuery) || 
-            p.brand.toLowerCase().includes(searchQuery)
-        );
-    }
-
-    // Atualiza o contador de resultados
-    const countElement = document.getElementById('results-count');
-    if (countElement) {
-        countElement.innerText = `${filtered.length} produto(s) encontrado(s)`;
-    }
-
-    // Exibe ou oculta a mensagem de nenhum produto
-    const noProductsMsg = document.getElementById('no-products-msg');
-    if (noProductsMsg) {
-        noProductsMsg.style.display = filtered.length === 0 ? 'block' : 'none';
-    }
-
-    renderProducts(filtered);
 }
 
 function renderProducts(products) {
@@ -211,13 +104,17 @@ function renderProducts(products) {
     if (!mainGrid) return;
 
     mainGrid.innerHTML = '';
-    const defaultImage = 'https://via.placeholder.com/250x220/fceeee/111111?text=Viv%C3%ADcia';
+
+    // Placeholder local embutido em SVG - Nao depende de site externo e carrega sempre
+    const fallbackImage = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='250' height='220' viewBox='0 0 250 220'><rect width='100%' height='100%' fill='%23fceeee'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='20' font-weight='bold' fill='%23111111'>Viv%C3%ADcia</text></svg>";
 
     products.forEach(product => {
+        const imgSrc = product.image && product.image !== '' ? product.image : fallbackImage;
+
         const cardHTML = `
             <div class="product-card" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">
                 <div class="product-image-container">
-                    <img src="${defaultImage}" alt="${product.name}" class="product-image">
+                    <img src="${imgSrc}" alt="${product.name}" class="product-image" onerror="this.src='${fallbackImage}'">
                 </div>
                 <div class="product-details">
                     <span class="product-brand">${product.brand}</span>

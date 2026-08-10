@@ -6,12 +6,12 @@ ID;MARCA ;PRODUTO;VALOR (DE VENDA)
 5;MARI MORATA;Sabonete liquido (Aroeira);R$ 12,00
 6;SWISS BEAUTY;Gel Aromatizante (Morango com creme);R$ 15,00
 7;SWISS BEAUTY;Gel Aromatizante (Uva);R$ 15,00
-8;SWISS BEAUTY;Gel Aromatizante (sensaÁ„o);R$ 15,00
-9;SWISS BEAUTY;LoÁ„o Hidratante (Maracuja);R$ 21,90
-10;SWISS BEAUTY;LoÁ„o Hidratante (Pitaya);R$ 21,90
-11;SWISS BEAUTY;LoÁ„o Hidratante (Ameixa);R$ 21,90
-12;SWISS BEAUTY;LoÁ„o Hidratante (Melancia);R$ 21,90
-13;SWISS BEAUTY;LoÁ„o Hidratante (Morango);R$ 21,90
+8;SWISS BEAUTY;Gel Aromatizante (sensa√ß√£o);R$ 15,00
+9;SWISS BEAUTY;Lo√ß√£o Hidratante (Maracuja);R$ 21,90
+10;SWISS BEAUTY;Lo√ß√£o Hidratante (Pitaya);R$ 21,90
+11;SWISS BEAUTY;Lo√ß√£o Hidratante (Ameixa);R$ 21,90
+12;SWISS BEAUTY;Lo√ß√£o Hidratante (Melancia);R$ 21,90
+13;SWISS BEAUTY;Lo√ß√£o Hidratante (Morango);R$ 21,90
 14;SWISS BEAUTY;Sabonete Corporal/Facial (Rosa Mosqueta);R$ 21,90
 15;SWISS BEAUTY;Sabonete Corporal/Facial ( Pitaya);R$ 21,90
 16;SWISS BEAUTY;Sabonete Corporal/Facial (Melancia);R$ 21,90
@@ -21,14 +21,14 @@ ID;MARCA ;PRODUTO;VALOR (DE VENDA)
 20;SWISS BEAUTY;Sabonete Facial (Vitamina C);R$ 20,00
 21;SWISS BEAUTY;Esfoliante ( 100ML Melancia);R$ 28,90
 22;SWISS BEAUTY;Esfoliante ( 100ML Rosa Mosqueta);R$ 28,90
-23;JUMMU JU (CREAM SUMMER);Manteiga Corporal ( LoÁ„o Hidratante);R$ 35,90
+23;JUMMU JU (CREAM SUMMER);Manteiga Corporal ( Lo√ß√£o Hidratante);R$ 35,90
 24;JUMMU JU (CREAM SUMMER);BumBum Creme ;R$ 35,90
 25;JUMMU JU (CREAM SUMMER);Creme Corporal;R$ 35,90
-26;HELLO MINI;Marshmallow (loÁ„o corporal);R$ 35,00
+26;HELLO MINI;Marshmallow (lo√ß√£o corporal);R$ 35,00
 27;RHENUKS COSMETICOS ;Firmador de BumBum Premium;R$ 25,90
 28;DERMA CHEM;Sabonete Ultra hidratante (Rosa Mosqueta);R$ 10,00
 29;DERMA CHEM;Gel Facial ( Rosa Mosqueta);R$ 10,00
-30;DERMA CHEM;Sabonete Pele Oleosa (·cido Salicilico);R$ 10,00
+30;DERMA CHEM;Sabonete Pele Oleosa (√°cido Salicilico);R$ 10,00
 31;DERMA CHEM;Gel Anti-oleosidade ;R$ 10,00
 32;SWISS BEAUTY;Esfoliante ( 220G Rosa Mosqueta);R$ 23,90
 33;SWISS BEAUTY;Esfoliante ( 220G Maracuja);R$ 23,90
@@ -41,16 +41,16 @@ ID;MARCA ;PRODUTO;VALOR (DE VENDA)
 40;HUDAVIOJI;Fruit juice ( Laranja);R$ 10,00
 41;HUDAVIOJI;Fruit juice (Laranja Doce);R$ 10,00
 42;HUDAVIOJI;Fruit juice (Frambuesa);R$ 10,00
-43;HUDAVIOJI;Fruit juice ( MaÁa);R$ 10,00
+43;HUDAVIOJI;Fruit juice ( Ma√ßa);R$ 10,00
 44;HUDAVIOJI;Lip Gloss Honey (Mel);R$ 10,00
 45;MELU;Sabonete Corporal/ Facial(Berry Pie - Care);R$ 16,00
 46;ALLEVA;Sabonete Corporal/ Facial ( Love Mist);R$ 15,00
 47;ALLEVA;Sabonete Corporal/ Facial ( Intense Seduction);R$ 15,00
-48;RHENUKS COSMETICOS ;Sabonete Liquido Intimo refrescante (Morango Paix„o - Barbatim„o e Aroeira);R$ 10,00
-49;PH¡LLEBEAUTY COSMETICO;Esfoliante Corporal ( Rosa Mosqueta, Argila Branca);R$ 20,00
-50;PH¡LLEBEAUTY COSMETICO;Esfoliante Hidratante para um BumBum Lisinho;R$ 20,00
-51;KITS EM PROMO«√O; Kit Ameixa, rosa mosqueta, maracuj· ;R$ 59,90
-52;KITS EM PROMO«√O;kit 2 esfoliante de 100g;R$ 45,90
-53;KITS EM PROMO«√O;kit Sabonete e hidratante ;R$ 45,90
-54;KITS EM PROMO«√O;kit facial Vitamina C;R$ 35,00
-55;KITS EM PROMO«√O;kit revitalizaÁ„o do rosto rosa mosqueta/·cido SalicÌlico ;R$ 25,90
+48;RHENUKS COSMETICOS ;Sabonete Liquido Intimo refrescante (Morango Paix√£o - Barbatim√£o e Aroeira);R$ 10,00
+49;PH√ÅLLEBEAUTY COSMETICO;Esfoliante Corporal ( Rosa Mosqueta, Argila Branca);R$ 20,00
+50;PH√ÅLLEBEAUTY COSMETICO;Esfoliante Hidratante para um BumBum Lisinho;R$ 20,00
+51;KITS EM PROMO√á√ÉO; Kit Ameixa, rosa mosqueta, maracuj√° ;R$ 59,90
+52;KITS EM PROMO√á√ÉO;kit 2 esfoliante de 100g;R$ 45,90
+53;KITS EM PROMO√á√ÉO;kit Sabonete e hidratante ;R$ 45,90
+54;KITS EM PROMO√á√ÉO;kit facial Vitamina C;R$ 35,00
+55;KITS EM PROMO√á√ÉO;kit revitaliza√ß√£o do rosto rosa mosqueta/√°cido Salic√≠lico ;R$ 25,90
