@@ -78,13 +78,6 @@ body {
     margin-bottom: 40px;
 }
 
-.promo-section {
-    background-color: #f3d1d1;
-    padding: 25px 15px;
-    border-radius: 12px;
-    border: 1px dashed #d4a359;
-}
-
 .section-title {
     font-family: 'Playfair Display', serif;
     text-align: center;
@@ -127,29 +120,19 @@ body {
     object-fit: contain;
 }
 
-.badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: #111;
-    color: #fff;
-    font-size: 0.7rem;
-    padding: 4px 8px;
-    font-weight: 600;
-    border-radius: 3px;
-}
-
-.badge.promo {
-    background-color: #0b7c4a;
-}
-
-.badge.offer {
-    background-color: #b71c1c;
-}
-
 .product-details {
     margin-top: 15px;
     text-align: center;
+}
+
+.product-brand {
+    font-size: 0.75rem;
+    color: #b8863b;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 4px;
 }
 
 .product-name {
@@ -160,13 +143,6 @@ body {
 
 .product-pricing {
     margin-bottom: 12px;
-}
-
-.old-price {
-    text-decoration: line-through;
-    color: #888;
-    font-size: 0.9rem;
-    margin-right: 6px;
 }
 
 .current-price {
@@ -191,7 +167,7 @@ body {
     background-color: #b8863b;
 }
 
-/* CARRINHO FLUTUANTE */
+/* BARRA FIXA INFERIOR */
 .cart-bar {
     position: fixed;
     bottom: 0;

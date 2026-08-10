@@ -3,11 +3,16 @@ const PHONE_NUMBER = "5585999999999";
 let cart = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // Carrega e converte o CSV automaticamente
     try {
-        const response = await fetch('produtos disponiveis(Pro site).csv');
+        const response = await fetch('Produtos disponiveis(Pro site).csv');
+        
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
+        }
+
         const csvData = await response.text();
         const products = parseCSV(csvData);
+        
         renderProducts(products);
     } catch (error) {
         console.error("Erro ao carregar o arquivo CSV:", error);
@@ -27,69 +32,68 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
-// Função para converter o texto do CSV em lista de objetos
+// Converter CSV tratando padronização do Excel BR para as colunas: Id, marca, produto, valor
 function parseCSV(csvText) {
-    const lines = csvText.trim().split('\n');
-    const headers = lines[0].split(',').map(h => h.trim());
-    
+    const cleanText = csvText.replace(/\r/g, '').trim();
+    const lines = cleanText.split('\n');
+
+    if (lines.length <= 1) return [];
+
+    const delimiter = lines[0].includes(';') ? ';' : ',';
+    const headers = lines[0].split(delimiter).map(h => h.trim().toLowerCase());
+
     return lines.slice(1).map(line => {
         if (!line.trim()) return null;
-        const values = line.split(',').map(v => v.trim());
+        const values = line.split(delimiter).map(v => v.trim());
         let obj = {};
-        
+
         headers.forEach((header, index) => {
-            obj[header] = values[index] || null;
+            obj[header] = values[index] || '';
         });
-        
-        return {
-            id: obj.id,
-            name: obj.name,
-            price: parseFloat(obj.price),
-            oldPrice: obj.oldPrice ? parseFloat(obj.oldPrice) : null,
-            category: obj.category,
-            badge: obj.badge,
-            image: obj.image
+
+        const parsePrice = (val) => {
+            if (!val) return null;
+            const cleanVal = val.replace('R$', '').replace(/\./g, '').replace(',', '.').trim();
+            const num = parseFloat(cleanVal);
+            return isNaN(num) ? null : num;
         };
-    }).filter(p => p !== null && !isNaN(p.price));
+
+        return {
+            id: obj.id || obj.id,
+            brand: obj.marca || 'Vivícia',
+            name: obj.produto || 'Produto Sem Nome',
+            price: parsePrice(obj.valor)
+        };
+    }).filter(p => p !== null && p.price !== null);
 }
 
-// Renderiza os produtos na tela dinamicamente
 function renderProducts(products) {
-    const geralContainer = document.querySelector('.products-section:not(.promo-section) .product-grid');
-    const promoContainer = document.querySelector('.promo-section .product-grid');
+    const mainGrid = document.getElementById('product-grid');
+    if (!mainGrid) return;
 
-    if (geralContainer) geralContainer.innerHTML = '';
-    if (promoContainer) promoContainer.innerHTML = '';
+    mainGrid.innerHTML = '';
+
+    const defaultImage = 'https://via.placeholder.com/250x220/fceeee/111111?text=Viv%C3%ADcia';
 
     products.forEach(product => {
-        const oldPriceHTML = product.oldPrice ? `<span class="old-price">R$ ${product.oldPrice.toFixed(2).replace('.', ',')}</span>` : '';
-        const badgeHTML = product.badge ? `<span class="badge promo">${product.badge}</span>` : '';
-
         const cardHTML = `
             <div class="product-card" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">
                 <div class="product-image-container">
-                    <img src="${product.image}" alt="${product.name}" class="product-image">
-                    ${badgeHTML}
+                    <img src="${defaultImage}" alt="${product.name}" class="product-image">
                 </div>
                 <div class="product-details">
+                    <span class="product-brand">${product.brand}</span>
                     <h3 class="product-name">${product.name}</h3>
                     <div class="product-pricing">
-                        ${oldPriceHTML}
                         <span class="current-price">R$ ${product.price.toFixed(2).replace('.', ',')}</span>
                     </div>
                     <button class="btn-add-cart">Adicionar ao Carrinho</button>
                 </div>
             </div>
         `;
-
-        if (product.category === 'promo' && promoContainer) {
-            promoContainer.innerHTML += cardHTML;
-        } else if (geralContainer) {
-            geralContainer.innerHTML += cardHTML;
-        }
+        mainGrid.innerHTML += cardHTML;
     });
 
-    // Reativa os cliques nos botões de adicionar
     document.querySelectorAll('.btn-add-cart').forEach(button => {
         button.addEventListener('click', addToCart);
     });

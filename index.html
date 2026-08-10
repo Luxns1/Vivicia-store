@@ -23,92 +23,12 @@
 
     <!-- CONTEÚDO PRINCIPAL -->
     <main class="container">
-        
-        <!-- SEÇÃO 1: CATÁLOGO GERAL -->
         <section class="products-section">
             <h2 class="section-title">Nossos Produtos</h2>
-            <div class="product-grid">
-                
-                <div class="product-card" data-id="101" data-name="Batom Matte Vivícia" data-price="39.90">
-                    <div class="product-image-container">
-                        <img src="https://via.placeholder.com/250x220/fceeee/111111?text=Batom+Matte" alt="Batom Matte" class="product-image">
-                    </div>
-                    <div class="product-details">
-                        <h3 class="product-name">Batom Matte Vivícia</h3>
-                        <div class="product-pricing">
-                            <span class="current-price">R$ 39,90</span>
-                        </div>
-                        <button class="btn-add-cart">Adicionar ao Carrinho</button>
-                    </div>
-                </div>
-
-                <div class="product-card" data-id="102" data-name="Base Líquida HD" data-price="69.90">
-                    <div class="product-image-container">
-                        <img src="https://via.placeholder.com/250x220/fceeee/111111?text=Base+Liquida" alt="Base Líquida" class="product-image">
-                    </div>
-                    <div class="product-details">
-                        <h3 class="product-name">Base Líquida HD</h3>
-                        <div class="product-pricing">
-                            <span class="current-price">R$ 69,90</span>
-                        </div>
-                        <button class="btn-add-cart">Adicionar ao Carrinho</button>
-                    </div>
-                </div>
-
-                <div class="product-card" data-id="103" data-name="Máscara de Cílios Volume" data-price="45.00">
-                    <div class="product-image-container">
-                        <img src="https://via.placeholder.com/250x220/fceeee/111111?text=Mascara+Cilios" alt="Máscara de Cílios" class="product-image">
-                    </div>
-                    <div class="product-details">
-                        <h3 class="product-name">Máscara de Cílios Volume</h3>
-                        <div class="product-pricing">
-                            <span class="current-price">R$ 45,00</span>
-                        </div>
-                        <button class="btn-add-cart">Adicionar ao Carrinho</button>
-                    </div>
-                </div>
-
+            <div class="product-grid" id="product-grid">
+                <!-- Produtos renderizados via JavaScript através do produtos.csv -->
             </div>
         </section>
-
-        <!-- SEÇÃO 2: PROMOÇÕES EXCLUSIVAS -->
-        <section class="products-section promo-section">
-            <h2 class="section-title">Promoções Imperdíveis 🔥</h2>
-            <div class="product-grid">
-                
-                <div class="product-card" data-id="201" data-name="Kit Serum Facial + Glow" data-price="89.90">
-                    <div class="product-image-container">
-                        <img src="https://via.placeholder.com/250x220/fceeee/111111?text=Kit+Serum" alt="Kit Serum" class="product-image">
-                        <span class="badge promo">SUPER PROMOÇÃO</span>
-                    </div>
-                    <div class="product-details">
-                        <h3 class="product-name">Kit Serum Facial + Glow</h3>
-                        <div class="product-pricing">
-                            <span class="old-price">R$ 150,00</span>
-                            <span class="current-price">R$ 89,90</span>
-                        </div>
-                        <button class="btn-add-cart">Adicionar ao Carrinho</button>
-                    </div>
-                </div>
-
-                <div class="product-card" data-id="202" data-name="Paleta de Sombras Luxe" data-price="75.00">
-                    <div class="product-image-container">
-                        <img src="https://via.placeholder.com/250x220/fceeee/111111?text=Paleta+Luxe" alt="Paleta de Sombras" class="product-image">
-                        <span class="badge offer">OFERTA</span>
-                    </div>
-                    <div class="product-details">
-                        <h3 class="product-name">Paleta de Sombras Luxe</h3>
-                        <div class="product-pricing">
-                            <span class="old-price">R$ 110,00</span>
-                            <span class="current-price">R$ 75,00</span>
-                        </div>
-                        <button class="btn-add-cart">Adicionar ao Carrinho</button>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
     </main>
 
     <!-- BARRA FIXA INFERIOR DE CHECKOUT -->
@@ -137,7 +57,7 @@
                 <button class="close-modal-btn" id="close-modal">&times;</button>
             </div>
             <div class="cart-modal-body" id="cart-items-container">
-                <!-- Itens serão renderizados via JavaScript -->
+                <!-- Itens do carrinho renderizados via JavaScript -->
             </div>
             <div class="cart-modal-footer">
                 <div class="modal-total-wrapper">
