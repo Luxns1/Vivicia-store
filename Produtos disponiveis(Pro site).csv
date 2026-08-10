@@ -1,0 +1,56 @@
+ID;MARCA ;PRODUTO;VALOR (DE VENDA)
+1;MARI MORATA;Sabonete liquido (Erva doce);R$ 12,00
+2;MARI MORATA;Sabonete liquido (Aroma de Rosa);R$ 12,00
+3;MARI MORATA;Sabonete liquido (Morango);R$ 12,00
+4;MARI MORATA;Sabonete liquido (Pitanga);R$ 12,00
+5;MARI MORATA;Sabonete liquido (Aroeira);R$ 12,00
+6;SWISS BEAUTY;Gel Aromatizante (Morango com creme);R$ 15,00
+7;SWISS BEAUTY;Gel Aromatizante (Uva);R$ 15,00
+8;SWISS BEAUTY;Gel Aromatizante (sensação);R$ 15,00
+9;SWISS BEAUTY;Loção Hidratante (Maracuja);R$ 21,90
+10;SWISS BEAUTY;Loção Hidratante (Pitaya);R$ 21,90
+11;SWISS BEAUTY;Loção Hidratante (Ameixa);R$ 21,90
+12;SWISS BEAUTY;Loção Hidratante (Melancia);R$ 21,90
+13;SWISS BEAUTY;Loção Hidratante (Morango);R$ 21,90
+14;SWISS BEAUTY;Sabonete Corporal/Facial (Rosa Mosqueta);R$ 21,90
+15;SWISS BEAUTY;Sabonete Corporal/Facial ( Pitaya);R$ 21,90
+16;SWISS BEAUTY;Sabonete Corporal/Facial (Melancia);R$ 21,90
+17;SWISS BEAUTY;Sabonete Corporal/Facial (Maracuja);R$ 21,90
+18;SWISS BEAUTY;Sabonete Corporal/Facial (Ameixa);R$ 21,90
+19;SWISS BEAUTY;Serum Facial (Vitamina C);R$ 15,00
+20;SWISS BEAUTY;Sabonete Facial (Vitamina C);R$ 20,00
+21;SWISS BEAUTY;Esfoliante ( 100ML Melancia);R$ 28,90
+22;SWISS BEAUTY;Esfoliante ( 100ML Rosa Mosqueta);R$ 28,90
+23;JUMMU JU (CREAM SUMMER);Manteiga Corporal ( Loção Hidratante);R$ 35,90
+24;JUMMU JU (CREAM SUMMER);BumBum Creme ;R$ 35,90
+25;JUMMU JU (CREAM SUMMER);Creme Corporal;R$ 35,90
+26;HELLO MINI;Marshmallow (loção corporal);R$ 35,00
+27;RHENUKS COSMETICOS ;Firmador de BumBum Premium;R$ 25,90
+28;DERMA CHEM;Sabonete Ultra hidratante (Rosa Mosqueta);R$ 10,00
+29;DERMA CHEM;Gel Facial ( Rosa Mosqueta);R$ 10,00
+30;DERMA CHEM;Sabonete Pele Oleosa (ácido Salicilico);R$ 10,00
+31;DERMA CHEM;Gel Anti-oleosidade ;R$ 10,00
+32;SWISS BEAUTY;Esfoliante ( 220G Rosa Mosqueta);R$ 23,90
+33;SWISS BEAUTY;Esfoliante ( 220G Maracuja);R$ 23,90
+34;SWISS BEAUTY;Esfoliante (220G Ameixa);R$ 23,90
+35;FATTORE;Reparador de pontas (Argan);R$ 23,90
+36;FATTORE;Reparador de pontas (Ceramidas);R$ 23,90
+37;FATTORE;Reparador de pontas (Queratina);R$ 23,90
+38;FATTORE;Reparador de pontas (Proteinas da Seda);R$ 23,90
+39;HUDAVIOJI;Fruit juice (Uva);R$ 10,00
+40;HUDAVIOJI;Fruit juice ( Laranja);R$ 10,00
+41;HUDAVIOJI;Fruit juice (Laranja Doce);R$ 10,00
+42;HUDAVIOJI;Fruit juice (Frambuesa);R$ 10,00
+43;HUDAVIOJI;Fruit juice ( Maça);R$ 10,00
+44;HUDAVIOJI;Lip Gloss Honey (Mel);R$ 10,00
+45;MELU;Sabonete Corporal/ Facial(Berry Pie - Care);R$ 16,00
+46;ALLEVA;Sabonete Corporal/ Facial ( Love Mist);R$ 15,00
+47;ALLEVA;Sabonete Corporal/ Facial ( Intense Seduction);R$ 15,00
+48;RHENUKS COSMETICOS ;Sabonete Liquido Intimo refrescante (Morango Paixão - Barbatimão e Aroeira);R$ 10,00
+49;PHÁLLEBEAUTY COSMETICO;Esfoliante Corporal ( Rosa Mosqueta, Argila Branca);R$ 20,00
+50;PHÁLLEBEAUTY COSMETICO;Esfoliante Hidratante para um BumBum Lisinho;R$ 20,00
+51;PROMOÇÃO;Kit Ameixa, rosa mosqueta, maracujá ;R$ 59,90
+52;PROMOÇÃO;kit 2 esfoliante de 100g;R$ 45,90
+53;PROMOÇÃO;kit Sabonete e hidratante ;R$ 45,90
+54;PROMOÇÃO;kit facial Vitamina C;R$ 35,00
+55;PROMOÇÃO;kit revitalização do rosto rosa mosqueta/ácido Salicílico ;R$ 25,90
