@@ -1,253 +1,358 @@
-// ================= ==========================================
-// CONFIGURAÇÕES GERAIS E ARQUIVOS
-// ============================================================
-const CONFIG = {
-    PHONE_NUMBER: '5585999999999', // Substitua pelo seu número com DDD (ex: 5585987654321)
-    CSV_FILE: 'Produtos disponiveis(Pro site).csv',
-    LOGO_FILE: 'Logo - Vivi.png',
-    GOOGLE_SHEETS_CSV_URL: '' // Cole aqui a URL do CSV publicado do Google Sheets, se houver
-};
+const PHONE_NUMBER = "5585991251320"; 
+const LOGO_FILE = "Logo - Vivi.png";
+const GOOGLE_SHEETS_CSV_URL = ""; // Cole aqui a URL do CSV publicado do Google Sheets, se houver
 
-// ============================================================
-// ESTADO DA APLICAÇÃO
-// ============================================================
-let products = [];
-let cart = JSON.parse(localStorage.getItem('ig_cart')) || [];
-let activeCategory = 'Todos';
+let cart = [];
+let allProducts = [];      // Armazena todos os produtos do CSV
+let selectedBrand = 'todas'; // Marca selecionada no filtro
+let searchQuery = '';      // Texto de busca digitado
 
-// ============================================================
-// INICIALIZAÇÃO
-// ============================================================
 document.addEventListener('DOMContentLoaded', () => {
     setupLogo();
     loadProducts();
-    setupEventListeners();
-    updateCart();
+
+    // Eventos de Busca e Filtro
+    const searchInput = document.getElementById('search-input');
+    const clearBtn = document.getElementById('btn-clear-search');
+
+    searchInput?.addEventListener('input', (e) => {
+        searchQuery = e.target.value.toLowerCase().trim();
+        if (clearBtn) clearBtn.style.display = searchQuery ? 'block' : 'none';
+        applyFilters();
+    });
+
+    clearBtn?.addEventListener('click', () => {
+        if (searchInput) searchInput.value = '';
+        searchQuery = '';
+        clearBtn.style.display = 'none';
+        applyFilters();
+    });
+
+    // Eventos do WhatsApp
+    document.getElementById('btn-whatsapp')?.addEventListener('click', sendToWhatsApp);
+    document.getElementById('btn-whatsapp-modal')?.addEventListener('click', sendToWhatsApp);
+
+    // Eventos do Modal do Carrinho
+    document.getElementById('cart-info-trigger')?.addEventListener('click', openModal);
+    document.getElementById('close-modal')?.addEventListener('click', closeModal);
+
+    document.getElementById('cart-modal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'cart-modal') closeModal();
+    });
+
+    // Eventos do Modal de Rastreio
+    document.getElementById('btn-open-tracking')?.addEventListener('click', openTrackingModal);
+    document.getElementById('close-tracking-modal')?.addEventListener('click', closeTrackingModal);
+    document.getElementById('btn-search-tracking')?.addEventListener('click', searchOrderStatus);
+
+    document.getElementById('tracking-modal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'tracking-modal') closeTrackingModal();
+    });
 });
 
-// Configura a Logo do Site
 function setupLogo() {
     const logoImg = document.getElementById('site-logo');
     if (logoImg) {
-        logoImg.src = CONFIG.LOGO_FILE;
+        logoImg.src = LOGO_FILE;
     }
 }
 
-// ============================================================
-// CARREGAMENTO E PARSER DE PRODUTOS (CSV)
-// ============================================================
 async function loadProducts() {
     try {
-        const response = await fetch(CONFIG.CSV_FILE);
-        const data = await response.text();
-        products = parseCSV(data);
-        renderCategories();
-        renderProducts(products);
+        const response = await fetch('/Produtos disponiveis(Pro site).csv');
+        
+        if (!response.ok) {
+            console.error(`Erro ao carregar produtos.csv! Status HTTP: ${response.status}`);
+            return;
+        }
+
+        // Lê o arquivo garantindo suporte ao padrão UTF-8
+        const csvText = await response.text();
+        allProducts = parseCSV(csvText);
+
+        if (allProducts.length === 0) {
+            console.error("Nenhum produto foi processado do CSV.");
+            return;
+        }
+
+        // Monta os botões das marcas dinamicamente baseando-se no CSV
+        renderBrandFilters(allProducts);
+
+        // Renderiza os produtos inicialmente
+        applyFilters();
     } catch (error) {
-        console.error('Erro ao carregar o arquivo CSV de produtos:', error);
+        console.error("Erro na leitura do CSV:", error);
     }
 }
 
 function parseCSV(csvText) {
-    const lines = csvText.split('\n').filter(line => line.trim() !== '');
+    // Remove quebras de linha invisíveis e divide em linhas
+    const lines = csvText.replace(/\r/g, '').split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
     if (lines.length <= 1) return [];
 
-    const headers = lines[0].split(';').map(h => h.trim().toLowerCase());
-    
-    return lines.slice(1).map((line, index) => {
-        const values = line.split(';').map(v => v.trim());
-        const item = {};
-        
-        headers.forEach((header, i) => {
-            item[header] = values[i] || '';
+    // O separador do CSV é ponto e vírgula (;)
+    const delimiter = ';';
+
+    // Normaliza os cabeçalhos (remove espaços extras e caracteres invisíveis)
+    const headers = lines[0].split(delimiter).map(h => h.replace(/[\u1680\u180E\u2000-\u200B\u202F\u205F\u3000\uFEFF]/g, '').trim().toLowerCase());
+
+    const products = [];
+
+    for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(delimiter).map(v => v.trim());
+        let row = {};
+
+        headers.forEach((header, idx) => {
+            row[header] = values[idx] || '';
         });
 
-        // Tratamento de preço e imagem
-        const rawPrice = item.preco || item.preço || item.price || '0';
-        const cleanPrice = parseFloat(rawPrice.replace('R$', '').replace('.', '').replace(',', '.').trim()) || 0;
+        // Mapeia colunas buscando palavras-chave (ex: 'id', 'marca', 'produto', 'valor' / 'venda')
+        const idKey = Object.keys(row).find(k => k.includes('id')) || '';
+        const brandKey = Object.keys(row).find(k => k.includes('marca')) || '';
+        const nameKey = Object.keys(row).find(k => k.includes('produto')) || '';
+        const priceKey = Object.keys(row).find(k => k.includes('valor') || k.includes('venda')) || '';
 
-        return {
-            id: item.id || `prod-${index}`,
-            name: item.nome || item.produto || item.title || 'Produto sem nome',
-            category: item.categoria || item.category || 'Geral',
-            price: cleanPrice,
-            image: item.imagem || item.foto || item.image || 'https://via.placeholder.com/300?text=Sem+Foto',
-            description: item.descricao || item.descrição || ''
-        };
-    });
-}
+        const id = row[idKey] || String(i);
+        const brand = (row[brandKey] || 'Vivícia').trim();
+        const name = (row[nameKey] || '').trim();
+        let rawPrice = row[priceKey] || '';
 
-// ============================================================
-// RENDERIZAÇÃO DE TELA (CATEGORIAS E PRODUTOS)
-// ============================================================
-function renderCategories() {
-    const categoryContainer = document.getElementById('category-filters');
-    if (!categoryContainer) return;
+        // Tratamento do valor da venda (ex: R$ 39,90 ou 39,90)
+        rawPrice = rawPrice.replace('R$', '').replace(/\s/g, '');
 
-    const categories = ['Todos', ...new Set(products.map(p => p.category))];
-    
-    categoryContainer.innerHTML = categories.map(cat => `
-        <button class="filter-btn ${cat === activeCategory ? 'active' : ''}" data-category="${cat}">
-            ${cat}
-        </button>
-    `).join('');
+        if (rawPrice.includes(',') && rawPrice.includes('.')) {
+            rawPrice = rawPrice.replace(/\./g, '').replace(',', '.');
+        } else if (rawPrice.includes(',')) {
+            rawPrice = rawPrice.replace(',', '.');
+        }
 
-    categoryContainer.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            activeCategory = e.target.dataset.category;
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            e.target.classList.add('active');
-            filterProducts();
-        });
-    });
-}
+        const price = parseFloat(rawPrice);
 
-function renderProducts(items) {
-    const grid = document.getElementById('products-grid');
-    if (!grid) return;
-
-    if (items.length === 0) {
-        grid.innerHTML = `<p class="no-products">Nenhum produto encontrado.</p>`;
-        return;
+        if (name && !isNaN(price)) {
+            products.push({ id, brand, name, price });
+        }
     }
 
-    grid.innerHTML = items.map(product => `
-        <div class="product-card">
-            <img src="${product.image}" alt="${product.name}" class="product-image" onerror="this.src='https://via.placeholder.com/300?text=Sem+Foto'">
-            <div class="product-info">
-                <span class="product-category">${product.category}</span>
-                <h3 class="product-title">${product.name}</h3>
-                <p class="product-price">R$ ${product.price.toFixed(2).replace('.', ',')}</p>
-                <button class="btn-add-cart" onclick="addToCart('${product.id}')">Adicionar ao Carrinho</button>
-            </div>
-        </div>
-    `).join('');
+    return products;
 }
 
-function filterProducts() {
-    const searchTerm = document.getElementById('search-input')?.value.toLowerCase() || '';
-    
-    const filtered = products.filter(product => {
-        const matchesCategory = activeCategory === 'Todos' || product.category === activeCategory;
-        const matchesSearch = product.name.toLowerCase().includes(searchTerm) || 
-                              product.category.toLowerCase().includes(searchTerm);
-        return matchesCategory && matchesSearch;
+// Gera botões de filtro de marcas automaticamente
+function renderBrandFilters(products) {
+    const brandContainer = document.getElementById('brand-filters');
+    if (!brandContainer) return;
+
+    // Extrai marcas únicas
+    const brandsSet = new Set(products.map(p => p.brand).filter(b => b.length > 0));
+    const uniqueBrands = Array.from(brandsSet);
+
+    let html = `<button class="brand-btn active" data-brand="todas">Todas as Marcas</button>`;
+
+    uniqueBrands.forEach(brand => {
+        html += `<button class="brand-btn" data-brand="${brand}">${brand}</button>`;
     });
+
+    brandContainer.innerHTML = html;
+
+    // Adiciona evento de clique aos botões de marca
+    document.querySelectorAll('.brand-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.brand-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            selectedBrand = e.target.getAttribute('data-brand');
+            applyFilters();
+        });
+    });
+}
+
+// Filtra os produtos por busca e marca
+function applyFilters() {
+    let filtered = allProducts;
+
+    // Filtro de Marca
+    if (selectedBrand !== 'todas') {
+        filtered = filtered.filter(p => p.brand.toLowerCase() === selectedBrand.toLowerCase());
+    }
+
+    // Filtro de Busca (Nome ou Marca)
+    if (searchQuery) {
+        filtered = filtered.filter(p => 
+            p.name.toLowerCase().includes(searchQuery) || 
+            p.brand.toLowerCase().includes(searchQuery)
+        );
+    }
+
+    // Atualiza o contador de resultados
+    const countElement = document.getElementById('results-count');
+    if (countElement) {
+        countElement.innerText = `${filtered.length} produto(s) encontrado(s)`;
+    }
+
+    // Exibe ou oculta a mensagem de nenhum produto
+    const noProductsMsg = document.getElementById('no-products-msg');
+    if (noProductsMsg) {
+        noProductsMsg.style.display = filtered.length === 0 ? 'block' : 'none';
+    }
 
     renderProducts(filtered);
 }
 
-// ============================================================
-// GERENCIAMENTO DO CARRINHO
-// ============================================================
-function addToCart(productId) {
-    const product = products.find(p => p.id === productId);
-    if (!product) return;
+function renderProducts(products) {
+    const mainGrid = document.getElementById('product-grid');
+    if (!mainGrid) return;
 
-    const existingItem = cart.find(item => item.id === productId);
+    mainGrid.innerHTML = '';
+    const defaultImage = 'https://via.placeholder.com/250x220/fceeee/111111?text=Viv%C3%ADcia';
+
+    products.forEach(product => {
+        const cardHTML = `
+            <div class="product-card" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">
+                <div class="product-image-container">
+                    <img src="${defaultImage}" alt="${product.name}" class="product-image">
+                </div>
+                <div class="product-details">
+                    <span class="product-brand">${product.brand}</span>
+                    <h3 class="product-name">${product.name}</h3>
+                    <div class="product-pricing">
+                        <span class="current-price">R$ ${product.price.toFixed(2).replace('.', ',')}</span>
+                    </div>
+                    <button class="btn-add-cart">Adicionar ao Carrinho</button>
+                </div>
+            </div>
+        `;
+        mainGrid.innerHTML += cardHTML;
+    });
+
+    document.querySelectorAll('.btn-add-cart').forEach(button => {
+        button.addEventListener('click', addToCart);
+    });
+}
+
+function addToCart(event) {
+    const card = event.target.closest('.product-card');
+    const id = card.getAttribute('data-id');
+    const name = card.getAttribute('data-name');
+    const price = parseFloat(card.getAttribute('data-price'));
+
+    const existingItem = cart.find(item => item.id === id);
+
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
-        cart.push({ ...product, quantity: 1 });
+        cart.push({ id, name, price, quantity: 1 });
     }
 
-    saveCart();
-    updateCart();
-    openCartModal();
+    updateCartUI();
 }
 
-function updateQuantity(productId, delta) {
-    const item = cart.find(i => i.id === productId);
+function changeQuantity(id, change) {
+    const item = cart.find(item => item.id === id);
     if (!item) return;
 
-    item.quantity += delta;
+    item.quantity += change;
+
     if (item.quantity <= 0) {
-        cart = cart.filter(i => i.id !== productId);
+        removeFromCart(id);
+    } else {
+        updateCartUI();
     }
-
-    saveCart();
-    updateCart();
 }
 
-function saveCart() {
-    localStorage.setItem('ig_cart', JSON.stringify(cart));
+function removeFromCart(id) {
+    cart = cart.filter(item => item.id !== id);
+    updateCartUI();
 }
 
-function updateCart() {
-    const cartItemsContainer = document.getElementById('cart-items');
-    const cartCount = document.getElementById('cart-count');
-    const cartTotal = document.getElementById('cart-total');
+function updateCartUI() {
+    const cartCountElement = document.getElementById('cart-count');
+    const cartTotalElement = document.getElementById('cart-total-value');
+    const modalTotalElement = document.getElementById('modal-total-value');
+    const cartItemsContainer = document.getElementById('cart-items-container');
 
-    // Atualiza contador do ícone
-    const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-    if (cartCount) cartCount.textContent = totalCount;
+    const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+    const totalPrice = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
-    // Atualiza modal do carrinho
+    const formattedTotal = `R$ ${totalPrice.toFixed(2).replace('.', ',')}`;
+
+    if (cartCountElement) cartCountElement.innerText = totalItems;
+    if (cartTotalElement) cartTotalElement.innerText = formattedTotal;
+    if (modalTotalElement) modalTotalElement.innerText = formattedTotal;
+
     if (cartItemsContainer) {
         if (cart.length === 0) {
-            cartItemsContainer.innerHTML = '<p class="empty-cart">Seu carrinho está vazio.</p>';
+            cartItemsContainer.innerHTML = `<p class="cart-empty-text">Seu carrinho está vazio.</p>`;
         } else {
             cartItemsContainer.innerHTML = cart.map(item => `
                 <div class="cart-item">
-                    <div class="cart-item-details">
+                    <div class="cart-item-info">
                         <h4>${item.name}</h4>
-                        <p>R$ ${item.price.toFixed(2).replace('.', ',')}</p>
+                        <p>R$ ${item.price.toFixed(2).replace('.', ',')} un.</p>
                     </div>
-                    <div class="cart-item-controls">
-                        <button onclick="updateQuantity('${item.id}', -1)">-</button>
+                    <div class="cart-item-actions">
+                        <button class="qty-btn" onclick="changeQuantity('${item.id}', -1)">-</button>
                         <span>${item.quantity}</span>
-                        <button onclick="updateQuantity('${item.id}', 1)">+</button>
+                        <button class="qty-btn" onclick="changeQuantity('${item.id}', 1)">+</button>
+                        <button class="remove-btn" onclick="removeFromCart('${item.id}')">🗑️</button>
                     </div>
                 </div>
             `).join('');
         }
     }
-
-    // Atualiza total
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    if (cartTotal) cartTotal.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
 }
 
-// ============================================================
-// CHECKOUT E WHATSAPP
-// ============================================================
-function checkout() {
+function openModal() {
+    document.getElementById('cart-modal')?.classList.add('active');
+}
+
+function closeModal() {
+    document.getElementById('cart-modal')?.classList.remove('active');
+}
+
+function openTrackingModal() {
+    document.getElementById('tracking-modal')?.classList.add('active');
+}
+
+function closeTrackingModal() {
+    document.getElementById('tracking-modal')?.classList.remove('active');
+}
+
+function sendToWhatsApp() {
     if (cart.length === 0) {
-        alert('Seu carrinho está vazio!');
+        alert("Seu carrinho está vazio! Adicione produtos antes de finalizar.");
         return;
     }
 
     const orderId = 'VV-' + Math.floor(1000 + Math.random() * 9000);
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    let total = 0;
 
-    // Salva pedido localmente para o rastreio do cliente
-    saveLocalOrder(orderId, 'Recebido', cart, total);
+    let message = `🛍️ *NOVO PEDIDO (#${orderId}) - VIVÍCIA*\n\n`;
+    message += "*Itens do Pedido:*\n";
 
-    let message = `*NOVO PEDIDO: #${orderId}*\n\n`;
-    message += `*Itens do Pedido:*\n`;
-    
     cart.forEach(item => {
-        message += `- ${item.quantity}x ${item.name} (R$ ${(item.price * item.quantity).toFixed(2).replace('.', ',')})\n`;
+        const itemTotal = item.price * item.quantity;
+        total += itemTotal;
+        message += `• ${item.quantity}x ${item.name} - R$ ${itemTotal.toFixed(2).replace('.', ',')}\n`;
     });
 
-    message += `\n*Total:* R$ ${total.toFixed(2).replace('.', ',')}\n`;
-    message += `\n_Código para Acompanhar Pedido no site:_ *${orderId}*`;
+    message += `\n💰 *Total:* R$ ${total.toFixed(2).replace('.', ',')}\n`;
+    message += `📦 *Código do Pedido:* ${orderId}\n\n`;
+    message += "Olá! Gostaria de finalizar o pagamento do meu pedido.";
+
+    // Salva o pedido localmente para permitir a consulta via código de rastreio
+    saveLocalOrder(orderId, 'Recebido', cart, total);
 
     const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/${CONFIG.PHONE_NUMBER}?text=${encodedMessage}`;
+    const whatsappUrl = `https://wa.me/${PHONE_NUMBER}?text=${encodedMessage}`;
 
-    // Limpa carrinho e redireciona
+    // Limpa o carrinho e fecha o modal
     cart = [];
-    saveCart();
-    updateCart();
-    closeCartModal();
+    updateCartUI();
+    closeModal();
 
     window.open(whatsappUrl, '_blank');
 }
 
-// ============================================================
-// SISTEMA DE RASTREIO E MODAIS
-// ============================================================
+// Guarda as informações do pedido no armazenamento do navegador
 function saveLocalOrder(orderId, status, items, total) {
     const orders = JSON.parse(localStorage.getItem('ig_orders')) || {};
     orders[orderId] = {
@@ -259,6 +364,7 @@ function saveLocalOrder(orderId, status, items, total) {
     localStorage.setItem('ig_orders', JSON.stringify(orders));
 }
 
+// Realiza a busca do pedido via Google Sheets (se configurado) ou LocalStorage
 async function searchOrderStatus() {
     const codeInput = document.getElementById('tracking-code-input');
     const resultDiv = document.getElementById('tracking-result');
@@ -274,10 +380,10 @@ async function searchOrderStatus() {
 
     let orderStatus = null;
 
-    // 1. Tenta buscar no Google Sheets (se configurado)
-    if (CONFIG.GOOGLE_SHEETS_CSV_URL) {
+    // 1. Tenta consultar na planilha do Google Sheets (se houver URL inserida)
+    if (GOOGLE_SHEETS_CSV_URL) {
         try {
-            const response = await fetch(CONFIG.GOOGLE_SHEETS_CSV_URL);
+            const response = await fetch(GOOGLE_SHEETS_CSV_URL);
             const csvText = await response.text();
             const rows = csvText.split('\n');
             
@@ -289,11 +395,11 @@ async function searchOrderStatus() {
                 }
             }
         } catch (e) {
-            console.warn('Erro ao consultar Google Sheets. Verificando dados locais...', e);
+            console.warn('Erro ao consultar Google Sheets. Buscando nos dados locais...', e);
         }
     }
 
-    // 2. Fallback: Busca nos pedidos locais salvos no navegador
+    // 2. Busca local no navegador
     if (!orderStatus) {
         const localOrders = JSON.parse(localStorage.getItem('ig_orders')) || {};
         if (localOrders[code]) {
@@ -301,7 +407,7 @@ async function searchOrderStatus() {
         }
     }
 
-    // Renderiza a linha do tempo do status
+    // Exibe a linha do tempo do pedido
     if (orderStatus) {
         renderTrackingTimeline(code, orderStatus, resultDiv);
     } else {
@@ -328,48 +434,4 @@ function renderTrackingTimeline(code, currentStatus, container) {
             `).join('')}
         </div>
     `;
-}
-
-// ============================================================
-// EVENT LISTENERS E MODAIS (IDs CORRIGIDOS)
-// ============================================================
-function setupEventListeners() {
-    // Campo de busca
-    document.getElementById('search-input')?.addEventListener('input', filterProducts);
-
-    // Modal do Carrinho
-    document.getElementById('btn-cart')?.addEventListener('click', openCartModal);
-    document.getElementById('close-cart-modal')?.addEventListener('click', closeCartModal);
-
-    // Modal de Rastreio (Acompanhar Pedido)
-    document.getElementById('btn-open-tracking')?.addEventListener('click', () => {
-        document.getElementById('tracking-modal')?.classList.add('active');
-    });
-
-    document.getElementById('close-tracking-modal')?.addEventListener('click', () => {
-        document.getElementById('tracking-modal')?.classList.remove('active');
-    });
-
-    // Botão de buscar no modal de rastreio
-    document.getElementById('btn-search-tracking')?.addEventListener('click', searchOrderStatus);
-
-    // Botão de checkout
-    document.getElementById('btn-checkout')?.addEventListener('click', checkout);
-
-    // Fechar modais ao clicar fora
-    window.addEventListener('click', (e) => {
-        const cartModal = document.getElementById('cart-modal');
-        const trackingModal = document.getElementById('tracking-modal');
-
-        if (e.target === cartModal) closeCartModal();
-        if (e.target === trackingModal) trackingModal.classList.remove('active');
-    });
-}
-
-function openCartModal() {
-    document.getElementById('cart-modal')?.classList.add('active');
-}
-
-function closeCartModal() {
-    document.getElementById('cart-modal')?.classList.remove('active');
 }
