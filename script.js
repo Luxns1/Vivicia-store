@@ -1,4 +1,5 @@
 const PHONE_NUMBER = "558591251320"; 
+const GOOGLE_SHEETS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR7PJLBEA-DSFQYrozFbAJgvL00ZEHptPlNWIvdjM2m5m0WeCj_gm-P6fj-Xw7_sg7SMYz_kg6JIlao/pub?gid=0&single=true&output=csv";
 
 let cart = [];
 let allProducts = [];      // Armazena todos os produtos do CSV
@@ -455,4 +456,56 @@ function renderTrackingTimeline(code, currentStatus, container) {
             `).join('')}
         </div>
     `;
+}
+async function searchOrderStatus() {
+    const codeInput = document.getElementById('tracking-code-input');
+    const resultDiv = document.getElementById('tracking-result');
+    if (!codeInput || !resultDiv) return;
+
+    const code = codeInput.value.trim().toUpperCase();
+    if (!code) {
+        resultDiv.innerHTML = '<p class="error-msg" style="color:#d9534f; margin-top:10px;">Por favor, digite o código do pedido.</p>';
+        return;
+    }
+
+    resultDiv.innerHTML = '<p class="loading-msg" style="margin-top:10px; color:#666;">Consultando status...</p>';
+
+    let orderStatus = null;
+
+    // 1. Tenta buscar direto do Google Sheets publicado
+    if (typeof GOOGLE_SHEETS_CSV_URL !== 'undefined' && GOOGLE_SHEETS_CSV_URL !== "") {
+        try {
+            const response = await fetch(GOOGLE_SHEETS_CSV_URL);
+            const csvText = await response.text();
+            const rows = csvText.replace(/\r/g, '').split('\n');
+            
+            for (let i = 0; i < rows.length; i++) {
+                // Suporta separador por vírgula (padrão do Google Sheets) ou ponto e vírgula
+                const delimiter = rows[i].includes(';') ? ';' : ',';
+                const cols = rows[i].split(delimiter);
+                
+                if (cols[0] && cols[0].replace(/"/g, '').trim().toUpperCase() === code) {
+                    orderStatus = cols[1] ? cols[1].replace(/"/g, '').trim() : 'Recebido';
+                    break;
+                }
+            }
+        } catch (e) {
+            console.warn('Erro ao consultar o Google Sheets. Tentando dados locais...', e);
+        }
+    }
+
+    // 2. Se não achar na planilha, busca no cache local do navegador
+    if (!orderStatus) {
+        const localOrders = JSON.parse(localStorage.getItem('ig_orders')) || {};
+        if (localOrders[code]) {
+            orderStatus = localOrders[code].status;
+        }
+    }
+
+    // Exibe o resultado na tela
+    if (orderStatus) {
+        renderTrackingTimeline(code, orderStatus, resultDiv);
+    } else {
+        resultDiv.innerHTML = `<p class="error-msg" style="color:#d9534f; margin-top:10px;">Pedido <strong>#${code}</strong> não encontrado na base de dados.</p>`;
+    }
 }
