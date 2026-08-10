@@ -2,9 +2,14 @@ const PHONE_NUMBER = "5585991251320";
 const GOOGLE_SHEETS_CSV_URL = ""; // Cole aqui a URL do CSV publicado do Google Sheets, se houver
 
 let cart = [];
+let allProducts = []; // Armazena a lista completa para o filtro funcionar
 
 document.addEventListener('DOMContentLoaded', () => {
     loadProducts();
+
+    // Evento do Filtro/Busca
+    document.getElementById('search-input')?.addEventListener('input', filterProducts);
+    document.getElementById('brand-filter')?.addEventListener('change', filterProducts);
 
     // Eventos do WhatsApp
     document.getElementById('btn-whatsapp')?.addEventListener('click', sendToWhatsApp);
@@ -38,14 +43,15 @@ async function loadProducts() {
         }
 
         const csvText = await response.text();
-        const products = parseCSV(csvText);
+        allProducts = parseCSV(csvText);
 
-        if (products.length === 0) {
+        if (allProducts.length === 0) {
             console.error("Nenhum produto foi processado do CSV.");
             return;
         }
 
-        renderProducts(products);
+        populateBrandFilter(allProducts);
+        renderProducts(allProducts);
     } catch (error) {
         console.error("Erro na leitura do CSV:", error);
     }
@@ -99,14 +105,47 @@ function parseCSV(csvText) {
     return products;
 }
 
+function populateBrandFilter(products) {
+    const brandSelect = document.getElementById('brand-filter');
+    if (!brandSelect) return;
+
+    const brands = [...new Set(products.map(p => p.brand))].sort();
+    brandSelect.innerHTML = '<option value="">Todas as Marcas</option>';
+
+    brands.forEach(brand => {
+        const option = document.createElement('option');
+        option.value = brand;
+        option.textContent = brand;
+        brandSelect.appendChild(option);
+    });
+}
+
+function filterProducts() {
+    const searchInput = document.getElementById('search-input')?.value.toLowerCase().trim() || '';
+    const selectedBrand = document.getElementById('brand-filter')?.value || '';
+
+    const filtered = allProducts.filter(product => {
+        const matchesName = product.name.toLowerCase().includes(searchInput);
+        const matchesBrand = selectedBrand === '' || product.brand === selectedBrand;
+        return matchesName && matchesBrand;
+    });
+
+    renderProducts(filtered);
+}
+
 function renderProducts(products) {
     const mainGrid = document.getElementById('product-grid');
     if (!mainGrid) return;
 
     mainGrid.innerHTML = '';
 
-    // Placeholder local embutido em SVG - Nao depende de site externo e carrega sempre
+    // Imagem SVG de placeholder embutida localmente (garante exibição sem quebrar)
     const fallbackImage = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='250' height='220' viewBox='0 0 250 220'><rect width='100%' height='100%' fill='%23fceeee'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='20' font-weight='bold' fill='%23111111'>Viv%C3%ADcia</text></svg>";
+
+    if (products.length === 0) {
+        mainGrid.innerHTML = `<p class="no-products">Nenhum produto encontrado.</p>`;
+        return;
+    }
 
     products.forEach(product => {
         const imgSrc = product.image && product.image !== '' ? product.image : fallbackImage;
