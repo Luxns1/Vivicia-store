@@ -1,4 +1,4 @@
-const PHONE_NUMBER = "5585991251320"; 
+const PHONE_NUMBER = "5585999999999"; 
 
 let cart = [];
 let allProducts = [];      // Armazena todos os produtos do CSV
@@ -47,6 +47,7 @@ async function loadProducts() {
             return;
         }
 
+        // Lê o arquivo garantindo suporte ao padrão UTF-8
         const csvText = await response.text();
         allProducts = parseCSV(csvText);
 
