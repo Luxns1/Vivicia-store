@@ -1,5 +1,5 @@
-// ATENÇÃO: Coloque aqui o número do WhatsApp da loja (DDD + Número sem caracteres especiais)
-const PHONE_NUMBER = "5585999999999"; 
+// Substitua pelo número real do WhatsApp da loja (DDD + Número)
+const PHONE_NUMBER = "558591251320"; 
 
 let cart = [];
 
