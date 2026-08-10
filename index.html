@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vivícia - Charme que Transforma</title>
+    <title>𝑽𝑰𝑽Í𝑪𝑰𝑨 - Charme que Transforma</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,500&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
@@ -12,12 +12,13 @@
     <!-- CABEÇALHO -->
     <header class="main-header">
         <div class="header-container">
-            <img src="Logo - Vivi.png" class="logo-img">
+            <img src="Logo - Vivi.png" alt="Vivícia Logo" class="logo-img" onerror="this.style.display='none'">
             <div class="header-text-brand">
                 <h1 class="brand-title">Vivícia</h1>
                 <p class="brand-slogan">Charme que transforma</p>
                 <p class="brand-subtitle">Encontre seus produtos favoritos</p>
             </div>
+            <button id="btn-open-tracking" class="btn-tracking">📦 Acompanhar Pedido</button>
         </div>
     </header>
 
@@ -32,7 +33,7 @@
             </div>
 
             <div class="brand-filter-wrapper" id="brand-filters">
-                <!-- Os botões de marca serão gerados automaticamente via JS -->
+                <!-- Botões de marca gerados via JS -->
             </div>
 
             <div class="results-info">
@@ -88,6 +89,54 @@
                 <button class="btn-checkout-whatsapp" id="btn-whatsapp-modal">
                     Finalizar via WhatsApp
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE RASTREIO DE PEDIDO -->
+    <div class="cart-modal-overlay" id="tracking-modal">
+        <div class="cart-modal-content">
+            <div class="cart-modal-header">
+                <h2>Área do Cliente - Rastreio 📦</h2>
+                <button class="close-modal-btn" id="close-tracking-modal">&times;</button>
+            </div>
+            <div class="cart-modal-body">
+                <p class="tracking-subtitle">Digite o código do seu pedido recebido no WhatsApp:</p>
+                <div class="tracking-search-box">
+                    <input type="text" id="tracking-input" placeholder="Ex: VV-1082" autocomplete="off">
+                    <button id="btn-search-tracking">Consultar</button>
+                </div>
+
+                <div id="tracking-result" style="display: none; margin-top: 25px;">
+                    <div class="order-info-header">
+                        <p>Pedido: <strong id="track-order-id">#VV-1082</strong></p>
+                        <p>Status: <span id="track-status-badge" class="badge">Em Processamento</span></p>
+                    </div>
+
+                    <!-- LINHA DO TEMPO DO STATUS -->
+                    <div class="timeline">
+                        <div class="timeline-step step-1">
+                            <div class="step-icon">📝</div>
+                            <p>Recebido</p>
+                        </div>
+                        <div class="timeline-step step-2">
+                            <div class="step-icon">📦</div>
+                            <p>Em Separação</p>
+                        </div>
+                        <div class="timeline-step step-3">
+                            <div class="step-icon">🛵</div>
+                            <p>Saiu p/ Entrega</p>
+                        </div>
+                        <div class="timeline-step step-4">
+                            <div class="step-icon">✅</div>
+                            <p>Entregue</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="tracking-error" class="tracking-error-msg" style="display: none;">
+                    <p>Pedido não encontrado. Verifique o código enviado no seu WhatsApp.</p>
+                </div>
             </div>
         </div>
     </div>

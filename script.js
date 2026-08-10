@@ -1,4 +1,4 @@
-const PHONE_NUMBER = "558591251320"; 
+const PHONE_NUMBER = "5585991251320"; 
 
 let cart = [];
 let allProducts = [];      // Armazena todos os produtos do CSV
@@ -47,13 +47,8 @@ async function loadProducts() {
             return;
         }
 
-        const buffer = await response.arrayBuffer();
-        let csvText = new TextDecoder('utf-8').decode(buffer);
-
-        if (csvText.includes('')) {
-            csvText = new TextDecoder('iso-8859-1').decode(buffer);
-        }
-
+        // Lê o arquivo garantindo suporte ao padrão UTF-8
+        const csvText = await response.text();
         allProducts = parseCSV(csvText);
 
         if (allProducts.length === 0) {
@@ -61,7 +56,10 @@ async function loadProducts() {
             return;
         }
 
+        // Monta os botões das marcas dinamicamente baseando-se no CSV
         renderBrandFilters(allProducts);
+
+        // Renderiza os produtos inicialmente
         applyFilters();
     } catch (error) {
         console.error("Erro na leitura do CSV:", error);
@@ -69,11 +67,15 @@ async function loadProducts() {
 }
 
 function parseCSV(csvText) {
+    // Remove quebras de linha invisíveis e divide em linhas
     const lines = csvText.replace(/\r/g, '').split('\n').map(l => l.trim()).filter(l => l.length > 0);
 
     if (lines.length <= 1) return [];
 
+    // O separador do CSV é ponto e vírgula (;)
     const delimiter = ';';
+
+    // Normaliza os cabeçalhos (remove espaços extras e caracteres invisíveis)
     const headers = lines[0].split(delimiter).map(h => h.replace(/[\u1680\u180E\u2000-\u200B\u202F\u205F\u3000\uFEFF]/g, '').trim().toLowerCase());
 
     const products = [];
@@ -86,18 +88,18 @@ function parseCSV(csvText) {
             row[header] = values[idx] || '';
         });
 
+        // Mapeia colunas buscando palavras-chave (ex: 'id', 'marca', 'produto', 'valor' / 'venda')
         const idKey = Object.keys(row).find(k => k.includes('id')) || '';
         const brandKey = Object.keys(row).find(k => k.includes('marca')) || '';
         const nameKey = Object.keys(row).find(k => k.includes('produto')) || '';
         const priceKey = Object.keys(row).find(k => k.includes('valor') || k.includes('venda')) || '';
-        const imageKey = Object.keys(row).find(k => k.includes('imagem') || k.includes('foto') || k.includes('img')) || '';
 
         const id = row[idKey] || String(i);
         const brand = (row[brandKey] || 'Vivícia').trim();
         const name = (row[nameKey] || '').trim();
-        const image = (row[imageKey] || '').trim();
         let rawPrice = row[priceKey] || '';
 
+        // Tratamento do valor da venda (ex: R$ 39,90 ou 39,90)
         rawPrice = rawPrice.replace('R$', '').replace(/\s/g, '');
 
         if (rawPrice.includes(',') && rawPrice.includes('.')) {
@@ -109,42 +111,19 @@ function parseCSV(csvText) {
         const price = parseFloat(rawPrice);
 
         if (name && !isNaN(price)) {
-            products.push({ id, brand, name, price, image });
+            products.push({ id, brand, name, price });
         }
     }
 
     return products;
 }
 
-function getGenericImageForProduct(productName, brandName) {
-    const name = productName.toLowerCase();
-
-    const images = {
-        esfoliante: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=500&q=80",
-        locao_creme: "https://images.unsplash.com/photo-1608248597263-0007823f6d71?auto=format&fit=crop&w=500&q=80",
-        sabonete: "https://images.unsplash.com/photo-1607006344380-b6775a0824a7?auto=format&fit=crop&w=500&q=80",
-        serum: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=500&q=80",
-        gloss_lip: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=500&q=80",
-        cabelo: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=500&q=80",
-        kit: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=500&q=80",
-        perfume: "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=500&q=80"
-    };
-
-    if (name.includes('kit')) return images.kit;
-    if (name.includes('gloss') || name.includes('lip') || name.includes('fruit juice')) return images.gloss_lip;
-    if (name.includes('esfoliante')) return images.esfoliante;
-    if (name.includes('serum') || name.includes('sérum')) return images.serum;
-    if (name.includes('reparador') || name.includes('pontas') || name.includes('shampoo') || name.includes('capilar')) return images.cabelo;
-    if (name.includes('sabonete') || name.includes('limpeza')) return images.sabonete;
-    if (name.includes('loção') || name.includes('locao') || name.includes('creme') || name.includes('manteiga') || name.includes('gel') || name.includes('bumbum') || name.includes('firmador')) return images.locao_creme;
-
-    return `https://placehold.co/400x350/f7e6e8/8a3b50?text=${encodeURIComponent(brandName.toUpperCase())}`;
-}
-
+// Gera botões de filtro de marcas automaticamente
 function renderBrandFilters(products) {
     const brandContainer = document.getElementById('brand-filters');
     if (!brandContainer) return;
 
+    // Extrai marcas únicas
     const brandsSet = new Set(products.map(p => p.brand).filter(b => b.length > 0));
     const uniqueBrands = Array.from(brandsSet);
 
@@ -156,6 +135,7 @@ function renderBrandFilters(products) {
 
     brandContainer.innerHTML = html;
 
+    // Adiciona evento de clique aos botões de marca
     document.querySelectorAll('.brand-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             document.querySelectorAll('.brand-btn').forEach(b => b.classList.remove('active'));
@@ -166,13 +146,16 @@ function renderBrandFilters(products) {
     });
 }
 
+// Filtra os produtos por busca e marca
 function applyFilters() {
     let filtered = allProducts;
 
+    // Filtro de Marca
     if (selectedBrand !== 'todas') {
         filtered = filtered.filter(p => p.brand.toLowerCase() === selectedBrand.toLowerCase());
     }
 
+    // Filtro de Busca (Nome ou Marca)
     if (searchQuery) {
         filtered = filtered.filter(p => 
             p.name.toLowerCase().includes(searchQuery) || 
@@ -180,11 +163,13 @@ function applyFilters() {
         );
     }
 
+    // Atualiza o contador de resultados
     const countElement = document.getElementById('results-count');
     if (countElement) {
         countElement.innerText = `${filtered.length} produto(s) encontrado(s)`;
     }
 
+    // Exibe ou oculta a mensagem de nenhum produto
     const noProductsMsg = document.getElementById('no-products-msg');
     if (noProductsMsg) {
         noProductsMsg.style.display = filtered.length === 0 ? 'block' : 'none';
@@ -198,19 +183,13 @@ function renderProducts(products) {
     if (!mainGrid) return;
 
     mainGrid.innerHTML = '';
+    const defaultImage = 'https://via.placeholder.com/250x220/fceeee/111111?text=Viv%C3%ADcia';
 
     products.forEach(product => {
-        const fallbackImage = `https://placehold.co/400x350/f7e6e8/8a3b50?text=${encodeURIComponent(product.brand.toUpperCase())}`;
-        const productImage = product.image ? product.image : getGenericImageForProduct(product.name, product.brand);
-
         const cardHTML = `
             <div class="product-card" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">
                 <div class="product-image-container">
-                    <img src="${productImage}" 
-                         alt="${product.name}" 
-                         class="product-image" 
-                         loading="lazy" 
-                         onerror="this.src='${fallbackImage}'">
+                    <img src="${defaultImage}" alt="${product.name}" class="product-image">
                 </div>
                 <div class="product-details">
                     <span class="product-brand">${product.brand}</span>
