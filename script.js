@@ -1,48 +1,60 @@
-const PHONE_NUMBER = "5585991251320"; 
-const GOOGLE_SHEETS_CSV_URL = ""; // Cole aqui a URL do CSV publicado do Google Sheets, se houver
+const PHONE_NUMBER = "558591251320"; 
 
 let cart = [];
-let allProducts = []; // Armazena a lista completa para o filtro funcionar
+let allProducts = [];      // Armazena todos os produtos do CSV
+let selectedBrand = 'todas'; // Marca selecionada no filtro
+let searchQuery = '';      // Texto de busca digitado
 
 document.addEventListener('DOMContentLoaded', () => {
     loadProducts();
 
-    // Evento do Filtro/Busca
-    document.getElementById('search-input')?.addEventListener('input', filterProducts);
-    document.getElementById('brand-filter')?.addEventListener('change', filterProducts);
+    // Eventos de Busca e Filtro
+    const searchInput = document.getElementById('search-input');
+    const clearBtn = document.getElementById('btn-clear-search');
+
+    searchInput?.addEventListener('input', (e) => {
+        searchQuery = e.target.value.toLowerCase().trim();
+        if (clearBtn) clearBtn.style.display = searchQuery ? 'block' : 'none';
+        applyFilters();
+    });
+
+    clearBtn?.addEventListener('click', () => {
+        if (searchInput) searchInput.value = '';
+        searchQuery = '';
+        if (clearBtn) clearBtn.style.display = 'none';
+        applyFilters();
+    });
 
     // Eventos do WhatsApp
     document.getElementById('btn-whatsapp')?.addEventListener('click', sendToWhatsApp);
     document.getElementById('btn-whatsapp-modal')?.addEventListener('click', sendToWhatsApp);
 
-    // Eventos do Modal do Carrinho
+    // Eventos do Modal
     document.getElementById('cart-info-trigger')?.addEventListener('click', openModal);
     document.getElementById('close-modal')?.addEventListener('click', closeModal);
 
     document.getElementById('cart-modal')?.addEventListener('click', (e) => {
         if (e.target.id === 'cart-modal') closeModal();
     });
-
-    // Eventos do Modal de Rastreio
-    document.getElementById('btn-open-tracking')?.addEventListener('click', openTrackingModal);
-    document.getElementById('close-tracking-modal')?.addEventListener('click', closeTrackingModal);
-    document.getElementById('btn-search-tracking')?.addEventListener('click', searchOrderStatus);
-
-    document.getElementById('tracking-modal')?.addEventListener('click', (e) => {
-        if (e.target.id === 'tracking-modal') closeTrackingModal();
-    });
 });
 
 async function loadProducts() {
     try {
         const response = await fetch('/Produtos disponiveis(Pro site).csv');
-        
+
         if (!response.ok) {
             console.error(`Erro ao carregar produtos.csv! Status HTTP: ${response.status}`);
             return;
         }
 
-        const csvText = await response.text();
+        const buffer = await response.arrayBuffer();
+        let csvText = new TextDecoder('utf-8').decode(buffer);
+
+        // CORREÇÃO: Verifica se há caractere corrompido real () em vez de string vazia
+        if (csvText.includes('\ufffd')) {
+            csvText = new TextDecoder('iso-8859-1').decode(buffer);
+        }
+
         allProducts = parseCSV(csvText);
 
         if (allProducts.length === 0) {
@@ -50,8 +62,8 @@ async function loadProducts() {
             return;
         }
 
-        populateBrandFilter(allProducts);
-        renderProducts(allProducts);
+        renderBrandFilters(allProducts);
+        applyFilters();
     } catch (error) {
         console.error("Erro na leitura do CSV:", error);
     }
@@ -63,7 +75,7 @@ function parseCSV(csvText) {
     if (lines.length <= 1) return [];
 
     const delimiter = ';';
-    const headers = lines[0].split(delimiter).map(h => h.trim().toLowerCase());
+    const headers = lines[0].split(delimiter).map(h => h.replace(/[\u1680\u180E\u2000-\u200B\u202F\u205F\u3000\uFEFF]/g, '').trim().toLowerCase());
 
     const products = [];
 
@@ -79,7 +91,7 @@ function parseCSV(csvText) {
         const brandKey = Object.keys(row).find(k => k.includes('marca')) || '';
         const nameKey = Object.keys(row).find(k => k.includes('produto')) || '';
         const priceKey = Object.keys(row).find(k => k.includes('valor') || k.includes('venda')) || '';
-        const imageKey = Object.keys(row).find(k => k.includes('imagem') || k.includes('foto') || k.includes('img') || k.includes('url')) || '';
+        const imageKey = Object.keys(row).find(k => k.includes('imagem') || k.includes('foto') || k.includes('img')) || '';
 
         const id = row[idKey] || String(i);
         const brand = (row[brandKey] || 'Vivícia').trim();
@@ -105,30 +117,79 @@ function parseCSV(csvText) {
     return products;
 }
 
-function populateBrandFilter(products) {
-    const brandSelect = document.getElementById('brand-filter');
-    if (!brandSelect) return;
+function getGenericImageForProduct(productName, brandName) {
+    const name = productName.toLowerCase();
 
-    const brands = [...new Set(products.map(p => p.brand))].sort();
-    brandSelect.innerHTML = '<option value="">Todas as Marcas</option>';
+    const images = {
+        esfoliante: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=500&q=80",
+        locao_creme: "https://images.unsplash.com/photo-1608248597263-0007823f6d71?auto=format&fit=crop&w=500&q=80",
+        sabonete: "https://images.unsplash.com/photo-1607006344380-b6775a0824a7?auto=format&fit=crop&w=500&q=80",
+        serum: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=500&q=80",
+        gloss_lip: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=500&q=80",
+        cabelo: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=500&q=80",
+        kit: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=500&q=80",
+        perfume: "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=500&q=80"
+    };
 
-    brands.forEach(brand => {
-        const option = document.createElement('option');
-        option.value = brand;
-        option.textContent = brand;
-        brandSelect.appendChild(option);
+    if (name.includes('kit')) return images.kit;
+    if (name.includes('gloss') || name.includes('lip') || name.includes('fruit juice')) return images.gloss_lip;
+    if (name.includes('esfoliante')) return images.esfoliante;
+    if (name.includes('serum') || name.includes('sérum')) return images.serum;
+    if (name.includes('reparador') || name.includes('pontas') || name.includes('shampoo') || name.includes('capilar')) return images.cabelo;
+    if (name.includes('sabonete') || name.includes('limpeza')) return images.sabonete;
+    if (name.includes('loção') || name.includes('locao') || name.includes('creme') || name.includes('manteiga') || name.includes('gel') || name.includes('bumbum') || name.includes('firmador')) return images.locao_creme;
+
+    return `https://placehold.co/400x350/f7e6e8/8a3b50?text=${encodeURIComponent(brandName.toUpperCase())}`;
+}
+
+function renderBrandFilters(products) {
+    const brandContainer = document.getElementById('brand-filters');
+    if (!brandContainer) return;
+
+    const brandsSet = new Set(products.map(p => p.brand).filter(b => b.length > 0));
+    const uniqueBrands = Array.from(brandsSet);
+
+    let html = `<button class="brand-btn active" data-brand="todas">Todas as Marcas</button>`;
+
+    uniqueBrands.forEach(brand => {
+        html += `<button class="brand-btn" data-brand="${brand}">${brand}</button>`;
+    });
+
+    brandContainer.innerHTML = html;
+
+    document.querySelectorAll('.brand-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.brand-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            selectedBrand = e.target.getAttribute('data-brand');
+            applyFilters();
+        });
     });
 }
 
-function filterProducts() {
-    const searchInput = document.getElementById('search-input')?.value.toLowerCase().trim() || '';
-    const selectedBrand = document.getElementById('brand-filter')?.value || '';
+function applyFilters() {
+    let filtered = allProducts;
 
-    const filtered = allProducts.filter(product => {
-        const matchesName = product.name.toLowerCase().includes(searchInput);
-        const matchesBrand = selectedBrand === '' || product.brand === selectedBrand;
-        return matchesName && matchesBrand;
-    });
+    if (selectedBrand !== 'todas') {
+        filtered = filtered.filter(p => p.brand.toLowerCase() === selectedBrand.toLowerCase());
+    }
+
+    if (searchQuery) {
+        filtered = filtered.filter(p => 
+            p.name.toLowerCase().includes(searchQuery) || 
+            p.brand.toLowerCase().includes(searchQuery)
+        );
+    }
+
+    const countElement = document.getElementById('results-count');
+    if (countElement) {
+        countElement.innerText = `${filtered.length} produto(s) encontrado(s)`;
+    }
+
+    const noProductsMsg = document.getElementById('no-products-msg');
+    if (noProductsMsg) {
+        noProductsMsg.style.display = filtered.length === 0 ? 'block' : 'none';
+    }
 
     renderProducts(filtered);
 }
@@ -139,21 +200,18 @@ function renderProducts(products) {
 
     mainGrid.innerHTML = '';
 
-    // Imagem SVG de placeholder embutida localmente (garante exibição sem quebrar)
-    const fallbackImage = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='250' height='220' viewBox='0 0 250 220'><rect width='100%' height='100%' fill='%23fceeee'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='20' font-weight='bold' fill='%23111111'>Viv%C3%ADcia</text></svg>";
-
-    if (products.length === 0) {
-        mainGrid.innerHTML = `<p class="no-products">Nenhum produto encontrado.</p>`;
-        return;
-    }
-
     products.forEach(product => {
-        const imgSrc = product.image && product.image !== '' ? product.image : fallbackImage;
+        const fallbackImage = `https://placehold.co/400x350/f7e6e8/8a3b50?text=${encodeURIComponent(product.brand.toUpperCase())}`;
+        const productImage = product.image ? product.image : getGenericImageForProduct(product.name, product.brand);
 
         const cardHTML = `
             <div class="product-card" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">
                 <div class="product-image-container">
-                    <img src="${imgSrc}" alt="${product.name}" class="product-image" onerror="this.src='${fallbackImage}'">
+                    <img src="${productImage}" 
+                         alt="${product.name}" 
+                         class="product-image" 
+                         loading="lazy" 
+                         onerror="this.src='${fallbackImage}'">
                 </div>
                 <div class="product-details">
                     <span class="product-brand">${product.brand}</span>
@@ -253,123 +311,27 @@ function closeModal() {
     document.getElementById('cart-modal')?.classList.remove('active');
 }
 
-function openTrackingModal() {
-    document.getElementById('tracking-modal')?.classList.add('active');
-}
-
-function closeTrackingModal() {
-    document.getElementById('tracking-modal')?.classList.remove('active');
-}
-
 function sendToWhatsApp() {
     if (cart.length === 0) {
         alert("Seu carrinho está vazio! Adicione produtos antes de finalizar.");
         return;
     }
 
-    const orderId = 'VV-' + Math.floor(1000 + Math.random() * 9000);
-    let total = 0;
-
-    let message = `🛍️ *NOVO PEDIDO (#${orderId}) - VIVÍCIA*\n\n`;
+    let message = "🛍️ *NOVO PEDIDO - VIVÍCIA*\n\n";
     message += "*Itens do Pedido:*\n";
 
+    let total = 0;
     cart.forEach(item => {
         const itemTotal = item.price * item.quantity;
         total += itemTotal;
         message += `• ${item.quantity}x ${item.name} - R$ ${itemTotal.toFixed(2).replace('.', ',')}\n`;
     });
 
-    message += `\n💰 *Total:* R$ ${total.toFixed(2).replace('.', ',')}\n`;
-    message += `📦 *Código do Pedido:* ${orderId}\n\n`;
+    message += `\n💰 *Total:* R$ ${total.toFixed(2).replace('.', ',')}\n\n`;
     message += "Olá! Gostaria de finalizar o pagamento do meu pedido.";
-
-    saveLocalOrder(orderId, 'Recebido', cart, total);
 
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${PHONE_NUMBER}?text=${encodedMessage}`;
 
-    cart = [];
-    updateCartUI();
-    closeModal();
-
     window.open(whatsappUrl, '_blank');
-}
-
-function saveLocalOrder(orderId, status, items, total) {
-    const orders = JSON.parse(localStorage.getItem('ig_orders')) || {};
-    orders[orderId] = {
-        status: status,
-        date: new Date().toLocaleDateString('pt-BR'),
-        items: items,
-        total: total
-    };
-    localStorage.setItem('ig_orders', JSON.stringify(orders));
-}
-
-async function searchOrderStatus() {
-    const codeInput = document.getElementById('tracking-code-input');
-    const resultDiv = document.getElementById('tracking-result');
-    if (!codeInput || !resultDiv) return;
-
-    const code = codeInput.value.trim().toUpperCase();
-    if (!code) {
-        resultDiv.innerHTML = '<p class="error-msg">Por favor, digite o código do pedido.</p>';
-        return;
-    }
-
-    resultDiv.innerHTML = '<p class="loading-msg">Consultando status...</p>';
-
-    let orderStatus = null;
-
-    if (GOOGLE_SHEETS_CSV_URL) {
-        try {
-            const response = await fetch(GOOGLE_SHEETS_CSV_URL);
-            const csvText = await response.text();
-            const rows = csvText.split('\n');
-            
-            for (let i = 1; i < rows.length; i++) {
-                const cols = rows[i].split(';');
-                if (cols[0] && cols[0].trim().toUpperCase() === code) {
-                    orderStatus = cols[1] ? cols[1].trim() : 'Recebido';
-                    break;
-                }
-            }
-        } catch (e) {
-            console.warn('Erro ao consultar Google Sheets. Buscando nos dados locais...', e);
-        }
-    }
-
-    if (!orderStatus) {
-        const localOrders = JSON.parse(localStorage.getItem('ig_orders')) || {};
-        if (localOrders[code]) {
-            orderStatus = localOrders[code].status;
-        }
-    }
-
-    if (orderStatus) {
-        renderTrackingTimeline(code, orderStatus, resultDiv);
-    } else {
-        resultDiv.innerHTML = `<p class="error-msg">Pedido <strong>#${code}</strong> não encontrado.</p>`;
-    }
-}
-
-function renderTrackingTimeline(code, currentStatus, container) {
-    const stages = ['Recebido', 'Em Separação', 'Saiu p/ Entrega', 'Entregue'];
-    const currentIndex = stages.findIndex(s => s.toLowerCase() === currentStatus.toLowerCase());
-    const activeIdx = currentIndex !== -1 ? currentIndex : 0;
-
-    container.innerHTML = `
-        <div class="order-info-header">
-            <h4>Pedido: <span>#${code}</span></h4>
-            <span class="status-badge">${stages[activeIdx]}</span>
-        </div>
-        <div class="timeline">
-            ${stages.map((stage, idx) => `
-                <div class="timeline-step ${idx <= activeIdx ? 'completed' : ''} ${idx === activeIdx ? 'current' : ''}">
-                    <div class="step-icon">${idx <= activeIdx ? '✓' : idx + 1}</div>
-                    <span class="step-label">${stage}</span>
-                </div>
-            `).join('')}
-        </div>
-    `;
 }
