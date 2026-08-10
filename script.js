@@ -1,9 +1,29 @@
-const PHONE_NUMBER = "5585999999999"; 
+const PHONE_NUMBER = "5585991251320"; 
 
 let cart = [];
+let allProducts = [];      // Armazena todos os produtos do CSV
+let selectedBrand = 'todas'; // Marca selecionada no filtro
+let searchQuery = '';      // Texto de busca digitado
 
 document.addEventListener('DOMContentLoaded', () => {
     loadProducts();
+
+    // Eventos de Busca e Filtro
+    const searchInput = document.getElementById('search-input');
+    const clearBtn = document.getElementById('btn-clear-search');
+
+    searchInput?.addEventListener('input', (e) => {
+        searchQuery = e.target.value.toLowerCase().trim();
+        clearBtn.style.display = searchQuery ? 'block' : 'none';
+        applyFilters();
+    });
+
+    clearBtn?.addEventListener('click', () => {
+        if (searchInput) searchInput.value = '';
+        searchQuery = '';
+        clearBtn.style.display = 'none';
+        applyFilters();
+    });
 
     // Eventos do WhatsApp
     document.getElementById('btn-whatsapp')?.addEventListener('click', sendToWhatsApp);
@@ -28,14 +48,18 @@ async function loadProducts() {
         }
 
         const csvText = await response.text();
-        const products = parseCSV(csvText);
+        allProducts = parseCSV(csvText);
 
-        if (products.length === 0) {
+        if (allProducts.length === 0) {
             console.error("Nenhum produto foi processado do CSV.");
             return;
         }
 
-        renderProducts(products);
+        // Monta os botões das marcas dinamicamente baseando-se no CSV
+        renderBrandFilters(allProducts);
+
+        // Renderiza os produtos inicialmente
+        applyFilters();
     } catch (error) {
         console.error("Erro na leitura do CSV:", error);
     }
@@ -47,7 +71,7 @@ function parseCSV(csvText) {
 
     if (lines.length <= 1) return [];
 
-    // O separador do seu CSV é ponto e vírgula (;)
+    // O separador do CSV é ponto e vírgula (;)
     const delimiter = ';';
 
     // Normaliza os cabeçalhos (remove espaços extras e caracteres invisíveis)
@@ -63,15 +87,15 @@ function parseCSV(csvText) {
             row[header] = values[idx] || '';
         });
 
-        // Mapeia colunas buscando palavras-chave (ex: 'produto', 'valor')
+        // Mapeia colunas buscando palavras-chave (ex: 'id', 'marca', 'produto', 'valor' / 'venda')
         const idKey = Object.keys(row).find(k => k.includes('id')) || '';
         const brandKey = Object.keys(row).find(k => k.includes('marca')) || '';
         const nameKey = Object.keys(row).find(k => k.includes('produto')) || '';
         const priceKey = Object.keys(row).find(k => k.includes('valor') || k.includes('venda')) || '';
 
         const id = row[idKey] || String(i);
-        const brand = row[brandKey] || 'Vivícia';
-        const name = row[nameKey] || '';
+        const brand = (row[brandKey] || 'Vivícia').trim();
+        const name = (row[nameKey] || '').trim();
         let rawPrice = row[priceKey] || '';
 
         // Tratamento do valor da venda (ex: R$ 39,90 ou 39,90)
@@ -91,6 +115,66 @@ function parseCSV(csvText) {
     }
 
     return products;
+}
+
+// Gera botões de filtro de marcas automaticamente
+function renderBrandFilters(products) {
+    const brandContainer = document.getElementById('brand-filters');
+    if (!brandContainer) return;
+
+    // Extrai marcas únicas
+    const brandsSet = new Set(products.map(p => p.brand).filter(b => b.length > 0));
+    const uniqueBrands = Array.from(brandsSet);
+
+    let html = `<button class="brand-btn active" data-brand="todas">Todas as Marcas</button>`;
+
+    uniqueBrands.forEach(brand => {
+        html += `<button class="brand-btn" data-brand="${brand}">${brand}</button>`;
+    });
+
+    brandContainer.innerHTML = html;
+
+    // Adiciona evento de clique aos botões de marca
+    document.querySelectorAll('.brand-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.brand-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            selectedBrand = e.target.getAttribute('data-brand');
+            applyFilters();
+        });
+    });
+}
+
+// Filtra os produtos por busca e marca
+function applyFilters() {
+    let filtered = allProducts;
+
+    // Filtro de Marca
+    if (selectedBrand !== 'todas') {
+        filtered = filtered.filter(p => p.brand.toLowerCase() === selectedBrand.toLowerCase());
+    }
+
+    // Filtro de Busca (Nome ou Marca)
+    if (searchQuery) {
+        filtered = filtered.filter(p => 
+            p.name.toLowerCase().includes(searchQuery) || 
+            p.brand.toLowerCase().includes(searchQuery)
+        );
+    }
+
+    // Atualiza o contador de resultados
+    const countElement = document.getElementById('results-count');
+    if (countElement) {
+        countElement.innerText = `${filtered.length} produto(s) encontrado(s)`;
+    }
+
+    // Exibe ou oculta a mensagem de nenhum produto
+    const noProductsMsg = document.getElementById('no-products-msg');
+    if (noProductsMsg) {
+        noProductsMsg.style.display = filtered.length === 0 ? 'block' : 'none';
+    }
+
+    renderProducts(filtered);
 }
 
 function renderProducts(products) {

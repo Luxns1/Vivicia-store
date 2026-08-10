@@ -12,23 +12,44 @@
     <!-- CABEÇALHO -->
     <header class="main-header">
         <div class="header-container">
-            <img src="Logo - Vivi.png" alt="Vivícia Logo" class="logo-img">
+            <img src="logo.png" alt="Vivícia Logo" class="logo-img">
             <div class="header-text-brand">
                 <h1 class="brand-title">Vivícia</h1>
                 <p class="brand-slogan">Charme que transforma</p>
-                <p class="brand-subtitle">Aqui você encontra os melhores produtos</p>
+                <p class="brand-subtitle">Encontre seus produtos favoritos</p>
             </div>
         </div>
     </header>
 
     <!-- CONTEÚDO PRINCIPAL -->
     <main class="container">
-        <section class="products-section">
-            <h2 class="section-title">Nossos Produtos</h2>
-            <div class="product-grid" id="product-grid">
-                <!-- Produtos renderizados via JavaScript através do produtos.csv -->
+        
+        <!-- SEÇÃO DE FILTROS E BUSCA -->
+        <section class="filter-section">
+            <div class="search-box-wrapper">
+                <input type="text" id="search-input" placeholder="🔍 Buscar por nome do produto..." autocomplete="off">
+                <button id="btn-clear-search" class="btn-clear" style="display: none;">✕</button>
+            </div>
+
+            <div class="brand-filter-wrapper" id="brand-filters">
+                <!-- Os botões de marca serão gerados automaticamente via JS -->
+            </div>
+
+            <div class="results-info">
+                <span id="results-count">Mostrando produtos...</span>
             </div>
         </section>
+
+        <!-- GRID DE PRODUTOS -->
+        <section class="products-section">
+            <div class="product-grid" id="product-grid">
+                <!-- Produtos renderizados via JS -->
+            </div>
+            <div id="no-products-msg" class="no-products" style="display: none;">
+                <p>Nenhum produto encontrado para essa busca. 🙁</p>
+            </div>
+        </section>
+
     </main>
 
     <!-- BARRA FIXA INFERIOR DE CHECKOUT -->
@@ -49,7 +70,7 @@
         </div>
     </div>
 
-    <!-- MODAL DO CARRINHO (JANELA FLUTUANTE DE DETALHES) -->
+    <!-- MODAL DO CARRINHO -->
     <div class="cart-modal-overlay" id="cart-modal">
         <div class="cart-modal-content">
             <div class="cart-modal-header">
@@ -57,7 +78,7 @@
                 <button class="close-modal-btn" id="close-modal">&times;</button>
             </div>
             <div class="cart-modal-body" id="cart-items-container">
-                <!-- Itens do carrinho renderizados via JavaScript -->
+                <!-- Renderizado via JS -->
             </div>
             <div class="cart-modal-footer">
                 <div class="modal-total-wrapper">
