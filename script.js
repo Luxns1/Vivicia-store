@@ -331,6 +331,17 @@ function sendToWhatsApp() {
         return;
     }
 
+    // Captura o endereço do novo input do HTML
+    const addressInput = document.getElementById('client-address');
+    const clientAddress = addressInput ? addressInput.value.trim() : '';
+
+    if (!clientAddress) {
+        alert("Por favor, preencha o seu endereço de entrega antes de finalizar o pedido!");
+        openModal(); // Abre o modal do carrinho caso esteja fechado
+        addressInput?.focus();
+        return;
+    }
+
     const orderId = 'VV-' + Math.floor(1000 + Math.random() * 9000);
     let total = 0;
 
@@ -343,7 +354,8 @@ function sendToWhatsApp() {
         message += `• ${item.quantity}x ${item.name} - R$ ${itemTotal.toFixed(2).replace('.', ',')}\n`;
     });
 
-    message += `\n💰 *Total:* R$ ${total.toFixed(2).replace('.', ',')}\n`;
+    message += `\n📍 *Endereço de Entrega:* ${clientAddress}\n`;
+    message += `💰 *Total:* R$ ${total.toFixed(2).replace('.', ',')}\n`;
     message += `📦 *Código do Pedido:* ${orderId}\n\n`;
     message += "Olá! Gostaria de finalizar o pagamento do meu pedido.";
 
@@ -353,6 +365,7 @@ function sendToWhatsApp() {
     const whatsappUrl = `https://wa.me/${PHONE_NUMBER}?text=${encodedMessage}`;
 
     cart = [];
+    if (addressInput) addressInput.value = ''; // Limpa o campo após enviar
     updateCartUI();
     closeModal();
 
@@ -371,7 +384,7 @@ function saveLocalOrder(orderId, status, items, total) {
 }
 
 async function searchOrderStatus() {
-    const codeInput = document.getElementById('tracking-input'); // Ajustado para o ID correto do seu HTML
+    const codeInput = document.getElementById('tracking-input'); 
     const resultDiv = document.getElementById('tracking-result');
     const errorDiv = document.getElementById('tracking-error');
     
@@ -385,7 +398,6 @@ async function searchOrderStatus() {
 
     let orderStatus = null;
 
-    // 1. Tenta buscar no Google Sheets
     if (typeof GOOGLE_SHEETS_CSV_URL !== 'undefined' && GOOGLE_SHEETS_CSV_URL !== "") {
         try {
             const response = await fetch(GOOGLE_SHEETS_CSV_URL);
@@ -406,7 +418,6 @@ async function searchOrderStatus() {
         }
     }
 
-    // 2. Se não achar na planilha, busca no cache local
     if (!orderStatus) {
         const localOrders = JSON.parse(localStorage.getItem('ig_orders')) || {};
         if (localOrders[code]) {
@@ -414,20 +425,16 @@ async function searchOrderStatus() {
         }
     }
 
-    // Exibe os resultados usando o HTML que você já preparou
     if (orderStatus) {
         if (resultDiv) resultDiv.style.display = 'block';
         if (errorDiv) errorDiv.style.display = 'none';
 
-        // Atualiza o ID do pedido no HTML
         const orderIdSpan = document.getElementById('track-order-id');
         if (orderIdSpan) orderIdSpan.innerText = '#' + code;
 
-        // Atualiza o texto do Badge de Status
         const statusBadge = document.getElementById('track-status-badge');
         if (statusBadge) statusBadge.innerText = orderStatus;
 
-        // Ativa visualmente a Timeline do seu HTML
         updateTimelineVisuals(orderStatus);
     } else {
         if (resultDiv) resultDiv.style.display = 'none';
@@ -440,12 +447,10 @@ function updateTimelineVisuals(currentStatus) {
     const currentIndex = stages.findIndex(s => s.toLowerCase() === currentStatus.toLowerCase());
     const activeIdx = currentIndex !== -1 ? currentIndex : 0;
 
-    // Seleciona os blocos de passos que já existem no seu HTML (.step-1, .step-2, .step-3, .step-4)
     for (let i = 1; i <= 4; i++) {
         const stepElement = document.querySelector(`.timeline-step.step-${i}`);
         if (!stepElement) continue;
 
-        // Remove classes antigas para resetar
         stepElement.classList.remove('completed', 'current', 'active');
 
         if (i - 1 < activeIdx) {
