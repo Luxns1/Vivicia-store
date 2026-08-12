@@ -25,22 +25,24 @@
     <!-- CONTEÚDO PRINCIPAL -->
     <main class="container">
         
-        <!-- SEÇÃO DE FILTROS E BUSCA (Ajustada para a barra de pesquisa na extrema direita) -->
-        <section class="filter-section" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px;">
+        <!-- SEÇÃO DE FILTROS E BUSCA -->
+        <section class="filter-section" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: nowrap;">
             
-            <div class="brand-filter-wrapper" id="brand-filters" style="flex: 1; display: flex; flex-wrap: wrap; gap: 8px;">
-                <!-- Botões de marca gerados via JS -->
+            <!-- Botões de marcas à esquerda -->
+            <div class="brand-filter-wrapper" id="brand-filters" style="display: flex; flex-wrap: wrap; gap: 8px; flex: 1;">
+                <!-- Botões gerados via JS -->
             </div>
 
-            <div class="search-box-wrapper" style="margin-left: auto; width: 280px; max-width: 100%; position: relative;">
-                <input type="text" id="search-input" placeholder="🔍 Buscar por produto" autocomplete="off" style="width: 100%; padding: 8px 35px 8px 12px; border: 1px solid #dfb373; border-radius: 8px; outline: none;">
+            <!-- Caixa de pesquisa fixada na extrema direita -->
+            <div class="search-box-wrapper" style="width: 280px; min-width: 250px; position: relative; flex-shrink: 0;">
+                <input type="text" id="search-input" placeholder="🔍 Buscar por produto" autocomplete="off" style="width: 100%; padding: 10px 35px 10px 12px; border: 1px solid #dfb373; border-radius: 8px; outline: none; background: #fff; box-sizing: border-box;">
                 <button id="btn-clear-search" class="btn-clear" style="display: none; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1rem;">✕</button>
             </div>
-
-            <div class="results-info" style="width: 100%; margin-top: 5px;">
-                <span id="results-count">Mostrando produtos...</span>
-            </div>
         </section>
+
+        <div class="results-info" style="margin-top: 15px;">
+            <span id="results-count">Mostrando produtos...</span>
+        </div>
 
         <!-- GRID DE PRODUTOS -->
         <section class="products-section">
