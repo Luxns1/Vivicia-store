@@ -31,9 +31,14 @@ body {
     gap: 12px;
 }
 
+/* LOGO REDONDA E ESTILIZADA */
 .logo-img {
-    max-width: 110px;
-    height: auto;
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #dfb373;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .header-text-brand {
@@ -443,6 +448,36 @@ body {
     gap: 12px;
 }
 
+/* ESTILO DO CAMPO DE ENDEREÇO NO MODAL */
+.cart-address-wrapper {
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+.cart-address-wrapper label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #444;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.cart-address-wrapper input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #dfb373;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    outline: none;
+    background-color: #fff;
+    box-sizing: border-box;
+}
+
+.cart-address-wrapper input:focus {
+    border-color: #b8863b;
+    box-shadow: 0 0 5px rgba(212, 163, 89, 0.3);
+}
+
 .modal-total-wrapper {
     display: flex;
     justify-content: space-between;
@@ -477,6 +512,7 @@ body {
         flex-wrap: wrap;
     }
 }
+
 /* ==================================================
    ESTILOS DO MODAL DE RASTREIO E TIMELINE
    ================================================== */
