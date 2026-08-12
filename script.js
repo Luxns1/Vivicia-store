@@ -35,13 +35,37 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.id === 'cart-modal') closeModal();
     });
 
-    // Eventos do Modal de Rastreio (Usando os IDs exatos do seu HTML)
+    // Eventos do Modal de Rastreio
     document.getElementById('btn-open-tracking')?.addEventListener('click', openTrackingModal);
     document.getElementById('close-tracking-modal')?.addEventListener('click', closeTrackingModal);
     document.getElementById('btn-search-tracking')?.addEventListener('click', searchOrderStatus);
 
     document.getElementById('tracking-modal')?.addEventListener('click', (e) => {
         if (e.target.id === 'tracking-modal') closeTrackingModal();
+    });
+
+    // Evento para buscar o endereço automaticamente ao digitar o CEP
+    const cepInput = document.getElementById('client-cep');
+    cepInput?.addEventListener('blur', function() {
+        let cep = this.value.replace(/\D/g, '');
+        if (cep.length === 8) {
+            fetch(`https://viacep.com.br/ws/${cep}/json/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.erro) {
+                        const addressInput = document.getElementById('client-address');
+                        if (addressInput) {
+                            addressInput.value = `${data.logradouro}, Bairro: ${data.bairro}, ${data.localidade} - ${data.uf} (CEP: ${data.cep}) - `;
+                            addressInput.focus(); // Joga o cursor para o usuário apenas digitar o número
+                        }
+                    } else {
+                        alert("CEP não encontrado. Verifique os números digitados.");
+                    }
+                })
+                .catch(() => {
+                    console.error("Erro ao consultar o CEP.");
+                });
+        }
     });
 });
 
@@ -365,6 +389,8 @@ function sendToWhatsApp() {
 
     cart = [];
     if (addressInput) addressInput.value = ''; 
+    const cepInput = document.getElementById('client-cep');
+    if (cepInput) cepInput.value = '';
     updateCartUI();
     closeModal();
 
@@ -407,7 +433,6 @@ async function searchOrderStatus() {
             if (lines.length > 0) {
                 const delimiter = lines[0].includes(';') ? ';' : ',';
                 
-                // Lê os cabeçalhos para achar a coluna correta dinamicamente
                 const headers = lines[0].split(delimiter).map(h => h.replace(/["\uFEFF]/g, '').trim().toLowerCase());
                 
                 const idCol = headers.findIndex(h => h.includes('codigo') || h.includes('pedido') || h.includes('id'));
@@ -428,7 +453,6 @@ async function searchOrderStatus() {
         }
     }
 
-    // Fallback para o localStorage caso não ache na planilha online
     if (!orderStatus) {
         const localOrders = JSON.parse(localStorage.getItem('ig_orders')) || {};
         if (localOrders[code]) {

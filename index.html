@@ -83,10 +83,17 @@
             </div>
             <div class="cart-modal-footer">
                 
+                <!-- CAMPO DE CEP -->
+                <div class="cart-address-wrapper" style="margin-bottom: 12px; text-align: left;">
+                    <label for="client-cep" style="font-size: 0.85rem; font-weight: 600; color: #444; display: block; margin-bottom: 5px;">CEP de Entrega:</label>
+                    <input type="text" id="client-cep" placeholder="Digite apenas os 8 números" maxlength="8" autocomplete="off"
+                           style="width: 100%; padding: 10px 12px; border: 1px solid #dfb373; border-radius: 8px; font-size: 0.9rem; outline: none; background-color: #fff; box-sizing: border-box;">
+                </div>
+
                 <!-- CAMPO DE ENDEREÇO DE ENTREGA -->
                 <div class="cart-address-wrapper" style="margin-bottom: 15px; text-align: left;">
-                    <label for="client-address" style="font-size: 0.85rem; font-weight: 600; color: #444; display: block; margin-bottom: 5px;">Endereço de Entrega:</label>
-                    <input type="text" id="client-address" placeholder="Rua, Número, Bairro, Ponto de Referência" autocomplete="off"
+                    <label for="client-address" style="font-size: 0.85rem; font-weight: 600; color: #444; display: block; margin-bottom: 5px;">Endereço (Preenchido pelo CEP + Número/Complemento):</label>
+                    <input type="text" id="client-address" placeholder="Ex: Rua Exemplo, 123, Apto 402" autocomplete="off"
                            style="width: 100%; padding: 10px 12px; border: 1px solid #dfb373; border-radius: 8px; font-size: 0.9rem; outline: none; background-color: #fff; box-sizing: border-box;">
                 </div>
 
