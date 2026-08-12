@@ -33,12 +33,12 @@ body {
 
 /* LOGO REDONDA E ESTILIZADA */
 .logo-img {
-    width: 80px;
-    height: 80px;
+    width: 130px;
+    height: 130 px;
     object-fit: cover;
     border-radius: 50%;
-    border: 2px solid #dfb373;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: 3px solid #dfb373;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .header-text-brand {
