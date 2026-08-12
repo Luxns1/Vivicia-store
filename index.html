@@ -25,22 +25,22 @@
     <!-- CONTEÚDO PRINCIPAL -->
     <main class="container">
         
-        <!-- SEÇÃO DE FILTROS E BUSCA -->
-        <section class="filter-section" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: nowrap;">
-            
-            <!-- Botões de marcas à esquerda -->
-            <div class="brand-filter-wrapper" id="brand-filters" style="display: flex; flex-wrap: wrap; gap: 8px; flex: 1;">
-                <!-- Botões gerados via JS -->
-            </div>
-
-            <!-- Caixa de pesquisa fixada na extrema direita -->
-            <div class="search-box-wrapper" style="width: 280px; min-width: 250px; position: relative; flex-shrink: 0;">
+        <!-- SEÇÃO DE BUSCA NA EXTREMA DIREITA -->
+        <div style="display: flex; justify-content: flex-end; width: 100%; margin-bottom: 15px;">
+            <div class="search-box-wrapper" style="width: 300px; max-width: 100%; position: relative;">
                 <input type="text" id="search-input" placeholder="🔍 Buscar por produto" autocomplete="off" style="width: 100%; padding: 10px 35px 10px 12px; border: 1px solid #dfb373; border-radius: 8px; outline: none; background: #fff; box-sizing: border-box;">
                 <button id="btn-clear-search" class="btn-clear" style="display: none; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1rem;">✕</button>
             </div>
+        </div>
+
+        <!-- SEÇÃO DE FILTROS DE MARCAS -->
+        <section class="filter-section" style="margin-bottom: 15px;">
+            <div class="brand-filter-wrapper" id="brand-filters" style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;">
+                <!-- Botões gerados via JS -->
+            </div>
         </section>
 
-        <div class="results-info" style="margin-top: 15px;">
+        <div class="results-info" style="margin-bottom: 20px; text-align: center;">
             <span id="results-count">Mostrando produtos...</span>
         </div>
 
