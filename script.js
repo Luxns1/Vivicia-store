@@ -2,7 +2,7 @@ const PHONE_NUMBER = "558591251320";
 const GOOGLE_SHEETS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR7PJLBEA-DSFQYrozFbAJgvL00ZEHptPlNWIvdjM2m5m0WeCj_gm-P6fj-Xw7_sg7SMYz_kg6JIlao/pub?gid=0&single=true&output=csv";
 
 let cart = [];
-let allProducts = [];      
+let allProducts = [];       
 let selectedBrand = 'todas'; 
 let searchQuery = '';      
 
@@ -331,13 +331,12 @@ function sendToWhatsApp() {
         return;
     }
 
-    // Captura o endereço do novo input do HTML
     const addressInput = document.getElementById('client-address');
     const clientAddress = addressInput ? addressInput.value.trim() : '';
 
     if (!clientAddress) {
         alert("Por favor, preencha o seu endereço de entrega antes de finalizar o pedido!");
-        openModal(); // Abre o modal do carrinho caso esteja fechado
+        openModal(); 
         addressInput?.focus();
         return;
     }
@@ -365,7 +364,7 @@ function sendToWhatsApp() {
     const whatsappUrl = `https://wa.me/${PHONE_NUMBER}?text=${encodedMessage}`;
 
     cart = [];
-    if (addressInput) addressInput.value = ''; // Limpa o campo após enviar
+    if (addressInput) addressInput.value = ''; 
     updateCartUI();
     closeModal();
 
@@ -402,15 +401,26 @@ async function searchOrderStatus() {
         try {
             const response = await fetch(GOOGLE_SHEETS_CSV_URL);
             const csvText = await response.text();
-            const rows = csvText.replace(/\r/g, '').split('\n');
             
-            for (let i = 0; i < rows.length; i++) {
-                const delimiter = rows[i].includes(';') ? ';' : ',';
-                const cols = rows[i].split(delimiter);
+            const lines = csvText.replace(/\r/g, '').split('\n').filter(l => l.trim().length > 0);
+            
+            if (lines.length > 0) {
+                const delimiter = lines[0].includes(';') ? ';' : ',';
                 
-                if (cols[0] && cols[0].replace(/"/g, '').trim().toUpperCase() === code) {
-                    orderStatus = cols[1] ? cols[1].replace(/"/g, '').trim() : 'Recebido';
-                    break;
+                // Lê os cabeçalhos para achar a coluna correta dinamicamente
+                const headers = lines[0].split(delimiter).map(h => h.replace(/["\uFEFF]/g, '').trim().toLowerCase());
+                
+                const idCol = headers.findIndex(h => h.includes('codigo') || h.includes('pedido') || h.includes('id'));
+                const statCol = headers.findIndex(h => h.includes('status') || h.includes('situacao'));
+
+                for (let i = 1; i < lines.length; i++) {
+                    const cols = lines[i].split(delimiter).map(v => v.replace(/^["']|["']$/g, '').trim());
+                    const rowId = cols[idCol] ? cols[idCol].toUpperCase() : '';
+                    
+                    if (rowId === code) {
+                        orderStatus = cols[statCol] || 'Recebido';
+                        break;
+                    }
                 }
             }
         } catch (e) {
@@ -418,6 +428,7 @@ async function searchOrderStatus() {
         }
     }
 
+    // Fallback para o localStorage caso não ache na planilha online
     if (!orderStatus) {
         const localOrders = JSON.parse(localStorage.getItem('ig_orders')) || {};
         if (localOrders[code]) {
