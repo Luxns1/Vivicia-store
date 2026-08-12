@@ -34,7 +34,7 @@ body {
 /* LOGO REDONDA E ESTILIZADA */
 .logo-img {
     width: 130px;
-    height: 130 px;
+    height: 130px;
     object-fit: cover;
     border-radius: 50%;
     border: 3px solid #dfb373;
@@ -81,12 +81,13 @@ body {
     padding: 20px;
 }
 
-/* SEÇÃO DE FILTROS E BUSCA */
+/* SEÇÃO DE FILTROS E BUSCA (ATUALIZADO PARA GRID) */
 .filter-section {
     margin-bottom: 25px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 20px;
 }
 
 .search-box-wrapper {
@@ -508,13 +509,19 @@ body {
     }
 
     .brand-filter-wrapper {
-        justify-content: center;
-        flex-wrap: wrap;
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+    }
+}
+
+@media (max-width: 768px) {
+    .filter-section {
+        grid-template-columns: 1fr;
     }
 }
 
 /* ==================================================
-   ESTILOS DO MODAL DE RASTREIO E TIMELINE
+    ESTILOS DO MODAL DE RASTREIO E TIMELINE
    ================================================== */
 
 .tracking-subtitle {
