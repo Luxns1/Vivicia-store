@@ -25,18 +25,19 @@
     <!-- CONTEÚDO PRINCIPAL -->
     <main class="container">
         
-        <!-- SEÇÃO DE FILTROS E BUSCA -->
-        <section class="filter-section">
-            <div class="search-box-wrapper">
-                <input type="text" id="search-input" placeholder="🔍 Buscar por produto" autocomplete="off">
-                <button id="btn-clear-search" class="btn-clear" style="display: none;">✕</button>
-            </div>
-
-            <div class="brand-filter-wrapper" id="brand-filters">
+        <!-- SEÇÃO DE FILTROS E BUSCA (Ajustada para a barra de pesquisa na extrema direita) -->
+        <section class="filter-section" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px;">
+            
+            <div class="brand-filter-wrapper" id="brand-filters" style="flex: 1; display: flex; flex-wrap: wrap; gap: 8px;">
                 <!-- Botões de marca gerados via JS -->
             </div>
 
-            <div class="results-info">
+            <div class="search-box-wrapper" style="margin-left: auto; width: 280px; max-width: 100%; position: relative;">
+                <input type="text" id="search-input" placeholder="🔍 Buscar por produto" autocomplete="off" style="width: 100%; padding: 8px 35px 8px 12px; border: 1px solid #dfb373; border-radius: 8px; outline: none;">
+                <button id="btn-clear-search" class="btn-clear" style="display: none; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1rem;">✕</button>
+            </div>
+
+            <div class="results-info" style="width: 100%; margin-top: 5px;">
                 <span id="results-count">Mostrando produtos...</span>
             </div>
         </section>
