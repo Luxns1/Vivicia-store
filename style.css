@@ -1113,3 +1113,207 @@ body {
         }
     }
 }
+/* =========================================================
+   MONTE SEU KIT
+========================================================= */
+
+.custom-kit-section {
+    margin: 50px 0;
+    padding: 35px;
+    background: #fff8f8;
+    border-radius: 20px;
+    border: 1px solid #f1dfe2;
+}
+
+.custom-kit-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.custom-kit-header h2 {
+    margin: 10px 0;
+    font-family: 'Playfair Display', serif;
+    color: #8a3b50;
+    font-size: 30px;
+}
+
+.custom-kit-header p {
+    margin: 0;
+    color: #777;
+    font-size: 15px;
+}
+
+.custom-kit-content {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+/* CARDS DAS ETAPAS */
+
+.custom-kit-step {
+    background: #ffffff;
+    border: 1px solid #f0dfe2;
+    border-radius: 16px;
+    padding: 25px 20px;
+    box-shadow: 0 5px 15px rgba(138, 59, 80, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.custom-kit-step:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(138, 59, 80, 0.10);
+}
+
+.custom-kit-step-number {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #8a3b50;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.custom-kit-step-content h3 {
+    margin: 0 0 8px;
+    color: #8a3b50;
+    font-size: 18px;
+}
+
+.custom-kit-step-content p {
+    margin: 0 0 18px;
+    color: #777;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* SELECT */
+
+.custom-kit-select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #dfc7cc;
+    border-radius: 10px;
+    background: #fff;
+    color: #555;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.custom-kit-select:focus {
+    border-color: #8a3b50;
+    box-shadow: 0 0 0 3px rgba(138, 59, 80, 0.08);
+}
+
+/* RESUMO */
+
+.custom-kit-summary {
+    grid-column: 1 / -1;
+    background: #ffffff;
+    border: 2px solid #8a3b50;
+    border-radius: 18px;
+    padding: 25px;
+    margin-top: 5px;
+    box-shadow: 0 8px 20px rgba(138, 59, 80, 0.08);
+}
+
+.custom-kit-summary h3 {
+    margin: 0 0 20px;
+    color: #8a3b50;
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+}
+
+.custom-kit-summary-items {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.custom-kit-summary-items p {
+    margin: 0;
+    padding: 14px;
+    background: #fff8f8;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #666;
+}
+
+.custom-kit-summary-items strong {
+    display: block;
+    color: #8a3b50;
+    margin-bottom: 5px;
+}
+
+.custom-kit-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #f0dfe2;
+    font-size: 16px;
+}
+
+.custom-kit-total strong {
+    color: #8a3b50;
+    font-size: 24px;
+}
+
+#btn-add-custom-kit {
+    width: 100%;
+    margin-top: 20px;
+}
+
+/* BOTÃO DESABILITADO */
+
+#btn-add-custom-kit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* =========================================================
+   RESPONSIVO
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .custom-kit-content {
+        grid-template-columns: 1fr;
+    }
+
+    .custom-kit-summary-items {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .custom-kit-section {
+        padding: 22px 15px;
+        margin: 30px 0;
+    }
+
+    .custom-kit-header h2 {
+        font-size: 25px;
+    }
+
+    .custom-kit-step {
+        padding: 20px 16px;
+    }
+
+    .custom-kit-total {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+}
