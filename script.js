@@ -497,3 +497,71 @@ function updateTimelineVisuals(currentStatus) {
         }
     }
 }
+// --- ADIÇÃO DA FUNÇÃO DE CLIQUE PARA DETALHES ---
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Evento para fechar o modal de detalhes
+    document.getElementById('close-detail-modal')?.addEventListener('click', closeDetailModal);
+    document.getElementById('product-detail-modal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'product-detail-modal') closeDetailModal();
+    });
+});
+
+// Sobrescrevendo a função renderProducts para capturar o clique no card inteiro
+const originalRenderProducts = renderProducts;
+renderProducts = function(products) {
+    originalRenderProducts(products);
+
+    // Adiciona o evento de clique nos cards para abrir a descrição
+    document.querySelectorAll('.product-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+            // Se o usuário clicou no botão de adicionar direto, não abre o modal
+            if (e.target.classList.contains('btn-add-cart')) return;
+
+            const id = card.getAttribute('data-id');
+            const name = card.getAttribute('data-name');
+            const price = parseFloat(card.getAttribute('data-price'));
+            const brand = card.querySelector('.product-brand')?.innerText || '';
+
+            openDetailModal({ id, name, price, brand });
+        });
+    });
+};
+
+function openDetailModal(product) {
+    const modal = document.getElementById('product-detail-modal');
+    if (!modal) return;
+
+    document.getElementById('detail-product-name').innerText = product.name;
+    document.getElementById('detail-product-brand').innerText = product.brand;
+    document.getElementById('detail-product-price').innerText = `R$ ${product.price.toFixed(2).replace('.', ',')}`;
+    
+    // Personaliza uma breve descrição baseada no nome do produto
+    const descElement = document.getElementById('detail-product-desc');
+    if (descElement) {
+        descElement.innerText = `O ${product.name} da marca ${product.brand} foi desenvolvido com alto padrão de qualidade para garantir a melhor experiência em cuidados diários, oferecendo eficácia e ótimo rendimento.`;
+    }
+
+    // Configura o botão de adicionar dentro do modal de detalhes
+    const addBtn = document.getElementById('detail-btn-add-cart');
+    if (addBtn) {
+        addBtn.onclick = function() {
+            const existingItem = cart.find(item => item.id === product.id);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ id: product.id, name: product.name, price: product.price, quantity: 1 });
+            }
+            updateCartUI();
+            closeDetailModal();
+            openModal(); // Opcional: abre o carrinho para mostrar que foi adicionado
+        };
+    }
+
+    modal.style.display = 'flex';
+}
+
+function closeDetailModal() {
+    const modal = document.getElementById('product-detail-modal');
+    if (modal) modal.style.display = 'none';
+}
