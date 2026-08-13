@@ -539,14 +539,46 @@ function renderBrandFilters(products) {
 
     if (!brandContainer) return;
 
-    const brandsSet = new Set(products.map(p => p.brand).filter(b => b.length > 0));
+    const brandsSet = new Set(
+        products
+            .map(p => p.brand)
+            .filter(b => b.length > 0)
+    );
+
     const uniqueBrands = Array.from(brandsSet);
 
-    let html = `<button class="brand-btn active" data-brand="todas">Todas as Marcas</button>`;
+    let html = `
+        <button
+            class="brand-btn active"
+            data-brand="todas">
+            Todas as Marcas
+        </button>
+    `;
 
     uniqueBrands.forEach(brand => {
-        html += `<button class="brand-btn" data-brand="${brand}">${brand}</button>`;
+
+        html += `
+            <button
+                class="brand-btn"
+                data-brand="${brand}">
+                ${brand}
+            </button>
+        `;
+
     });
+
+    /*
+     * BOTÃO MONTE SEU KIT
+     */
+
+    html += `
+        <button
+            class="brand-btn custom-kit-filter-btn"
+            id="btn-scroll-custom-kit"
+            type="button">
+            ✨ Monte seu Kit
+        </button>
+    `;
 
     brandContainer.innerHTML = html;
 
@@ -554,11 +586,34 @@ function renderBrandFilters(products) {
 
         btn.addEventListener('click', (e) => {
 
-            document.querySelectorAll('.brand-btn').forEach(b => b.classList.remove('active'));
+            /*
+             * Se for o botão Monte seu Kit,
+             * não altera o filtro de marcas.
+             */
 
-            e.target.classList.add('active');
+            if (e.currentTarget.id === 'btn-scroll-custom-kit') {
 
-            selectedBrand = e.target.getAttribute('data-brand');
+                document
+                    .getElementById('custom-kit-section')
+                    ?.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+
+                return;
+
+            }
+
+            document
+                .querySelectorAll('.brand-btn')
+                .forEach(b =>
+                    b.classList.remove('active')
+                );
+
+            e.currentTarget.classList.add('active');
+
+            selectedBrand =
+                e.currentTarget.getAttribute('data-brand');
 
             applyFilters();
 
@@ -567,7 +622,6 @@ function renderBrandFilters(products) {
     });
 
 }
-
 
 function applyFilters() {
 
@@ -1555,4 +1609,4 @@ loadProducts = async function () {
 
     setupCustomKit();
 
-};
+};S
