@@ -1,56 +1,319 @@
-ID;MARCA ;PRODUTO;VALOR (DE VENDA)
-1;MARI MORATA;Sabonete liquido (Erva doce);R$ 12,00
-2;MARI MORATA;Sabonete liquido (Aroma de Rosa);R$ 12,00
-3;MARI MORATA;Sabonete liquido (Morango);R$ 12,00
-4;MARI MORATA;Sabonete liquido (Pitanga);R$ 12,00
-5;MARI MORATA;Sabonete liquido (Aroeira);R$ 12,00
-6;SWISS BEAUTY;Gel Aromatizante (Morango com creme);R$ 15,00
-7;SWISS BEAUTY;Gel Aromatizante (Uva);R$ 15,00
-8;SWISS BEAUTY;Gel Aromatizante (sensa√ß√£o);R$ 15,00
-9;SWISS BEAUTY;Lo√ß√£o Hidratante (Maracuja);R$ 21,90
-10;SWISS BEAUTY;Lo√ß√£o Hidratante (Pitaya);R$ 21,90
-11;SWISS BEAUTY;Lo√ß√£o Hidratante (Ameixa);R$ 21,90
-12;SWISS BEAUTY;Lo√ß√£o Hidratante (Melancia);R$ 21,90
-13;SWISS BEAUTY;Lo√ß√£o Hidratante (Morango);R$ 21,90
-14;SWISS BEAUTY;Sabonete Corporal/Facial (Rosa Mosqueta);R$ 21,90
-15;SWISS BEAUTY;Sabonete Corporal/Facial ( Pitaya);R$ 21,90
-16;SWISS BEAUTY;Sabonete Corporal/Facial (Melancia);R$ 21,90
-17;SWISS BEAUTY;Sabonete Corporal/Facial (Maracuja);R$ 21,90
-18;SWISS BEAUTY;Sabonete Corporal/Facial (Ameixa);R$ 21,90
-19;SWISS BEAUTY;Serum Facial (Vitamina C);R$ 15,00
-20;SWISS BEAUTY;Sabonete Facial (Vitamina C);R$ 20,00
-21;SWISS BEAUTY;Esfoliante ( 100ML Melancia);R$ 28,90
-22;SWISS BEAUTY;Esfoliante ( 100ML Rosa Mosqueta);R$ 28,90
-23;JUMMU JU (CREAM SUMMER);Manteiga Corporal ( Lo√ß√£o Hidratante);R$ 35,90
-24;JUMMU JU (CREAM SUMMER);BumBum Creme ;R$ 35,90
-25;JUMMU JU (CREAM SUMMER);Creme Corporal;R$ 35,90
-26;HELLO MINI;Marshmallow (lo√ß√£o corporal);R$ 35,00
-27;RHENUKS COSMETICOS ;Firmador de BumBum Premium;R$ 25,90
-28;DERMA CHEM;Sabonete Ultra hidratante (Rosa Mosqueta);R$ 10,00
-29;DERMA CHEM;Gel Facial ( Rosa Mosqueta);R$ 10,00
-30;DERMA CHEM;Sabonete Pele Oleosa (√°cido Salicilico);R$ 10,00
-31;DERMA CHEM;Gel Anti-oleosidade ;R$ 10,00
-32;SWISS BEAUTY;Esfoliante ( 220G Rosa Mosqueta);R$ 23,90
-33;SWISS BEAUTY;Esfoliante ( 220G Maracuja);R$ 23,90
-34;SWISS BEAUTY;Esfoliante (220G Ameixa);R$ 23,90
-35;FATTORE;Reparador de pontas (Argan);R$ 23,90
-36;FATTORE;Reparador de pontas (Ceramidas);R$ 23,90
-37;FATTORE;Reparador de pontas (Queratina);R$ 23,90
-38;FATTORE;Reparador de pontas (Proteinas da Seda);R$ 23,90
-39;HUDAVIOJI;Fruit juice (Uva);R$ 10,00
-40;HUDAVIOJI;Fruit juice ( Laranja);R$ 10,00
-41;HUDAVIOJI;Fruit juice (Laranja Doce);R$ 10,00
-42;HUDAVIOJI;Fruit juice (Frambuesa);R$ 10,00
-43;HUDAVIOJI;Fruit juice ( Ma√ßa);R$ 10,00
-44;HUDAVIOJI;Lip Gloss Honey (Mel);R$ 10,00
-45;MELU;Sabonete Corporal/ Facial(Berry Pie - Care);R$ 16,00
-46;ALLEVA;Sabonete Corporal/ Facial ( Love Mist);R$ 15,00
-47;ALLEVA;Sabonete Corporal/ Facial ( Intense Seduction);R$ 15,00
-48;RHENUKS COSMETICOS ;Sabonete Liquido Intimo refrescante (Morango Paix√£o - Barbatim√£o e Aroeira);R$ 10,00
-49;PH√ÅLLEBEAUTY COSMETICO;Esfoliante Corporal ( Rosa Mosqueta, Argila Branca);R$ 20,00
-50;PH√ÅLLEBEAUTY COSMETICO;Esfoliante Hidratante para um BumBum Lisinho;R$ 20,00
-51;KITS EM PROMO√á√ÉO; Kit Ameixa, rosa mosqueta, maracuj√° ;R$ 59,90
-52;KITS EM PROMO√á√ÉO;kit 2 esfoliante de 100g;R$ 45,90
-53;KITS EM PROMO√á√ÉO;kit Sabonete e hidratante ;R$ 45,90
-54;KITS EM PROMO√á√ÉO;kit facial Vitamina C;R$ 35,00
-55;KITS EM PROMO√á√ÉO;kit revitaliza√ß√£o do rosto rosa mosqueta/√°cido Salic√≠lico ;R$ 25,90
+ID;MARCA ;TIPOS DE PRODUTO;PRODUTO;DESCRI«√O;VALOR (DE VENDA);IMAGEM;;
+1;MARI MORATA;SABONETES;Sabonete liquido (Erva doce);;R$ 12,00;produto-001.jpeg;;
+2;MARI MORATA;SABONETES;Sabonete liquido (Aroma de Rosa);;R$ 12,00;produto-002.jpeg;;
+3;MARI MORATA;SABONETES;Sabonete liquido (Morango);;R$ 12,00;produto-003.jpeg;;
+4;MARI MORATA;SABONETES;Sabonete liquido (Pitanga);;R$ 12,00;produto-004.jpeg;;
+5;MARI MORATA;SABONETES;Sabonete liquido (Aroeira);;R$ 12,00;produto-005.jpeg;;
+6;SWISS BEAUTY;GEL;Gel Aromatizante (Morango com creme);"?? Secrets Woman - Morango com Creme
+DoÁura e maciez num toque aveludado!
+
+A combinaÁ„o perfeita do aroma doce do morango com a cremosidade do leite traz uma sensaÁ„o reconfortante e aconchegante para o banho. Ele limpa delicadamente enquanto deixa a pele incrivelmente macia e perfumada.";R$ 15,00;produto-006.jpeg;;
+7;SWISS BEAUTY;GEL;Gel Aromatizante (Uva);"?? Secrets Woman - Uva
+Intensidade e seduÁ„o para o seu ritual!
+
+Com uma textura m·gica em espiral e uma fragr‚ncia marcante de uva, este gel cremoso limpa e perfuma a pele de forma envolvente. Ideal para quem busca um toque de mistÈrio, hidrataÁ„o e um aroma irresistÌvel que dura.";R$ 15,00;produto-007.jpeg;;
+8;SWISS BEAUTY;GEL;Gel Aromatizante (sensaÁ„o);"?? Secrets Woman - SensaÁ„o (Morango com Chocolate)
+Uma experiÍncia sensorial inesquecÌvel!
+
+Inspirado na cl·ssica combinaÁ„o de morango com chocolate, este sabonete cremoso estimula os sentidos com sua fragr‚ncia exÛtica e acolhedora. Proporciona uma limpeza suave com hidrataÁ„o prolongada e um perfume apaixonante.";R$ 15,00;produto-008.jpeg;;
+9;SWISS BEAUTY;LO«√O;LoÁ„o Hidratante (Maracuja);"?? LoÁ„o Hidratante (Maracuj·)
+NutriÁ„o profunda e toque acetinado!
+
+Desenvolvida para restaurar a maciez da pele, a LoÁ„o Hidratante de Maracuj· combina o poder nutritivo das manteigas e Ûleos naturais com uma absorÁ„o r·pida. Ela hidrata intensamente, deixando a pele perfumada e protegida ao longo do dia.";R$ 21,90;produto-009.jpeg;;
+10;SWISS BEAUTY;LO«√O;LoÁ„o Hidratante (Pitaya);;R$ 21,90;produto-010.jpeg;;
+11;SWISS BEAUTY;LO«√O;LoÁ„o Hidratante (Ameixa);"?? LoÁ„o Hidratante Nutritiva
+NutriÁ„o intensa e toque aveludado!
+
+A LoÁ„o Hidratante de Ameixa oferece cuidado di·rio contra o ressecamento, combinando nutriÁ„o profunda com uma fÛrmula de r·pida absorÁ„o. Deixa a pele do corpo e do rosto incrivelmente macia e perfumada o dia todo.";R$ 21,90;produto-011.jpeg;;
+12;SWISS BEAUTY;LO«√O;LoÁ„o Hidratante (Melancia);"?? LoÁ„o Hidratante Nutritiva
+HidrataÁ„o intensa com aroma irresistÌvel!
+
+A LoÁ„o Hidratante de Melancia combina nutriÁ„o profunda e r·pida absorÁ„o, combatendo o ressecamento e garantindo um toque aveludado o dia todo. Ideal para uso di·rio no corpo e rosto!";R$ 21,90;produto-012.jpeg;;
+13;SWISS BEAUTY;LO«√O;LoÁ„o Hidratante (Morango);;R$ 21,90;produto-013.jpeg;;
+14;SWISS BEAUTY;SABONETES;Sabonete Corporal/Facial (Rosa Mosqueta);"?? Sabonete LÌquido (Rosa Mosqueta)
+Limpeza suave com toque aveludado!
+
+O Sabonete LÌquido de Rosa Mosqueta limpa profundamente sem ressecar, mantendo a hidrataÁ„o natural da pele. Sua fÛrmula delicada traz uma fragr‚ncia floral encantadora, garantindo uma sensaÁ„o de frescor, maciez e cuidado a cada banho.";R$ 21,90;produto-014.jpeg;;
+15;SWISS BEAUTY;SABONETES;Sabonete Corporal/Facial ( Pitaya);;R$ 21,90;produto-015.jpeg;;
+16;SWISS BEAUTY;SABONETES;Sabonete Corporal/Facial (Melancia);;R$ 21,90;produto-016.jpeg;;
+17;SWISS BEAUTY;SABONETES;Sabonete Corporal/Facial (Maracuja);"?? Sabonete LÌquido (Maracuj·)
+Limpeza refrescante e sensaÁ„o de cuidado!
+
+Com uma textura leve e aroma frutal delicado, o Sabonete LÌquido de Maracuj· purifica a pele mantendo sua hidrataÁ„o natural. Ideal para o uso di·rio, ele proporciona um banho relaxante, refrescante e muito macio.";R$ 21,90;produto-017.jpeg;;
+18;SWISS BEAUTY;SABONETES;Sabonete Corporal/Facial (Ameixa);"?? Sabonete LÌquido Limpeza & Suavidade
+Transforme seu banho em um momento de puro bem-estar!
+
+O Sabonete LÌquido de Ameixa limpa delicadamente enquanto mantÈm a hidrataÁ„o natural da pele. Com uma textura leve e um perfume sofisticado e envolvente, ele deixa sensaÁ„o de frescor e maciez prolongada.";R$ 21,90;produto-018.jpeg;;
+19;SWISS BEAUTY;SERUM;Serum Facial (Vitamina C);;R$ 15,00;produto-019.jpeg;;
+20;SWISS BEAUTY;SABONETES;Sabonete Facial (Vitamina C);;R$ 20,00;produto-020.jpeg;;
+21;SWISS BEAUTY;ESFOLIANTES;Esfoliante ( 100ML Melancia);"?? Esfoliante Corporal & Facial ñ Melancia
+
+Renova suavemente a pele, ajudando a remover cÈlulas mortas e deixando um toque mais macio, uniforme e revitalizado. ?";R$ 28,90;produto-021.jpeg;;
+22;SWISS BEAUTY;ESFOLIANTES;Esfoliante ( 100ML Rosa Mosqueta);"?? Esfoliante Corporal & Facial ñ Rosa Mosqueta
+
+Promove uma esfoliaÁ„o delicada que ajuda a revitalizar a pele, deixando-a mais macia, luminosa e com aparÍncia renovada. ??";R$ 28,90;produto-022.jpeg;;
+23;JUMMU JU (CREAM SUMMER);LO«√O;Manteiga Corporal ( LoÁ„o Hidratante);"?? Manteiga Corporal
+
+Uma hidrataÁ„o mais intensa para nutrir a pele e deix·-la macia, sedosa e bem cuidada. ??";R$ 35,90;produto-023.jpeg;;
+24;JUMMU JU (CREAM SUMMER);CREME CORPORAL;BumBum Creme ;"?? Bumbum Creme
+
+Cuidado especial para a regi„o do bumbum, com textura cremosa e sensaÁ„o de pele hidratada e macia. ???";R$ 35,90;produto-024.jpeg;;
+25;JUMMU JU (CREAM SUMMER);CREME CORPORAL;Creme Corporal;"?? Creme Corporal
+
+HidrataÁ„o e cuidado para deixar sua pele macia, perfumada e com aquele toque delicioso de autocuidado. ?";R$ 35,90;produto-025.jpeg;;
+26;HELLO MINI;CREME CORPORAL;Marshmallow (loÁ„o corporal);;R$ 35,00;produto-026.jpeg;;
+27;RHENUKS COSMETICOS ;CREME CORPORAL;Firmador de BumBum Premium;;R$ 25,90;produto-027.jpeg;;
+28;DERMA CHEM;SABONETES;Sabonete Ultra hidratante (Rosa Mosqueta);"?? Sabonete Facial de Rosa Mosqueta
+
+Limpa suavemente a pele, ajudando a remover impurezas e oleosidade sem ressecar, deixando uma sensaÁ„o de frescor e cuidado. ??";R$ 10,00;produto-028.jpeg;;
+29;DERMA CHEM;GEL;Gel Facial ( Rosa Mosqueta);"?? Gel de Rosa Mosqueta
+
+Hidrata e nutre a pele, ajudando a deix·-la mais macia, uniforme e com aparÍncia saud·vel. Ideal para uma rotina de autocuidado. ?";R$ 10,00;produto-029.jpeg;;
+30;DERMA CHEM;SABONETES;Sabonete Pele Oleosa (·cido Salicilico);"?? Sabonete Facial de ¡cido SalicÌlico
+
+Limpeza profunda que ajuda a controlar a oleosidade e deixar a pele com sensaÁ„o de frescor e limpeza, ideal para peles oleosas e acneicas.";R$ 10,00;produto-030.jpeg;;
+31;DERMA CHEM;GEL;Gel Anti-oleosidade ;"?? Gel Antioleosidade de ¡cido SalicÌlico
+
+Ajuda a controlar a oleosidade e proporciona uma sensaÁ„o leve e confort·vel, deixando a pele com aparÍncia mais equilibrada.";R$ 10,00;produto-031.jpeg;;
+32;SWISS BEAUTY;ESFOLIANTES;Esfoliante ( 220G Rosa Mosqueta);"? Esfoliante Corporal & Facial (Rosa Mosqueta)
+RenovaÁ„o e regeneraÁ„o para a sua pele!
+
+Formulado com os benefÌcios regeneradores da Rosa Mosqueta e Argila Branca, este esfoliante remove delicadamente as cÈlulas mortas e impurezas. Ele desobstrui os poros e estimula a renovaÁ„o celular, deixando a pele do rosto e do corpo incrivelmente macia, iluminada e uniforme.";R$ 23,90;produto-032.jpeg;;
+33;SWISS BEAUTY;ESFOLIANTES;Esfoliante ( 220G Maracuja);"? Esfoliante Corporal & Facial (Maracuj·)
+RenovaÁ„o e iluminaÁ„o para a sua pele!
+
+Formulado com a aÁ„o revitalizante do Maracuj· aliada ‡ Argila Branca, este esfoliante remove suavemente as cÈlulas mortas e limpa os poros. O resultado È uma pele uniforme, renovada e com um toque extremamente aveludado.";R$ 23,90;produto-033.jpeg;;
+34;SWISS BEAUTY;ESFOLIANTES;Esfoliante (220G Ameixa);"? Esfoliante Corporal & Facial
+RenovaÁ„o profunda para uma pele impec·vel!
+
+O Esfoliante de Ameixa elimina as impurezas e cÈlulas mortas, desobstruindo os poros de forma suave. O resultado È uma pele visivelmente mais macia, uniforme e pronta para absorver melhor a hidrataÁ„o.";R$ 23,90;produto-034.jpeg;;
+35;FATTORE;REPARADORES DE PONTAS;Reparador de pontas (Argan);"? Reparador de Pontas ñ ”leo de Argan
+
+NutriÁ„o e brilho para os cabelos, ajudando a deixar os fios mais macios, leves e com aparÍncia radiante.";R$ 23,90;produto-035.jpeg;;
+36;FATTORE;REPARADORES DE PONTAS;Reparador de pontas (Ceramidas);"?? Reparador de Pontas ñ Ceramidas
+
+Auxilia na hidrataÁ„o e proteÁ„o dos fios, deixando o cabelo mais macio, alinhado e com aparÍncia saud·vel.";R$ 23,90;produto-036.jpeg;;
+37;FATTORE;REPARADORES DE PONTAS;Reparador de pontas (Queratina);"?? Reparador de Pontas ñ Queratina
+
+Ajuda a cuidar dos fios danificados, proporcionando mais maciez, brilho e um aspecto renovado ‡s pontas.";R$ 23,90;produto-037.jpeg;;
+38;FATTORE;REPARADORES DE PONTAS;Reparador de pontas (Proteinas da Seda);"?? Reparador de Pontas ñ ProteÌnas da Seda
+
+Ideal para proporcionar brilho intenso, maciez e um toque sedoso aos fios, ajudando a deixar as pontas mais bonitas.";R$ 23,90;produto-038.jpeg;;
+39;HUDAVIOJI;GLOSS;Fruit juice (Uva);;R$ 10,00;produto-039.jpeg;;
+40;HUDAVIOJI;GLOSS;Fruit juice ( Laranja);;R$ 10,00;produto-040.jpeg;;
+41;HUDAVIOJI;GLOSS;Fruit juice (Laranja Doce);;R$ 10,00;produto-041.jpeg;;
+42;HUDAVIOJI;GLOSS;Fruit juice (Frambuesa);;R$ 10,00;produto-042.jpeg;;
+43;HUDAVIOJI;GLOSS;Fruit juice ( MaÁa);;R$ 10,00;produto-043.jpeg;;
+44;HUDAVIOJI;GLOSS;Lip Gloss Honey (Mel);;R$ 10,00;produto-044.jpeg;;
+45;MELU;SABONETES;Sabonete Corporal/ Facial(Berry Pie - Care);"?? Melu 2x1 - Berry Pie
+Sabor de sobremesa e carinho para o seu banho!
+
+Com o aroma irresistÌvel e aconchegante de torta de frutas vermelhas (Berry Pie), este sabonete 2 em 1 limpa delicadamente enquanto envolve a pele em uma fragr‚ncia doce e encantadora. O toque perfeito de doÁura e praticidade para a sua rotina!";R$ 16,00;produto-045.jpeg;;
+46;ALLEVA;SABONETES;Sabonete Corporal/ Facial ( Love Mist);;R$ 15,00;produto-046.jpeg;;
+47;ALLEVA;SABONETES;Sabonete Corporal/ Facial ( Intense Seduction);;R$ 15,00;produto-047.jpeg;;
+48;RHENUKS COSMETICOS ;SABONETES;Sabonete Liquido Intimo refrescante (Morango Paix„o - Barbatim„o e Aroeira);;R$ 10,00;produto-048.jpeg;;
+49;PH¡LLEBEAUTY COSMETICO;ESFOLIANTES;Esfoliante Corporal ( Rosa Mosqueta, Argila Branca);Promove uma esfoliaÁ„o delicada que ajuda a revitalizar a pele, deixando-a mais macia, luminosa e com aparÍncia renovada. ??;R$ 20,00;produto-049.jpeg;;
+50;PH¡LLEBEAUTY COSMETICO;ESFOLIANTES;Esfoliante Hidratante para um BumBum Lisinho;;R$ 20,00;produto-050.jpeg;;
+51;KITS EM PROMO«√O;KITS EM PROMO«√O;Kit Ameixa, rosa mosqueta, maracuj· ;;R$ 59,90;produto-051.jpeg;;
+52;KITS EM PROMO«√O;KITS EM PROMO«√O;kit 2 esfoliante de 100g;;R$ 45,90;produto-052.jpeg;;
+53;KITS EM PROMO«√O;KITS EM PROMO«√O;kit Sabonete e hidratante ;;R$ 45,90;produto-053.jpeg;;
+54;KITS EM PROMO«√O;KITS EM PROMO«√O;kit facial Vitamina C;;R$ 35,00;produto-054.jpeg;;
+55;KITS EM PROMO«√O;KITS EM PROMO«√O;kit revitalizaÁ„o do rosto ·cido SalicÌlico ;;R$ 25,90;produto-055.jpeg;;
+56;KITS EM PROMO«√O;KITS EM PROMO«√O;kit revitalizaÁ„o do rosto rosa mosqueta;;R$ 25,90;produto-056.jpeg;;
+;;;;;;imagens/produto-056.jpg;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;
+;;;;;;;;

@@ -37,7 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.id === 'cart-modal') closeModal();
     });
 
-    // Eventos do Modal de Rastreio
     document.getElementById('btn-open-tracking')?.addEventListener('click', openTrackingModal);
     document.getElementById('close-tracking-modal')?.addEventListener('click', closeTrackingModal);
     document.getElementById('btn-search-tracking')?.addEventListener('click', searchOrderStatus);
@@ -46,13 +45,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.id === 'tracking-modal') closeTrackingModal();
     });
 
-    // Eventos do Modal de Detalhes do Produto
     document.getElementById('close-detail-modal')?.addEventListener('click', closeDetailModal);
     document.getElementById('product-detail-modal')?.addEventListener('click', (e) => {
         if (e.target.id === 'product-detail-modal') closeDetailModal();
     });
 
-    // Evento para buscar o endereço automaticamente ao digitar o CEP
     const cepInput = document.getElementById('client-cep');
 
     cepInput?.addEventListener('blur', function() {
@@ -94,11 +91,6 @@ async function loadProducts() {
     try {
 
         let csvText = "";
-
-        if (GOOGLE_SHEETS_CSV_URL && GOOGLE_SHEETS_CSV_URL !== "") {
-            // Não usa o Sheets para produtos.
-            // Produtos continuam vindo do CSV local.
-        }
 
         if (!csvText || csvText.trim().length === 0) {
 
@@ -157,8 +149,12 @@ function parseCSV(csvText) {
 
         const id = values[0] || String(i);
         const brand = values[1] || 'Vivícia';
-        const name = values[2] || '';
-        let rawPrice = values[3] || '0';
+        const type = values[2] || '';
+        const name = values[3] || '';
+        const description = values[4] || '';
+
+        let rawPrice = values[5] || '0';
+        const image = values[6] || '';
 
         rawPrice = rawPrice.replace('R$', '').replace(/\s/g, '');
 
@@ -171,11 +167,23 @@ function parseCSV(csvText) {
         const price = parseFloat(rawPrice);
 
         if (name && !isNaN(price)) {
-            products.push({ id, brand, name, price, image: '' });
+
+            products.push({
+                id,
+                brand,
+                type,
+                name,
+                description,
+                price,
+                image
+            });
+
         }
+
     }
 
     return products;
+
 }
 
 
@@ -346,7 +354,9 @@ function renderProducts(products) {
             const price = parseFloat(card.getAttribute('data-price'));
             const brand = card.querySelector('.product-brand').innerText;
 
-            openDetailModal({ id, name, brand, price });
+            const product = allProducts.find(p => p.id === id);
+
+            openDetailModal(product || { id, name, brand, price });
 
         });
 
@@ -366,7 +376,6 @@ function openDetailModal(product) {
 
     if (!modal) return;
 
-    // IDs corrigidos para o HTML atual
     document.getElementById('detail-name').innerText = product.name;
     document.getElementById('detail-brand').innerText = product.brand;
     document.getElementById('detail-price').innerText = `R$ ${product.price.toFixed(2).replace('.', ',')}`;
@@ -375,15 +384,24 @@ function openDetailModal(product) {
 
     if (descElement) {
 
-        descElement.innerText = `O ${product.name} da marca ${product.brand} foi desenvolvido com alto padrão de qualidade para garantir a melhor experiência em cuidados diários, oferecendo eficácia e ótimo rendimento.`;
+        descElement.innerText = product.description ||
+            `O ${product.name} da marca ${product.brand} foi desenvolvido com alto padrão de qualidade para garantir a melhor experiência em cuidados diários, oferecendo eficácia e ótimo rendimento.`;
 
     }
 
     const imageElement = document.getElementById('detail-img');
 
     if (imageElement) {
-        imageElement.src = getGenericImageForProduct(product.name, product.brand);
+
+        const fallbackImage = getGenericImageForProduct(product.name, product.brand);
+
+        imageElement.src = product.image || fallbackImage;
         imageElement.alt = product.name;
+
+        imageElement.onerror = function() {
+            this.src = fallbackImage;
+        };
+
     }
 
     const addBtn = document.getElementById('detail-btn-add');
@@ -397,7 +415,12 @@ function openDetailModal(product) {
             if (existingItem) {
                 existingItem.quantity += 1;
             } else {
-                cart.push({ id: product.id, name: product.name, price: product.price, quantity: 1 });
+                cart.push({
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    quantity: 1
+                });
             }
 
             updateCartUI();
