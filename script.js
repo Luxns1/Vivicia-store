@@ -44,6 +44,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.id === 'tracking-modal') closeTrackingModal();
     });
 
+    // Eventos do Modal de Detalhes do Produto
+    document.getElementById('close-detail-modal')?.addEventListener('click', closeDetailModal);
+    document.getElementById('product-detail-modal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'product-detail-modal') closeDetailModal();
+    });
+
     // Evento para buscar o endereço automaticamente ao digitar o CEP
     const cepInput = document.getElementById('client-cep');
     cepInput?.addEventListener('blur', function() {
@@ -121,17 +127,14 @@ function parseCSV(csvText) {
 
     const products = [];
 
-    // Ignora a linha 0 (cabeçalho) e percorre as linhas considerando ponto e vírgula (;)
     for (let i = 1; i < lines.length; i++) {
         const values = lines[i].split(';').map(v => v.replace(/^["']|["']$/g, '').trim());
         
-        // Mapeamento correto com base nas suas colunas: ID, MARCA, PRODUTO, VALOR (DE VENDA)
         const id = values[0] || String(i);
         const brand = values[1] || 'Vivícia';
         const name = values[2] || '';
         let rawPrice = values[3] || '0';
 
-        // Tratamento robusto do preço monetário brasileiro (ex: R$ 12,00 ou 12.00)
         rawPrice = rawPrice.replace('R$', '').replace(/\s/g, '');
         if (rawPrice.includes(',') && rawPrice.includes('.')) {
             rawPrice = rawPrice.replace(/\./g, '').replace(',', '.');
@@ -237,13 +240,9 @@ function renderProducts(products) {
         const productImage = product.image ? product.image : getGenericImageForProduct(product.name, product.brand);
 
         const cardHTML = `
-            <div class="product-card" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">
+            <div class="product-card" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}" style="cursor: pointer;">
                 <div class="product-image-container">
-                    <img src="${productImage}" 
-                         alt="${product.name}" 
-                         class="product-image" 
-                         loading="lazy" 
-                         onerror="this.src='${fallbackImage}'">
+                    <img src="${productImage}" alt="${product.name}" class="product-image" loading="lazy" onerror="this.src='${fallbackImage}'">
                 </div>
                 <div class="product-details">
                     <span class="product-brand">${product.brand}</span>
@@ -258,9 +257,60 @@ function renderProducts(products) {
         mainGrid.innerHTML += cardHTML;
     });
 
+    // Evento de clique unificado no card para abrir os detalhes (exceto se clicar no botão de comprar)
+    document.querySelectorAll('.product-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+            if (e.target.classList.contains('btn-add-cart')) return;
+
+            const id = card.getAttribute('data-id');
+            const name = card.getAttribute('data-name');
+            const price = parseFloat(card.getAttribute('data-price'));
+            const brand = card.querySelector('.product-brand').innerText;
+
+            openDetailModal({ id, name, brand, price });
+        });
+    });
+
+    // Evento de clique para adicionar ao carrinho diretamente pelo botão
     document.querySelectorAll('.btn-add-cart').forEach(button => {
         button.addEventListener('click', addToCart);
     });
+}
+
+function openDetailModal(product) {
+    const modal = document.getElementById('product-detail-modal');
+    if (!modal) return;
+
+    document.getElementById('detail-product-name').innerText = product.name;
+    document.getElementById('detail-product-brand').innerText = product.brand;
+    document.getElementById('detail-product-price').innerText = `R$ ${product.price.toFixed(2).replace('.', ',')}`;
+    
+    const descElement = document.getElementById('detail-product-desc');
+    if (descElement) {
+        descElement.innerText = `O ${product.name} da marca ${product.brand} foi desenvolvido com alto padrão de qualidade para garantir a melhor experiência em cuidados diários, oferecendo eficácia e ótimo rendimento.`;
+    }
+
+    const addBtn = document.getElementById('detail-btn-add-cart');
+    if (addBtn) {
+        addBtn.onclick = function() {
+            const existingItem = cart.find(item => item.id === product.id);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ id: product.id, name: product.name, price: product.price, quantity: 1 });
+            }
+            updateCartUI();
+            closeDetailModal();
+            openModal(); 
+        };
+    }
+
+    modal.style.display = 'flex';
+}
+
+function closeDetailModal() {
+    const modal = document.getElementById('product-detail-modal');
+    if (modal) modal.style.display = 'none';
 }
 
 function addToCart(event) {
@@ -496,72 +546,4 @@ function updateTimelineVisuals(currentStatus) {
             stepElement.classList.add('current', 'active');
         }
     }
-}
-// --- ADIÇÃO DA FUNÇÃO DE CLIQUE PARA DETALHES ---
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Evento para fechar o modal de detalhes
-    document.getElementById('close-detail-modal')?.addEventListener('click', closeDetailModal);
-    document.getElementById('product-detail-modal')?.addEventListener('click', (e) => {
-        if (e.target.id === 'product-detail-modal') closeDetailModal();
-    });
-});
-
-// Sobrescrevendo a função renderProducts para capturar o clique no card inteiro
-const originalRenderProducts = renderProducts;
-renderProducts = function(products) {
-    originalRenderProducts(products);
-
-    // Adiciona o evento de clique nos cards para abrir a descrição
-    document.querySelectorAll('.product-card').forEach(card => {
-        card.addEventListener('click', (e) => {
-            // Se o usuário clicou no botão de adicionar direto, não abre o modal
-            if (e.target.classList.contains('btn-add-cart')) return;
-
-            const id = card.getAttribute('data-id');
-            const name = card.getAttribute('data-name');
-            const price = parseFloat(card.getAttribute('data-price'));
-            const brand = card.querySelector('.product-brand')?.innerText || '';
-
-            openDetailModal({ id, name, price, brand });
-        });
-    });
-};
-
-function openDetailModal(product) {
-    const modal = document.getElementById('product-detail-modal');
-    if (!modal) return;
-
-    document.getElementById('detail-product-name').innerText = product.name;
-    document.getElementById('detail-product-brand').innerText = product.brand;
-    document.getElementById('detail-product-price').innerText = `R$ ${product.price.toFixed(2).replace('.', ',')}`;
-    
-    // Personaliza uma breve descrição baseada no nome do produto
-    const descElement = document.getElementById('detail-product-desc');
-    if (descElement) {
-        descElement.innerText = `O ${product.name} da marca ${product.brand} foi desenvolvido com alto padrão de qualidade para garantir a melhor experiência em cuidados diários, oferecendo eficácia e ótimo rendimento.`;
-    }
-
-    // Configura o botão de adicionar dentro do modal de detalhes
-    const addBtn = document.getElementById('detail-btn-add-cart');
-    if (addBtn) {
-        addBtn.onclick = function() {
-            const existingItem = cart.find(item => item.id === product.id);
-            if (existingItem) {
-                existingItem.quantity += 1;
-            } else {
-                cart.push({ id: product.id, name: product.name, price: product.price, quantity: 1 });
-            }
-            updateCartUI();
-            closeDetailModal();
-            openModal(); // Opcional: abre o carrinho para mostrar que foi adicionado
-        };
-    }
-
-    modal.style.display = 'flex';
-}
-
-function closeDetailModal() {
-    const modal = document.getElementById('product-detail-modal');
-    if (modal) modal.style.display = 'none';
 }
