@@ -1,29 +1,53 @@
 const PHONE_NUMBER = "558591251320";
-const GOOGLE_SHEETS_CSV_URL = "https://docs.google.com/spreadsheets/d/1c4M7bft-ePSjx0QBALs9tg-ptuEqCV0JMEJ-PSxdDL8/edit?usp=sharing";
+
+const GOOGLE_SHEETS_CSV_URL =
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vR7PJLBEA-DSFQYrozFbAJgvL00ZEHptPlNWIvdjM2m5m0WeCj_gm-P6fj-Xw7_sg7SMYz_kg6JIlao/pub?gid=0&single=true&output=csv";
+
 
 let cart = [];
 let allProducts = [];
 let selectedBrand = "todas";
 let searchQuery = "";
 
+
+/* =========================================================
+   INICIALIZAÇÃO
+========================================================= */
+
 document.addEventListener("DOMContentLoaded", () => {
+
     loadProducts();
 
-    const searchInput = document.getElementById("search-input");
-    const clearBtn = document.getElementById("btn-clear-search");
+
+    const searchInput =
+        document.getElementById("search-input");
+
+    const clearBtn =
+        document.getElementById("btn-clear-search");
+
 
     searchInput?.addEventListener("input", (e) => {
-        searchQuery = e.target.value.toLowerCase().trim();
+
+        searchQuery =
+            e.target.value
+                .toLowerCase()
+                .trim();
 
         if (clearBtn) {
-            clearBtn.style.display = searchQuery ? "block" : "none";
+            clearBtn.style.display =
+                searchQuery ? "block" : "none";
         }
 
         applyFilters();
+
     });
 
+
     clearBtn?.addEventListener("click", () => {
-        if (searchInput) searchInput.value = "";
+
+        if (searchInput) {
+            searchInput.value = "";
+        }
 
         searchQuery = "";
 
@@ -32,195 +56,222 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         applyFilters();
+
     });
+
 
     document
         .getElementById("btn-whatsapp")
-        ?.addEventListener("click", sendToWhatsApp);
+        ?.addEventListener(
+            "click",
+            sendToWhatsApp
+        );
+
 
     document
         .getElementById("btn-whatsapp-modal")
-        ?.addEventListener("click", sendToWhatsApp);
+        ?.addEventListener(
+            "click",
+            sendToWhatsApp
+        );
+
 
     document
         .getElementById("cart-info-trigger")
-        ?.addEventListener("click", openModal);
+        ?.addEventListener(
+            "click",
+            openModal
+        );
+
 
     document
         .getElementById("close-modal")
-        ?.addEventListener("click", closeModal);
+        ?.addEventListener(
+            "click",
+            closeModal
+        );
+
 
     document
         .getElementById("cart-modal")
         ?.addEventListener("click", (e) => {
+
             if (e.target.id === "cart-modal") {
                 closeModal();
             }
+
         });
+
+
+    /* RASTREAMENTO */
 
     document
         .getElementById("btn-open-tracking")
-        ?.addEventListener("click", openTrackingModal);
+        ?.addEventListener(
+            "click",
+            openTrackingModal
+        );
+
 
     document
         .getElementById("close-tracking-modal")
-        ?.addEventListener("click", closeTrackingModal);
+        ?.addEventListener(
+            "click",
+            closeTrackingModal
+        );
+
 
     document
         .getElementById("btn-search-tracking")
-        ?.addEventListener("click", searchOrderStatus);
+        ?.addEventListener(
+            "click",
+            searchOrderStatus
+        );
+
 
     document
         .getElementById("tracking-modal")
         ?.addEventListener("click", (e) => {
+
             if (e.target.id === "tracking-modal") {
                 closeTrackingModal();
             }
+
         });
+
+
+    /* DETALHES DO PRODUTO */
 
     document
         .getElementById("close-detail-modal")
-        ?.addEventListener("click", closeDetailModal);
+        ?.addEventListener(
+            "click",
+            closeDetailModal
+        );
+
 
     document
         .getElementById("product-detail-modal")
         ?.addEventListener("click", (e) => {
-            if (e.target.id === "product-detail-modal") {
+
+            if (
+                e.target.id ===
+                "product-detail-modal"
+            ) {
                 closeDetailModal();
             }
+
         });
 
-    const cepInput = document.getElementById("client-cep");
 
-    cepInput?.addEventListener("blur", function () {
-        const cep = this.value.replace(/\D/g, "");
+    /* CEP */
 
-        if (cep.length !== 8) {
-            return;
+    const cepInput =
+        document.getElementById("client-cep");
+
+
+    cepInput?.addEventListener(
+        "blur",
+        function () {
+
+            const cep =
+                this.value.replace(
+                    /\D/g,
+                    ""
+                );
+
+
+            if (cep.length !== 8) {
+                return;
+            }
+
+
+            fetch(
+                `https://viacep.com.br/ws/${cep}/json/`
+            )
+                .then(response => {
+
+                    if (!response.ok) {
+                        throw new Error(
+                            "Erro ao consultar CEP"
+                        );
+                    }
+
+                    return response.json();
+
+                })
+                .then(data => {
+
+                    if (data.erro) {
+
+                        alert(
+                            "CEP não encontrado. Verifique os números digitados."
+                        );
+
+                        return;
+                    }
+
+
+                    const addressInput =
+                        document.getElementById(
+                            "client-address"
+                        );
+
+
+                    if (addressInput) {
+
+                        addressInput.value =
+                            `${data.logradouro}, Bairro: ${data.bairro}, ${data.localidade} - ${data.uf} (CEP: ${data.cep}) - `;
+
+                        addressInput.focus();
+
+                    }
+
+                })
+                .catch(error => {
+
+                    console.error(
+                        "Erro ao consultar o CEP:",
+                        error
+                    );
+
+                });
+
         }
+    );
 
-        fetch(`https://viacep.com.br/ws/${cep}/json/`)
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error("Erro HTTP ao consultar CEP");
-                }
-
-                return response.json();
-            })
-            .then((data) => {
-                if (data.erro) {
-                    alert("CEP não encontrado. Verifique os números digitados.");
-                    return;
-                }
-
-                const addressInput =
-                    document.getElementById("client-address");
-
-                if (addressInput) {
-                    addressInput.value =
-                        `${data.logradouro}, Bairro: ${data.bairro}, ` +
-                        `${data.localidade} - ${data.uf} ` +
-                        `(CEP: ${data.cep}) - `;
-
-                    addressInput.focus();
-                }
-            })
-            .catch((error) => {
-                console.error("Erro ao consultar o CEP:", error);
-            });
-    });
 });
 
 
 /* =========================================================
-   CARREGAR PRODUTOS
+   PRODUTOS
 ========================================================= */
 
 async function loadProducts() {
+
     try {
-        let csvText = "";
 
-        /*
-         * Caso futuramente você coloque o Google Sheets,
-         * basta preencher GOOGLE_SHEETS_CSV_URL.
-         */
-        if (
-            GOOGLE_SHEETS_CSV_URL &&
-            GOOGLE_SHEETS_CSV_URL !== ""
-        ) {
-            try {
-                const sheetResponse =
-                    await fetch(GOOGLE_SHEETS_CSV_URL);
-
-                if (sheetResponse.ok) {
-                    csvText = await sheetResponse.text();
-                }
-            } catch (e) {
-                console.warn(
-                    "Google Sheets inacessível, tentando arquivo local...",
-                    e
-                );
-            }
-        }
-
-        /*
-         * Se não houver Google Sheets,
-         * carrega o CSV local.
-         */
-        if (!csvText || csvText.trim().length === 0) {
-            const response = await fetch(
+        const response =
+            await fetch(
                 "Produtos%20disponiveis(Pro%20site).csv"
             );
 
-            if (!response.ok) {
-                console.error(
-                    `Erro ao carregar o CSV local! Status HTTP: ${response.status}`
-                );
 
-                const grid =
-                    document.getElementById("product-grid");
+        if (!response.ok) {
 
-                if (grid) {
-                    grid.innerHTML = `
-                        <p style="
-                            text-align:center;
-                            width:100%;
-                            color:#8a3b50;
-                            padding:20px;
-                        ">
-                            Erro ao carregar o arquivo CSV.
-                            Verifique o nome exato do arquivo.
-                        </p>
-                    `;
-                }
-
-                return;
-            }
-
-            const buffer = await response.arrayBuffer();
-
-            csvText = new TextDecoder("utf-8").decode(buffer);
-
-            /*
-             * Caso o CSV esteja em ANSI/ISO-8859-1.
-             */
-            if (csvText.includes("\ufffd")) {
-                csvText =
-                    new TextDecoder("iso-8859-1").decode(buffer);
-            }
-        }
-
-        allProducts = parseCSV(csvText);
-
-        if (allProducts.length === 0) {
             console.error(
-                "O CSV foi carregado, mas nenhum produto foi processado."
+                `Erro ao carregar o CSV local! Status HTTP: ${response.status}`
             );
 
+
             const grid =
-                document.getElementById("product-grid");
+                document.getElementById(
+                    "product-grid"
+                );
+
 
             if (grid) {
+
                 grid.innerHTML = `
                     <p style="
                         text-align:center;
@@ -228,99 +279,168 @@ async function loadProducts() {
                         color:#8a3b50;
                         padding:20px;
                     ">
-                        Nenhum produto válido encontrado no arquivo.
+                        Erro ao carregar o arquivo CSV.
+                        Verifique o nome exato do arquivo.
                     </p>
                 `;
+
             }
 
             return;
         }
 
-        renderBrandFilters(allProducts);
+
+        const buffer =
+            await response.arrayBuffer();
+
+
+        let csvText =
+            new TextDecoder("utf-8")
+                .decode(buffer);
+
+
+        if (csvText.includes("\ufffd")) {
+
+            csvText =
+                new TextDecoder(
+                    "iso-8859-1"
+                ).decode(buffer);
+
+        }
+
+
+        allProducts =
+            parseCSV(csvText);
+
+
+        if (allProducts.length === 0) {
+
+            console.error(
+                "Nenhum produto encontrado."
+            );
+
+            return;
+        }
+
+
+        renderBrandFilters(
+            allProducts
+        );
+
+
         applyFilters();
 
     } catch (error) {
+
         console.error(
-            "Erro crítico na leitura dos produtos:",
+            "Erro ao carregar produtos:",
             error
         );
+
     }
+
 }
 
 
 /* =========================================================
-   PARSER DO CSV
+   PARSER CSV
 ========================================================= */
 
 function parseCSV(csvText) {
-    const lines = csvText
-        .replace(/\r/g, "")
-        .split("\n")
-        .map((line) => line.trim())
-        .filter((line) => line.length > 0);
+
+    const lines =
+        csvText
+            .replace(/\r/g, "")
+            .split("\n")
+            .map(line => line.trim())
+            .filter(line => line.length > 0);
+
 
     if (lines.length <= 1) {
         return [];
     }
 
+
     const products = [];
 
-    for (let i = 1; i < lines.length; i++) {
 
-        const values = lines[i]
-            .split(";")
-            .map((value) =>
-                value
-                    .replace(/^["']|["']$/g, "")
-                    .trim()
-            );
+    for (
+        let i = 1;
+        i < lines.length;
+        i++
+    ) {
 
-        const id = values[0] || String(i);
+        const values =
+            lines[i]
+                .split(";")
+                .map(value =>
+                    value
+                        .replace(
+                            /^["']|["']$/g,
+                            ""
+                        )
+                        .trim()
+                );
+
+
+        const id =
+            values[0] || String(i);
+
 
         const brand =
             values[1] || "Vivícia";
 
+
         const name =
             values[2] || "";
+
 
         let rawPrice =
             values[3] || "0";
 
-        rawPrice = rawPrice
-            .replace("R$", "")
-            .replace(/\s/g, "");
 
-        /*
-         * Trata valores como:
-         *
-         * 1.299,90
-         * 1299,90
-         * 1299.90
-         */
+        rawPrice =
+            rawPrice
+                .replace("R$", "")
+                .replace(/\s/g, "");
+
+
         if (
             rawPrice.includes(",") &&
             rawPrice.includes(".")
         ) {
-            rawPrice = rawPrice
-                .replace(/\./g, "")
-                .replace(",", ".");
+
+            rawPrice =
+                rawPrice
+                    .replace(/\./g, "")
+                    .replace(",", ".");
+
         } else if (
             rawPrice.includes(",")
         ) {
+
             rawPrice =
-                rawPrice.replace(",", ".");
+                rawPrice.replace(
+                    ",",
+                    "."
+                );
+
         }
+
 
         const price =
             parseFloat(rawPrice);
 
+
         const image =
             values[4] || "";
+
 
         if (
             name &&
             !isNaN(price)
         ) {
+
             products.push({
                 id,
                 brand,
@@ -328,8 +448,11 @@ function parseCSV(csvText) {
                 price,
                 image
             });
+
         }
+
     }
+
 
     return products;
 }
@@ -343,8 +466,10 @@ function getGenericImageForProduct(
     productName,
     brandName
 ) {
+
     const name =
         productName.toLowerCase();
+
 
     const images = {
 
@@ -371,11 +496,14 @@ function getGenericImageForProduct(
 
         perfume:
             "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=500&q=80"
+
     };
+
 
     if (name.includes("kit")) {
         return images.kit;
     }
+
 
     if (
         name.includes("gloss") ||
@@ -385,9 +513,11 @@ function getGenericImageForProduct(
         return images.gloss_lip;
     }
 
+
     if (name.includes("esfoliante")) {
         return images.esfoliante;
     }
+
 
     if (
         name.includes("serum") ||
@@ -395,6 +525,7 @@ function getGenericImageForProduct(
     ) {
         return images.serum;
     }
+
 
     if (
         name.includes("reparador") ||
@@ -405,12 +536,14 @@ function getGenericImageForProduct(
         return images.cabelo;
     }
 
+
     if (
         name.includes("sabonete") ||
         name.includes("limpeza")
     ) {
         return images.sabonete;
     }
+
 
     if (
         name.includes("loção") ||
@@ -424,6 +557,7 @@ function getGenericImageForProduct(
         return images.locao_creme;
     }
 
+
     if (
         name.includes("perfume") ||
         name.includes("fragrância") ||
@@ -431,6 +565,7 @@ function getGenericImageForProduct(
     ) {
         return images.perfume;
     }
+
 
     return `
         https://placehold.co/400x350/f7e6e8/8a3b50?text=${
@@ -442,19 +577,8 @@ function getGenericImageForProduct(
 }
 
 
-function getProductImage(product) {
-    return (
-        product.image ||
-        getGenericImageForProduct(
-            product.name,
-            product.brand
-        )
-    );
-}
-
-
 /* =========================================================
-   FILTROS DE MARCA
+   FILTROS
 ========================================================= */
 
 function renderBrandFilters(products) {
@@ -464,25 +588,29 @@ function renderBrandFilters(products) {
             "brand-filters"
         );
 
+
     if (!brandContainer) {
         return;
     }
+
 
     const brandsSet =
         new Set(
             products
                 .map(
-                    (product) =>
+                    product =>
                         product.brand
                 )
                 .filter(
-                    (brand) =>
+                    brand =>
                         brand.length > 0
                 )
         );
 
+
     const uniqueBrands =
         Array.from(brandsSet);
+
 
     let html = `
         <button
@@ -494,7 +622,8 @@ function renderBrandFilters(products) {
         </button>
     `;
 
-    uniqueBrands.forEach((brand) => {
+
+    uniqueBrands.forEach(brand => {
 
         html += `
             <button
@@ -505,33 +634,41 @@ function renderBrandFilters(products) {
                 ${escapeHTML(brand)}
             </button>
         `;
+
     });
 
-    brandContainer.innerHTML = html;
+
+    brandContainer.innerHTML =
+        html;
+
 
     document
-        .querySelectorAll(".brand-btn")
-        .forEach((btn) => {
+        .querySelectorAll(
+            ".brand-btn"
+        )
+        .forEach(btn => {
 
             btn.addEventListener(
                 "click",
-                (e) => {
+                e => {
 
                     document
                         .querySelectorAll(
                             ".brand-btn"
                         )
                         .forEach(
-                            (b) =>
+                            b =>
                                 b.classList.remove(
                                     "active"
                                 )
                         );
 
+
                     e.currentTarget
                         .classList.add(
                             "active"
                         );
+
 
                     selectedBrand =
                         e.currentTarget
@@ -540,70 +677,79 @@ function renderBrandFilters(products) {
                             ) ||
                         "todas";
 
+
                     applyFilters();
+
                 }
             );
+
         });
+
 }
 
-
-/* =========================================================
-   APLICAR FILTROS
-========================================================= */
 
 function applyFilters() {
 
     let filtered =
         allProducts;
 
+
     if (
         selectedBrand !==
         "todas"
     ) {
+
         filtered =
             filtered.filter(
-                (product) =>
+                product =>
                     product.brand
                         .toLowerCase() ===
                     selectedBrand
                         .toLowerCase()
             );
+
     }
+
 
     if (searchQuery) {
 
         filtered =
             filtered.filter(
-                (product) =>
+                product =>
                     product.name
                         .toLowerCase()
                         .includes(
                             searchQuery
                         ) ||
-
                     product.brand
                         .toLowerCase()
                         .includes(
                             searchQuery
                         )
             );
+
     }
+
 
     const countElement =
         document.getElementById(
             "results-count"
         );
 
+
     if (countElement) {
 
         countElement.innerText =
             `${filtered.length} produto(s) encontrado(s)`;
+
     }
+
 
     const noProductsMsg =
         document.getElementById(
             "no-products-msg"
         );
+
 
     if (noProductsMsg) {
 
@@ -611,14 +757,17 @@ function applyFilters() {
             filtered.length === 0
                 ? "block"
                 : "none";
+
     }
 
+
     renderProducts(filtered);
+
 }
 
 
 /* =========================================================
-   RENDERIZAR PRODUTOS
+   PRODUTOS NA TELA
 ========================================================= */
 
 function renderProducts(products) {
@@ -628,13 +777,16 @@ function renderProducts(products) {
             "product-grid"
         );
 
+
     if (!mainGrid) {
         return;
     }
 
+
     mainGrid.innerHTML = "";
 
-    products.forEach((product) => {
+
+    products.forEach(product => {
 
         const fallbackImage =
             `https://placehold.co/400x350/f7e6e8/8a3b50?text=${
@@ -643,33 +795,29 @@ function renderProducts(products) {
                 )
             }`;
 
+
         const productImage =
-            getProductImage(product);
+            product.image ||
+            getGenericImageForProduct(
+                product.name,
+                product.brand
+            );
+
 
         const cardHTML = `
             <div
                 class="product-card"
-                data-id="${escapeHTML(
-                    String(product.id)
-                )}"
-                data-name="${escapeHTML(
-                    product.name
-                )}"
-                data-brand="${escapeHTML(
-                    product.brand
-                )}"
+                data-id="${escapeHTML(String(product.id))}"
+                data-name="${escapeHTML(product.name)}"
+                data-brand="${escapeHTML(product.brand)}"
                 data-price="${product.price}"
             >
 
                 <div class="product-image-container">
 
                     <img
-                        src="${escapeHTML(
-                            productImage
-                        )}"
-                        alt="${escapeHTML(
-                            product.name
-                        )}"
+                        src="${escapeHTML(productImage)}"
+                        alt="${escapeHTML(product.name)}"
                         class="product-image"
                         loading="lazy"
                         onerror="this.src='${fallbackImage}'"
@@ -680,15 +828,11 @@ function renderProducts(products) {
                 <div class="product-details">
 
                     <span class="product-brand">
-                        ${escapeHTML(
-                            product.brand
-                        )}
+                        ${escapeHTML(product.brand)}
                     </span>
 
                     <h3 class="product-name">
-                        ${escapeHTML(
-                            product.name
-                        )}
+                        ${escapeHTML(product.name)}
                     </h3>
 
                     <div class="product-pricing">
@@ -696,10 +840,7 @@ function renderProducts(products) {
                         <span class="current-price">
                             R$ ${product.price
                                 .toFixed(2)
-                                .replace(
-                                    ".",
-                                    ","
-                                )}
+                                .replace(".", ",")}
                         </span>
 
                     </div>
@@ -716,31 +857,25 @@ function renderProducts(products) {
             </div>
         `;
 
+
         mainGrid.insertAdjacentHTML(
             "beforeend",
             cardHTML
         );
+
     });
 
 
-    /*
-     * Clique no card abre os detalhes.
-     */
     document
         .querySelectorAll(
             ".product-card"
         )
-        .forEach((card) => {
+        .forEach(card => {
 
             card.addEventListener(
                 "click",
-                (e) => {
+                e => {
 
-                    /*
-                     * Se clicou no botão
-                     * de adicionar, não abre
-                     * o modal.
-                     */
                     if (
                         e.target.closest(
                             ".btn-add-cart"
@@ -749,32 +884,38 @@ function renderProducts(products) {
                         return;
                     }
 
+
                     const id =
                         card.getAttribute(
                             "data-id"
                         );
 
+
                     const name =
                         card.getAttribute(
                             "data-name"
-                        ) || "";
+                        );
+
 
                     const brand =
                         card.getAttribute(
                             "data-brand"
-                        ) || "";
+                        );
+
 
                     const price =
                         parseFloat(
                             card.getAttribute(
                                 "data-price"
                             )
-                        ) || 0;
+                        );
+
 
                     const image =
                         card.querySelector(
                             ".product-image"
                         )?.src || "";
+
 
                     openDetailModal({
                         id,
@@ -783,25 +924,187 @@ function renderProducts(products) {
                         price,
                         image
                     });
+
                 }
             );
+
         });
 
 
-    /*
-     * Botões de adicionar ao carrinho.
-     */
     document
         .querySelectorAll(
             ".btn-add-cart"
         )
-        .forEach((button) => {
+        .forEach(button => {
 
             button.addEventListener(
                 "click",
                 addToCart
             );
+
         });
+
+}
+
+
+/* =========================================================
+   MODAL DO PRODUTO
+========================================================= */
+
+function openDetailModal(product) {
+
+    const modal =
+        document.getElementById(
+            "product-detail-modal"
+        );
+
+
+    if (!modal) {
+        return;
+    }
+
+
+    /*
+     * IDs CORRETOS DO SEU HTML
+     */
+
+    const nameElement =
+        document.getElementById(
+            "detail-name"
+        );
+
+
+    const brandElement =
+        document.getElementById(
+            "detail-brand"
+        );
+
+
+    const priceElement =
+        document.getElementById(
+            "detail-price"
+        );
+
+
+    const descElement =
+        document.getElementById(
+            "detail-desc"
+        );
+
+
+    const imageElement =
+        document.getElementById(
+            "detail-img"
+        );
+
+
+    const addBtn =
+        document.getElementById(
+            "detail-btn-add"
+        );
+
+
+    if (nameElement) {
+        nameElement.innerText =
+            product.name;
+    }
+
+
+    if (brandElement) {
+        brandElement.innerText =
+            product.brand;
+    }
+
+
+    if (priceElement) {
+
+        priceElement.innerText =
+            `R$ ${Number(product.price)
+                .toFixed(2)
+                .replace(".", ",")}`;
+
+    }
+
+
+    if (imageElement) {
+
+        imageElement.src =
+            product.image ||
+            getGenericImageForProduct(
+                product.name,
+                product.brand
+            );
+
+        imageElement.alt =
+            product.name;
+
+    }
+
+
+    if (descElement) {
+
+        descElement.innerText =
+            `O ${product.name} da marca ${product.brand} foi desenvolvido com alto padrão de qualidade para garantir a melhor experiência em cuidados diários, oferecendo eficácia e ótimo rendimento.`;
+
+    }
+
+
+    if (addBtn) {
+
+        addBtn.onclick = () => {
+
+            const existingItem =
+                cart.find(
+                    item =>
+                        item.id ===
+                        product.id
+                );
+
+
+            if (existingItem) {
+
+                existingItem.quantity += 1;
+
+            } else {
+
+                cart.push({
+                    id: product.id,
+                    name: product.name,
+                    price: Number(
+                        product.price
+                    ),
+                    quantity: 1
+                });
+
+            }
+
+
+            updateCartUI();
+
+            closeDetailModal();
+
+            openModal();
+
+        };
+
+    }
+
+
+    modal.classList.add("active");
+
+}
+
+
+function closeDetailModal() {
+
+    document
+        .getElementById(
+            "product-detail-modal"
+        )
+        ?.classList.remove(
+            "active"
+        );
+
 }
 
 
@@ -816,32 +1119,38 @@ function addToCart(event) {
             ".product-card"
         );
 
+
     if (!card) {
         return;
     }
+
 
     const id =
         card.getAttribute(
             "data-id"
         );
 
+
     const name =
         card.getAttribute(
             "data-name"
-        ) || "";
+        );
+
 
     const price =
         parseFloat(
             card.getAttribute(
                 "data-price"
             )
-        ) || 0;
+        );
+
 
     const existingItem =
         cart.find(
-            (item) =>
+            item =>
                 item.id === id
         );
+
 
     if (existingItem) {
 
@@ -855,9 +1164,12 @@ function addToCart(event) {
             price,
             quantity: 1
         });
+
     }
 
+
     updateCartUI();
+
 }
 
 
@@ -868,26 +1180,29 @@ function changeQuantity(
 
     const item =
         cart.find(
-            (item) =>
+            item =>
                 item.id === id
         );
+
 
     if (!item) {
         return;
     }
 
+
     item.quantity += change;
 
-    if (
-        item.quantity <= 0
-    ) {
+
+    if (item.quantity <= 0) {
 
         removeFromCart(id);
 
     } else {
 
         updateCartUI();
+
     }
+
 }
 
 
@@ -895,11 +1210,13 @@ function removeFromCart(id) {
 
     cart =
         cart.filter(
-            (item) =>
+            item =>
                 item.id !== id
         );
 
+
     updateCartUI();
+
 }
 
 
@@ -910,20 +1227,24 @@ function updateCartUI() {
             "cart-count"
         );
 
+
     const cartTotalElement =
         document.getElementById(
             "cart-total-value"
         );
+
 
     const modalTotalElement =
         document.getElementById(
             "modal-total-value"
         );
 
+
     const cartItemsContainer =
         document.getElementById(
             "cart-items-container"
         );
+
 
     const totalItems =
         cart.reduce(
@@ -931,6 +1252,7 @@ function updateCartUI() {
                 acc + item.quantity,
             0
         );
+
 
     const totalPrice =
         cart.reduce(
@@ -941,32 +1263,35 @@ function updateCartUI() {
             0
         );
 
+
     const formattedTotal =
         `R$ ${totalPrice
             .toFixed(2)
-            .replace(
-                ".",
-                ","
-            )}`;
+            .replace(".", ",")}`;
+
 
     if (cartCountElement) {
         cartCountElement.innerText =
             totalItems;
     }
 
+
     if (cartTotalElement) {
         cartTotalElement.innerText =
             formattedTotal;
     }
+
 
     if (modalTotalElement) {
         modalTotalElement.innerText =
             formattedTotal;
     }
 
+
     if (!cartItemsContainer) {
         return;
     }
+
 
     if (cart.length === 0) {
 
@@ -979,81 +1304,62 @@ function updateCartUI() {
         return;
     }
 
+
     cartItemsContainer.innerHTML =
-        cart
-            .map(
-                (item) => `
-                    <div class="cart-item">
+        cart.map(item => `
 
-                        <div class="cart-item-info">
+            <div class="cart-item">
 
-                            <h4>
-                                ${escapeHTML(
-                                    item.name
-                                )}
-                            </h4>
+                <div class="cart-item-info">
 
-                            <p>
-                                R$ ${item.price
-                                    .toFixed(2)
-                                    .replace(
-                                        ".",
-                                        ","
-                                    )} un.
-                            </p>
+                    <h4>
+                        ${escapeHTML(item.name)}
+                    </h4>
 
-                        </div>
+                    <p>
+                        R$ ${item.price
+                            .toFixed(2)
+                            .replace(".", ",")} un.
+                    </p>
 
-                        <div class="cart-item-actions">
+                </div>
 
-                            <button
-                                class="qty-btn"
-                                type="button"
-                                onclick="changeQuantity(
-                                    '${escapeJS(
-                                        String(item.id)
-                                    )}',
-                                    -1
-                                )"
-                            >
-                                -
-                            </button>
+                <div class="cart-item-actions">
 
-                            <span>
-                                ${item.quantity}
-                            </span>
+                    <button
+                        class="qty-btn"
+                        type="button"
+                        onclick="changeQuantity('${escapeJS(String(item.id))}', -1)"
+                    >
+                        -
+                    </button>
 
-                            <button
-                                class="qty-btn"
-                                type="button"
-                                onclick="changeQuantity(
-                                    '${escapeJS(
-                                        String(item.id)
-                                    )}',
-                                    1
-                                )"
-                            >
-                                +
-                            </button>
+                    <span>
+                        ${item.quantity}
+                    </span>
 
-                            <button
-                                class="remove-btn"
-                                type="button"
-                                onclick="removeFromCart(
-                                    '${escapeJS(
-                                        String(item.id)
-                                    )}'
-                                )"
-                            >
-                                🗑️
-                            </button>
+                    <button
+                        class="qty-btn"
+                        type="button"
+                        onclick="changeQuantity('${escapeJS(String(item.id))}', 1)"
+                    >
+                        +
+                    </button>
 
-                        </div>
+                    <button
+                        class="remove-btn"
+                        type="button"
+                        onclick="removeFromCart('${escapeJS(String(item.id))}')"
+                    >
+                        🗑️
+                    </button>
 
-                    </div>
-                `
-            )
-            .join("");
+                </div>
+
+            </div>
+
+        `).join("");
+
 }
 
 
@@ -1070,6 +1376,7 @@ function openModal() {
         ?.classList.add(
             "active"
         );
+
 }
 
 
@@ -1082,6 +1389,7 @@ function closeModal() {
         ?.classList.remove(
             "active"
         );
+
 }
 
 
@@ -1098,6 +1406,7 @@ function openTrackingModal() {
         ?.classList.add(
             "active"
         );
+
 }
 
 
@@ -1110,173 +1419,7 @@ function closeTrackingModal() {
         ?.classList.remove(
             "active"
         );
-}
 
-
-/* =========================================================
-   MODAL DE DETALHES DO PRODUTO
-========================================================= */
-
-function openDetailModal(product) {
-
-    const modal =
-        document.getElementById(
-            "product-detail-modal"
-        );
-
-    if (!modal) {
-        return;
-    }
-
-    /*
-     * IMPORTANTE:
-     *
-     * Esses IDs agora são os mesmos
-     * utilizados no HTML:
-     *
-     * detail-name
-     * detail-brand
-     * detail-price
-     * detail-desc
-     * detail-img
-     * detail-btn-add
-     */
-
-    const nameElement =
-        document.getElementById(
-            "detail-name"
-        );
-
-    const brandElement =
-        document.getElementById(
-            "detail-brand"
-        );
-
-    const priceElement =
-        document.getElementById(
-            "detail-price"
-        );
-
-    const descElement =
-        document.getElementById(
-            "detail-desc"
-        );
-
-    const imageElement =
-        document.getElementById(
-            "detail-img"
-        );
-
-    const addBtn =
-        document.getElementById(
-            "detail-btn-add"
-        );
-
-
-    if (nameElement) {
-        nameElement.innerText =
-            product.name;
-    }
-
-    if (brandElement) {
-        brandElement.innerText =
-            product.brand;
-    }
-
-    if (priceElement) {
-
-        priceElement.innerText =
-            `R$ ${Number(
-                product.price
-            )
-                .toFixed(2)
-                .replace(
-                    ".",
-                    ","
-                )}`;
-    }
-
-
-    /*
-     * Agora a imagem também
-     * é carregada no modal.
-     */
-    if (imageElement) {
-
-        imageElement.src =
-            product.image ||
-            getGenericImageForProduct(
-                product.name,
-                product.brand
-            );
-
-        imageElement.alt =
-            product.name;
-    }
-
-
-    if (descElement) {
-
-        descElement.innerText =
-            `O ${product.name} da marca ${product.brand} foi desenvolvido com alto padrão de qualidade para garantir a melhor experiência em cuidados diários, oferecendo eficácia e ótimo rendimento.`;
-    }
-
-
-    /*
-     * Botão adicionar ao carrinho
-     * dentro do modal.
-     */
-    if (addBtn) {
-
-        addBtn.onclick = () => {
-
-            const existingItem =
-                cart.find(
-                    (item) =>
-                        item.id ===
-                        product.id
-                );
-
-            if (existingItem) {
-
-                existingItem.quantity += 1;
-
-            } else {
-
-                cart.push({
-                    id: product.id,
-                    name: product.name,
-                    price: Number(
-                        product.price
-                    ),
-                    quantity: 1
-                });
-            }
-
-            updateCartUI();
-
-            closeDetailModal();
-
-            openModal();
-        };
-    }
-
-
-    modal.classList.add(
-        "active"
-    );
-}
-
-
-function closeDetailModal() {
-
-    document
-        .getElementById(
-            "product-detail-modal"
-        )
-        ?.classList.remove(
-            "active"
-        );
 }
 
 
@@ -1295,15 +1438,18 @@ function sendToWhatsApp() {
         return;
     }
 
+
     const addressInput =
         document.getElementById(
             "client-address"
         );
 
+
     const clientAddress =
         addressInput
             ? addressInput.value.trim()
             : "";
+
 
     if (!clientAddress) {
 
@@ -1319,9 +1465,6 @@ function sendToWhatsApp() {
     }
 
 
-    /*
-     * Gera código do pedido.
-     */
     const orderId =
         "VV-" +
         Math.floor(
@@ -1330,60 +1473,52 @@ function sendToWhatsApp() {
                 9000
         );
 
+
     let total = 0;
+
 
     let message =
         `🛍️ *NOVO PEDIDO (#${orderId}) - VIVÍCIA*\n\n`;
+
 
     message +=
         "*Itens do Pedido:*\n";
 
 
-    cart.forEach((item) => {
+    cart.forEach(item => {
 
         const itemTotal =
             item.price *
             item.quantity;
 
+
         total += itemTotal;
+
 
         message +=
             `• ${item.quantity}x ${item.name} - R$ ${itemTotal
                 .toFixed(2)
-                .replace(
-                    ".",
-                    ","
-                )}\n`;
+                .replace(".", ",")}\n`;
+
     });
 
 
     message +=
         `\n📍 *Endereço de Entrega:* ${clientAddress}\n`;
 
+
     message +=
         `💰 *Total:* R$ ${total
             .toFixed(2)
-            .replace(
-                ".",
-                ","
-            )}\n`;
+            .replace(".", ",")}\n`;
+
 
     message +=
         `📦 *Código do Pedido:* ${orderId}\n\n`;
 
+
     message +=
         "Olá! Gostaria de finalizar o pagamento do meu pedido.";
-
-
-    /*
-     * Salva localmente para o rastreamento.
-     */
-    saveLocalOrder(
-        orderId,
-        "Recebido",
-        cart,
-        total
-    );
 
 
     const encodedMessage =
@@ -1391,87 +1526,45 @@ function sendToWhatsApp() {
             message
         );
 
+
     const whatsappUrl =
         `https://wa.me/${PHONE_NUMBER}?text=${encodedMessage}`;
 
 
-    /*
-     * Limpa o carrinho.
-     */
     cart = [];
+
 
     if (addressInput) {
         addressInput.value = "";
     }
+
 
     const cepInput =
         document.getElementById(
             "client-cep"
         );
 
+
     if (cepInput) {
         cepInput.value = "";
     }
+
 
     updateCartUI();
 
     closeModal();
 
 
-    /*
-     * Abre o WhatsApp.
-     */
     window.open(
         whatsappUrl,
         "_blank"
     );
+
 }
 
 
 /* =========================================================
-   SALVAR PEDIDO LOCALMENTE
-========================================================= */
-
-function saveLocalOrder(
-    orderId,
-    status,
-    items,
-    total
-) {
-
-    const orders =
-        JSON.parse(
-            localStorage.getItem(
-                "ig_orders"
-            )
-        ) || {};
-
-    orders[orderId] = {
-
-        status,
-
-        date:
-            new Date()
-                .toLocaleDateString(
-                    "pt-BR"
-                ),
-
-        items,
-
-        total
-    };
-
-    localStorage.setItem(
-        "ig_orders",
-        JSON.stringify(
-            orders
-        )
-    );
-}
-
-
-/* =========================================================
-   RASTREAMENTO
+   RASTREAMENTO - GOOGLE SHEETS
 ========================================================= */
 
 async function searchOrderStatus() {
@@ -1481,19 +1574,23 @@ async function searchOrderStatus() {
             "tracking-input"
         );
 
+
     const resultDiv =
         document.getElementById(
             "tracking-result"
         );
+
 
     const errorDiv =
         document.getElementById(
             "tracking-error"
         );
 
+
     if (!codeInput) {
         return;
     }
+
 
     const code =
         codeInput.value
@@ -1511,185 +1608,155 @@ async function searchOrderStatus() {
     }
 
 
-    let orderStatus = null;
+    try {
 
+        /*
+         * O Google Sheets é consultado
+         * toda vez que o cliente pesquisa.
+         */
 
-    /*
-     * Primeiro tenta consultar
-     * o Google Sheets.
-     */
-    if (
-        GOOGLE_SHEETS_CSV_URL &&
-        GOOGLE_SHEETS_CSV_URL !== ""
-    ) {
-
-        try {
-
-            const response =
-                await fetch(
-                    GOOGLE_SHEETS_CSV_URL
-                );
-
-            if (!response.ok) {
-                throw new Error(
-                    "Erro ao consultar a planilha."
-                );
-            }
-
-            const csvText =
-                await response.text();
-
-            const lines =
-                csvText
-                    .replace(
-                        /\r/g,
-                        ""
-                    )
-                    .split("\n")
-                    .filter(
-                        (line) =>
-                            line.trim()
-                                .length > 0
-                    );
-
-            if (lines.length > 0) {
-
-                const delimiter =
-                    lines[0].includes(";")
-                        ? ";"
-                        : ",";
-
-                const headers =
-                    lines[0]
-                        .split(delimiter)
-                        .map(
-                            (h) =>
-                                h
-                                    .replace(
-                                        /["\uFEFF]/g,
-                                        ""
-                                    )
-                                    .trim()
-                                    .toLowerCase()
-                        );
-
-                const idCol =
-                    headers.findIndex(
-                        (h) =>
-                            h.includes(
-                                "codigo"
-                            ) ||
-                            h.includes(
-                                "pedido"
-                            ) ||
-                            h.includes(
-                                "id"
-                            )
-                    );
-
-                const statCol =
-                    headers.findIndex(
-                        (h) =>
-                            h.includes(
-                                "status"
-                            ) ||
-                            h.includes(
-                                "situacao"
-                            )
-                    );
-
-
-                if (
-                    idCol !== -1 &&
-                    statCol !== -1
-                ) {
-
-                    for (
-                        let i = 1;
-                        i < lines.length;
-                        i++
-                    ) {
-
-                        const cols =
-                            lines[i]
-                                .split(
-                                    delimiter
-                                )
-                                .map(
-                                    (v) =>
-                                        v
-                                            .replace(
-                                                /^["']|["']$/g,
-                                                ""
-                                            )
-                                            .trim()
-                                );
-
-                        const rowId =
-                            cols[idCol]
-                                ? cols[
-                                      idCol
-                                  ].toUpperCase()
-                                : "";
-
-                        if (
-                            rowId ===
-                            code
-                        ) {
-
-                            orderStatus =
-                                cols[
-                                    statCol
-                                ] ||
-                                "Recebido";
-
-                            break;
-                        }
-                    }
-                }
-            }
-
-        } catch (e) {
-
-            console.warn(
-                "Erro ao consultar o Google Sheets. Tentando dados locais...",
-                e
+        const response =
+            await fetch(
+                GOOGLE_SHEETS_CSV_URL +
+                "&t=" +
+                Date.now()
             );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Não foi possível acessar a planilha."
+            );
+
         }
-    }
 
 
-    /*
-     * Caso não encontre no Sheets,
-     * procura no navegador.
-     */
-    if (!orderStatus) {
+        const csvText =
+            await response.text();
 
-        const localOrders =
-            JSON.parse(
-                localStorage.getItem(
-                    "ig_orders"
-                )
-            ) || {};
+
+        const rows =
+            parseGoogleCSV(csvText);
+
+
+        if (rows.length < 2) {
+
+            throw new Error(
+                "Planilha vazia."
+            );
+
+        }
+
+
+        const headers =
+            rows[0].map(
+                header =>
+                    header
+                        .trim()
+                        .toLowerCase()
+            );
+
+
+        const idCol =
+            headers.findIndex(
+                header =>
+                    header.includes(
+                        "codigos de pedidos"
+                    ) ||
+                    header.includes(
+                        "códigos de pedidos"
+                    ) ||
+                    header.includes(
+                        "codigo de pedidos"
+                    ) ||
+                    header.includes(
+                        "código de pedidos"
+                    )
+            );
+
+
+        const statusCol =
+            headers.findIndex(
+                header =>
+                    header.includes(
+                        "status da entrega"
+                    )
+            );
+
 
         if (
-            localOrders[code]
+            idCol === -1 ||
+            statusCol === -1
         ) {
 
-            orderStatus =
-                localOrders[
-                    code
-                ].status;
+            throw new Error(
+                "As colunas de código ou status não foram encontradas."
+            );
+
         }
-    }
 
 
-    if (orderStatus) {
+        let orderStatus = null;
+
+
+        for (
+            let i = 1;
+            i < rows.length;
+            i++
+        ) {
+
+            const row =
+                rows[i];
+
+
+            const rowCode =
+                row[idCol]
+                    ? row[idCol]
+                        .trim()
+                        .toUpperCase()
+                    : "";
+
+
+            if (
+                rowCode === code
+            ) {
+
+                orderStatus =
+                    row[statusCol]
+                        ? row[statusCol].trim()
+                        : "Recebido";
+
+                break;
+
+            }
+
+        }
+
+
+        if (!orderStatus) {
+
+            if (resultDiv) {
+                resultDiv.style.display =
+                    "none";
+            }
+
+
+            if (errorDiv) {
+                errorDiv.style.display =
+                    "block";
+            }
+
+
+            return;
+        }
+
 
         if (resultDiv) {
             resultDiv.style.display =
                 "block";
         }
+
 
         if (errorDiv) {
             errorDiv.style.display =
@@ -1702,9 +1769,12 @@ async function searchOrderStatus() {
                 "track-order-id"
             );
 
+
         if (orderIdSpan) {
+
             orderIdSpan.innerText =
                 "#" + code;
+
         }
 
 
@@ -1713,9 +1783,12 @@ async function searchOrderStatus() {
                 "track-status-badge"
             );
 
+
         if (statusBadge) {
+
             statusBadge.innerText =
                 orderStatus;
+
         }
 
 
@@ -1723,23 +1796,165 @@ async function searchOrderStatus() {
             orderStatus
         );
 
-    } else {
+
+    } catch (error) {
+
+        console.error(
+            "Erro ao consultar pedido:",
+            error
+        );
+
 
         if (resultDiv) {
             resultDiv.style.display =
                 "none";
         }
 
+
         if (errorDiv) {
+
             errorDiv.style.display =
                 "block";
+
+            errorDiv.innerHTML = `
+                <p>
+                    Não foi possível consultar o pedido agora.
+                    Tente novamente em alguns instantes.
+                </p>
+            `;
+
         }
+
     }
+
 }
 
 
 /* =========================================================
-   TIMELINE DO PEDIDO
+   LEITOR CSV DO GOOGLE
+========================================================= */
+
+function parseGoogleCSV(csvText) {
+
+    const rows = [];
+
+    let row = [];
+
+    let value = "";
+
+    let insideQuotes = false;
+
+
+    for (
+        let i = 0;
+        i < csvText.length;
+        i++
+    ) {
+
+        const char =
+            csvText[i];
+
+
+        const next =
+            csvText[i + 1];
+
+
+        if (
+            char === '"' &&
+            insideQuotes &&
+            next === '"'
+        ) {
+
+            value += '"';
+
+            i++;
+
+            continue;
+
+        }
+
+
+        if (char === '"') {
+
+            insideQuotes =
+                !insideQuotes;
+
+            continue;
+
+        }
+
+
+        if (
+            char === "," &&
+            !insideQuotes
+        ) {
+
+            row.push(value);
+
+            value = "";
+
+            continue;
+
+        }
+
+
+        if (
+            (char === "\n" ||
+                char === "\r") &&
+            !insideQuotes
+        ) {
+
+            if (
+                char === "\r" &&
+                next === "\n"
+            ) {
+                i++;
+            }
+
+
+            row.push(value);
+
+            rows.push(row);
+
+            row = [];
+
+            value = "";
+
+            continue;
+
+        }
+
+
+        value += char;
+
+    }
+
+
+    if (
+        value.length > 0 ||
+        row.length > 0
+    ) {
+
+        row.push(value);
+
+        rows.push(row);
+
+    }
+
+
+    return rows.filter(
+        r =>
+            r.some(
+                cell =>
+                    cell.trim() !== ""
+            )
+    );
+
+}
+
+
+/* =========================================================
+   TIMELINE
 ========================================================= */
 
 function updateTimelineVisuals(
@@ -1753,14 +1968,23 @@ function updateTimelineVisuals(
         "Entregue"
     ];
 
+
+    const normalizedStatus =
+        String(
+            currentStatus
+        )
+            .trim()
+            .toLowerCase();
+
+
     const currentIndex =
         stages.findIndex(
-            (stage) =>
-                stage.toLowerCase() ===
-                String(
-                    currentStatus
-                ).toLowerCase()
+            stage =>
+                stage
+                    .toLowerCase() ===
+                normalizedStatus
         );
+
 
     const activeIdx =
         currentIndex !== -1
@@ -1779,9 +2003,11 @@ function updateTimelineVisuals(
                 `.timeline-step.step-${i}`
             );
 
+
         if (!stepElement) {
             continue;
         }
+
 
         stepElement.classList.remove(
             "completed",
@@ -1808,8 +2034,11 @@ function updateTimelineVisuals(
                 "current",
                 "active"
             );
+
         }
+
     }
+
 }
 
 
@@ -1840,6 +2069,7 @@ function escapeHTML(value) {
             /'/g,
             "&#039;"
         );
+
 }
 
 
@@ -1854,4 +2084,5 @@ function escapeJS(value) {
             /'/g,
             "\\'"
         );
+
 }

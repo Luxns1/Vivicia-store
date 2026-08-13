@@ -1,45 +1,84 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>𝑽𝑰𝑽Í𝑪𝑰𝑨 - Charme que Transforma</title>
 
     <link rel="stylesheet" href="style.css">
 
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,500&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,500&family=Poppins:wght@300;400;500;600&display=swap"
+        rel="stylesheet"
+    >
 </head>
 
 <body>
 
+    <!-- =====================================================
+         CABEÇALHO
+    ====================================================== -->
+
     <header class="main-header">
+
         <div class="header-container">
-            <img src="Logo - Vivi.png"
-                 alt="Vivícia Logo"
-                 class="logo-img"
-                 onerror="this.style.display='none'">
+
+            <img
+                src="Logo - Vivi.png"
+                alt="Vivícia Logo"
+                class="logo-img"
+                onerror="this.style.display='none'"
+            >
 
             <div class="header-text-brand">
-                <h1 class="brand-title">Vivícia</h1>
-                <p class="brand-slogan">Charme que transforma</p>
-                <p class="brand-subtitle">Encontre seus produtos favoritos</p>
+
+                <h1 class="brand-title">
+                    Vivícia
+                </h1>
+
+                <p class="brand-slogan">
+                    Charme que transforma
+                </p>
+
+                <p class="brand-subtitle">
+                    Encontre seus produtos favoritos
+                </p>
+
             </div>
 
-            <button id="btn-open-tracking" class="btn-tracking" type="button">
+            <button
+                id="btn-open-tracking"
+                class="btn-tracking"
+                type="button"
+            >
                 📦 Acompanhar Pedido
             </button>
+
         </div>
+
     </header>
+
+
+    <!-- =====================================================
+         CONTEÚDO PRINCIPAL
+    ====================================================== -->
 
     <main class="container">
 
+        <!-- BUSCA -->
+
         <div class="search-area">
+
             <div class="search-box-wrapper">
+
                 <input
                     type="text"
                     id="search-input"
                     placeholder="🔍 Buscar por produto"
                     autocomplete="off"
+                    aria-label="Buscar produtos"
                 >
 
                 <button
@@ -50,69 +89,170 @@
                 >
                     ✕
                 </button>
+
             </div>
+
         </div>
+
+
+        <!-- FILTROS -->
 
         <section class="filter-section">
-            <div class="brand-filter-wrapper" id="brand-filters">
-                <!-- Botões gerados via JS -->
+
+            <div
+                class="brand-filter-wrapper"
+                id="brand-filters"
+            >
+                <!-- Botões gerados pelo JavaScript -->
             </div>
+
         </section>
 
+
+        <!-- CONTADOR -->
+
         <div class="results-info">
-            <span id="results-count">Mostrando produtos...</span>
+
+            <span id="results-count">
+                Mostrando produtos...
+            </span>
+
         </div>
 
+
+        <!-- PRODUTOS -->
+
         <section class="products-section">
-            <div class="product-grid" id="product-grid">
-                <!-- Produtos renderizados via JS -->
+
+            <div
+                class="product-grid"
+                id="product-grid"
+            >
+                <!-- Produtos renderizados pelo JavaScript -->
             </div>
 
-            <div id="no-products-msg" class="no-products">
-                <p>Nenhum produto encontrado para essa busca. 🙁</p>
+
+            <div
+                id="no-products-msg"
+                class="no-products"
+            >
+                <p>
+                    Nenhum produto encontrado para essa busca. 🙁
+                </p>
             </div>
+
         </section>
 
     </main>
 
+
+    <!-- =====================================================
+         BARRA DO CARRINHO
+    ====================================================== -->
+
     <div class="cart-bar">
+
         <div class="cart-bar-container">
 
-            <div class="cart-info" id="cart-info-trigger">
+            <div
+                class="cart-info"
+                id="cart-info-trigger"
+                role="button"
+                tabindex="0"
+                aria-label="Abrir carrinho"
+            >
+
                 <div class="cart-icon-wrapper">
+
                     🛒
-                    <span class="cart-badge" id="cart-count">0</span>
+
+                    <span
+                        class="cart-badge"
+                        id="cart-count"
+                    >
+                        0
+                    </span>
+
                 </div>
+
 
                 <div class="cart-total-text">
-                    <span>Total (clique p/ ver):</span>
-                    <strong id="cart-total-value">R$ 0,00</strong>
+
+                    <span>
+                        Total (clique p/ ver):
+                    </span>
+
+                    <strong id="cart-total-value">
+                        R$ 0,00
+                    </strong>
+
                 </div>
+
             </div>
 
-            <button class="btn-checkout-whatsapp" id="btn-whatsapp" type="button">
+
+            <button
+                class="btn-checkout-whatsapp"
+                id="btn-whatsapp"
+                type="button"
+            >
                 Confirmar via WhatsApp
             </button>
 
         </div>
+
     </div>
 
-    <div class="cart-modal-overlay" id="cart-modal">
+
+    <!-- =====================================================
+         MODAL DO CARRINHO
+    ====================================================== -->
+
+    <div
+        class="cart-modal-overlay"
+        id="cart-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="cart-modal-title"
+    >
+
         <div class="cart-modal-content">
 
             <div class="cart-modal-header">
-                <h2>Seu Carrinho 🛍️</h2>
-                <button class="close-modal-btn" id="close-modal" type="button">&times;</button>
+
+                <h2 id="cart-modal-title">
+                    Seu Carrinho 🛍️
+                </h2>
+
+                <button
+                    class="close-modal-btn"
+                    id="close-modal"
+                    type="button"
+                    aria-label="Fechar carrinho"
+                >
+                    &times;
+                </button>
+
             </div>
 
-            <div class="cart-modal-body" id="cart-items-container">
-                <!-- Renderizado via JS -->
+
+            <div
+                class="cart-modal-body"
+                id="cart-items-container"
+            >
+                <!-- Itens renderizados pelo JavaScript -->
             </div>
+
 
             <div class="cart-modal-footer">
 
+                <!-- CEP -->
+
                 <div class="cart-address-wrapper">
-                    <label for="client-cep">CEP de Entrega:</label>
+
+                    <label for="client-cep">
+                        CEP de Entrega:
+                    </label>
 
                     <input
                         type="text"
@@ -120,11 +260,16 @@
                         placeholder="Digite apenas os 8 números"
                         maxlength="8"
                         inputmode="numeric"
-                        autocomplete="off"
+                        autocomplete="postal-code"
                     >
+
                 </div>
 
+
+                <!-- ENDEREÇO -->
+
                 <div class="cart-address-wrapper">
+
                     <label for="client-address">
                         Endereço (Preenchido pelo CEP + Número/Complemento):
                     </label>
@@ -133,66 +278,124 @@
                         type="text"
                         id="client-address"
                         placeholder="Ex: Rua Exemplo, 123, Apto 402"
-                        autocomplete="off"
+                        autocomplete="street-address"
                     >
+
                 </div>
+
+
+                <!-- TOTAL -->
 
                 <div class="modal-total-wrapper">
-                    <span>Valor Total:</span>
-                    <strong id="modal-total-value">R$ 0,00</strong>
+
+                    <span>
+                        Valor Total:
+                    </span>
+
+                    <strong id="modal-total-value">
+                        R$ 0,00
+                    </strong>
+
                 </div>
 
-                <button class="btn-checkout-whatsapp" id="btn-whatsapp-modal" type="button">
+
+                <!-- WHATSAPP -->
+
+                <button
+                    class="btn-checkout-whatsapp"
+                    id="btn-whatsapp-modal"
+                    type="button"
+                >
                     Finalizar via WhatsApp
                 </button>
 
             </div>
+
         </div>
+
     </div>
 
-    <div class="cart-modal-overlay" id="product-detail-modal">
+
+    <!-- =====================================================
+         MODAL DE DETALHES DO PRODUTO
+    ====================================================== -->
+
+    <div
+        class="cart-modal-overlay"
+        id="product-detail-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="detail-modal-title"
+    >
+
         <div class="cart-modal-content product-detail-modal-content">
 
             <div class="cart-modal-header">
-                <h2>Detalhes do Produto ✨</h2>
+
+                <h2 id="detail-modal-title">
+                    Detalhes do Produto ✨
+                </h2>
 
                 <button
                     class="close-modal-btn"
                     id="close-detail-modal"
                     type="button"
+                    aria-label="Fechar detalhes"
                 >
                     &times;
                 </button>
+
             </div>
+
 
             <div class="cart-modal-body product-detail-body">
 
+                <!-- IMAGEM -->
+
                 <div class="product-detail-img-box">
+
                     <img
                         id="detail-img"
                         src=""
-                        alt="Produto"
+                        alt="Imagem do produto"
                     >
+
                 </div>
+
+
+                <!-- INFORMAÇÕES -->
 
                 <div>
+
                     <span id="detail-brand"></span>
+
                     <h3 id="detail-name"></h3>
+
                     <strong id="detail-price"></strong>
+
                 </div>
 
+
+                <!-- DESCRIÇÃO -->
+
                 <div class="product-detail-info-box">
-                    <h4>Descrição do Produto:</h4>
+
+                    <h4>
+                        Descrição do Produto:
+                    </h4>
 
                     <p id="detail-desc">
                         Produto de alta qualidade selecionado especialmente
                         para o seu autocuidado e rotina de beleza.
                     </p>
+
                 </div>
 
             </div>
 
+
             <div class="cart-modal-footer">
+
                 <button
                     class="btn-checkout-whatsapp detail-add-button"
                     id="detail-btn-add"
@@ -200,25 +403,45 @@
                 >
                     Adicionar ao Carrinho 🛒
                 </button>
+
             </div>
 
         </div>
+
     </div>
 
-    <div class="cart-modal-overlay" id="tracking-modal">
+
+    <!-- =====================================================
+         ÁREA DO CLIENTE / RASTREAMENTO
+    ====================================================== -->
+
+    <div
+        class="cart-modal-overlay"
+        id="tracking-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="tracking-modal-title"
+    >
+
         <div class="cart-modal-content">
 
             <div class="cart-modal-header">
-                <h2>Área do Cliente - Rastreio 📦</h2>
+
+                <h2 id="tracking-modal-title">
+                    Área do Cliente - Rastreio 📦
+                </h2>
 
                 <button
                     class="close-modal-btn"
                     id="close-tracking-modal"
                     type="button"
+                    aria-label="Fechar rastreamento"
                 >
                     &times;
                 </button>
+
             </div>
+
 
             <div class="cart-modal-body">
 
@@ -226,81 +449,181 @@
                     Digite o código do seu pedido recebido no WhatsApp:
                 </p>
 
+
+                <!-- BUSCA DO PEDIDO -->
+
                 <div class="tracking-search-box">
+
                     <input
                         type="text"
                         id="tracking-input"
                         placeholder="Ex: VV-1082"
                         autocomplete="off"
+                        maxlength="20"
+                        aria-label="Código do pedido"
                     >
 
-                    <button id="btn-search-tracking" type="button">
+                    <button
+                        id="btn-search-tracking"
+                        type="button"
+                    >
                         Consultar
                     </button>
+
                 </div>
 
-                <div id="tracking-result">
+
+                <!-- =================================================
+                     RESULTADO DO PEDIDO
+
+                     IMPORTANTE:
+                     O JavaScript controla display/ocultação.
+                ================================================== -->
+
+                <div
+                    id="tracking-result"
+                    style="display: none;"
+                >
+
                     <div class="order-info-header">
-                        <p>
-                            Pedido:
-                            <strong id="track-order-id">#VV-1082</strong>
-                        </p>
 
                         <p>
-                            Status:
-                            <span id="track-status-badge" class="badge">
-                                Em Processamento
-                            </span>
+                            Pedido:
+                            <strong id="track-order-id">
+                                #VV-1082
+                            </strong>
                         </p>
+
+
+                        <p>
+
+                            Status:
+
+                            <span
+                                id="track-status-badge"
+                                class="badge"
+                            >
+                                Recebido
+                            </span>
+
+                        </p>
+
                     </div>
+
+
+                    <!-- TIMELINE -->
 
                     <div class="timeline">
 
-                        <div class="timeline-step step-1">
-                            <div class="step-icon">📝</div>
-                            <p>Recebido</p>
+                        <div
+                            class="timeline-step step-1"
+                        >
+
+                            <div class="step-icon">
+                                📝
+                            </div>
+
+                            <p>
+                                Recebido
+                            </p>
+
                         </div>
 
-                        <div class="timeline-step step-2">
-                            <div class="step-icon">📦</div>
-                            <p>Em Separação</p>
+
+                        <div
+                            class="timeline-step step-2"
+                        >
+
+                            <div class="step-icon">
+                                📦
+                            </div>
+
+                            <p>
+                                Em Separação
+                            </p>
+
                         </div>
 
-                        <div class="timeline-step step-3">
-                            <div class="step-icon">🛵</div>
-                            <p>Saiu p/ Entrega</p>
+
+                        <div
+                            class="timeline-step step-3"
+                        >
+
+                            <div class="step-icon">
+                                🛵
+                            </div>
+
+                            <p>
+                                Saiu p/ Entrega
+                            </p>
+
                         </div>
 
-                        <div class="timeline-step step-4">
-                            <div class="step-icon">✅</div>
-                            <p>Entregue</p>
+
+                        <div
+                            class="timeline-step step-4"
+                        >
+
+                            <div class="step-icon">
+                                ✅
+                            </div>
+
+                            <p>
+                                Entregue
+                            </p>
+
                         </div>
 
                     </div>
+
                 </div>
 
-                <div id="tracking-error" class="tracking-error-msg">
+
+                <!-- =================================================
+                     ERRO DE PEDIDO NÃO ENCONTRADO
+                ================================================== -->
+
+                <div
+                    id="tracking-error"
+                    class="tracking-error-msg"
+                    style="display: none;"
+                >
+
                     <p>
                         Pedido não encontrado.
                         Verifique o código enviado no seu WhatsApp.
                     </p>
+
                 </div>
 
             </div>
+
         </div>
+
     </div>
 
+
+    <!-- =====================================================
+         RODAPÉ
+    ====================================================== -->
+
     <footer class="main-footer">
+
         <div class="footer-container">
 
             <p class="footer-brand">
                 Vivícia - Charme que transforma
             </p>
 
+
             <div class="footer-links">
-                <a href="#">Sobre Nós</a>
+
+                <a href="#">
+                    Sobre Nós
+                </a>
 
                 <span>|</span>
+
 
                 <a
                     href="https://wa.me/558591251320"
@@ -312,6 +635,7 @@
 
                 <span>|</span>
 
+
                 <a
                     href="https://instagram.com/ViviciaOficial"
                     target="_blank"
@@ -319,16 +643,28 @@
                 >
                     Instagram (@ViviciaOficial)
                 </a>
+
             </div>
+
 
             <p class="footer-copy">
                 &copy; 2026 Vivícia. Todos os direitos reservados.
             </p>
 
         </div>
+
     </footer>
 
-    <script src="script.js" charset="UTF-8"></script>
+
+    <!-- =====================================================
+         JAVASCRIPT
+    ====================================================== -->
+
+    <script
+        src="script.js"
+        charset="UTF-8"
+    ></script>
 
 </body>
+
 </html>
