@@ -888,6 +888,7 @@ body {
 .promo-section {
     margin: 25px 0 30px;
     width: 100%;
+    overflow: hidden;
 }
 
 .promo-section-title {
@@ -909,39 +910,38 @@ body {
 
 .promo-cards {
     display: flex;
-    gap: 15px;
-    overflow-x: auto;
-    padding: 5px 3px 15px;
-    scroll-behavior: smooth;
-    scrollbar-width: thin;
+    gap: 18px;
+    width: max-content;
+    animation: promoMovement 25s linear infinite;
 }
 
 .promo-card {
-    flex: 0 0 280px;
+    width: 280px;
+    min-height: 180px;
+    flex-shrink: 0;
     background: #fff;
     border: 2px solid #dfb373;
-    border-radius: 12px;
-    padding: 18px;
-    min-height: 170px;
+    border-radius: 14px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .promo-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
 .promo-card::before {
     content: "OFERTA";
     position: absolute;
     top: 12px;
-    right: -32px;
+    right: -30px;
     background: #8a3b50;
     color: #fff;
     font-size: 0.65rem;
@@ -977,7 +977,7 @@ body {
 }
 
 .promo-card-button {
-    display: inline-block;
+    display: block;
     width: 100%;
     background-color: #d4a359;
     color: #fff;
@@ -989,14 +989,24 @@ body {
     text-align: center;
     text-decoration: none;
     cursor: pointer;
-    transition: background 0.2s ease;
 }
 
 .promo-card-button:hover {
     background-color: #b8863b;
 }
 
+@keyframes promoMovement {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
 @media (max-width: 767px) {
+
     .promo-section {
         margin: 20px 0 25px;
     }
@@ -1007,12 +1017,13 @@ body {
 
     .promo-cards {
         gap: 12px;
-        padding-bottom: 12px;
+        animation-duration: 20s;
     }
 
     .promo-card {
-        flex: 0 0 250px;
-        min-height: 165px;
-        padding: 15px;
+        width: 250px;
+        min-height: 170px;
+        padding: 16px;
     }
+
 }
