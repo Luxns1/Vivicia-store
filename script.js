@@ -109,9 +109,14 @@ async function loadProducts() {
 
         const buffer = await response.arrayBuffer();
 
-        let csvText = new TextDecoder('utf-8').decode(buffer);
+        // UTF-8 preservando emojis
+        let csvText;
 
-        if (csvText.includes('\ufffd')) {
+        try {
+            csvText = new TextDecoder('utf-8', {
+                fatal: true
+            }).decode(buffer);
+        } catch (e) {
             csvText = new TextDecoder('windows-1252').decode(buffer);
         }
 
