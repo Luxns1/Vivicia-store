@@ -1,5 +1,5 @@
 const PHONE_NUMBER = "558591251320";
-const GOOGLE_SHEETS_CSV_URL = "";
+const GOOGLE_SHEETS_CSV_URL = "https://docs.google.com/spreadsheets/d/1c4M7bft-ePSjx0QBALs9tg-ptuEqCV0JMEJ-PSxdDL8/edit?usp=sharing";
 
 let cart = [];
 let allProducts = [];
