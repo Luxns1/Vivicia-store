@@ -121,35 +121,21 @@ function parseCSV(csvText) {
 
     if (lines.length <= 1) return [];
 
-    const delimiter = lines[0].includes(';') ? ';' : ',';
-    // Remove aspas, BOM e dá trim absoluto em cada cabeçalho para evitar problemas com espaços extras (ex: "MARCA ")
-    const headers = lines[0].split(delimiter).map(h => h.replace(/["\uFEFF]/g, '').trim().toLowerCase());
-
+    const delimiter = ';';
     const products = [];
 
+    // Ignora a linha 0 (cabeçalho) e percorre as linhas de dados usando índice fixo
     for (let i = 1; i < lines.length; i++) {
         const values = lines[i].split(delimiter).map(v => v.replace(/^["']|["']$/g, '').trim());
-        let row = {};
+        
+        // Coluna 0: ID | Coluna 1: MARCA | Coluna 2: PRODUTO | Coluna 3: VALOR (DE VENDA)
+        const id = values[0] || String(i);
+        const brand = values[1] || 'Vivícia';
+        const name = values[2] || '';
+        let rawPrice = values[3] || '0';
 
-        headers.forEach((header, idx) => {
-            row[header] = values[idx] || '';
-        });
-
-        // Identifica as colunas com base no seu padrão exato do CSV
-        const idKey = Object.keys(row).find(k => k.includes('id') || k.includes('codigo')) || headers[0];
-        const brandKey = Object.keys(row).find(k => k.includes('marca')) || headers[1];
-        const nameKey = Object.keys(row).find(k => k.includes('produto') || k.includes('nome')) || headers[2];
-        const priceKey = Object.keys(row).find(k => k.includes('valor') || k.includes('venda') || k.includes('preco')) || headers[3];
-        const imageKey = Object.keys(row).find(k => k.includes('imagem') || k.includes('foto') || k.includes('img')) || '';
-
-        const id = row[idKey] || String(i);
-        const brand = (row[brandKey] || 'Vivícia').trim();
-        const name = (row[nameKey] || '').trim();
-        const image = imageKey ? (row[imageKey] || '').trim() : '';
-        let rawPrice = row[priceKey] || '';
-
+        // Tratamento do preço
         rawPrice = rawPrice.replace('R$', '').replace(/\s/g, '');
-
         if (rawPrice.includes(',') && rawPrice.includes('.')) {
             rawPrice = rawPrice.replace(/\./g, '').replace(',', '.');
         } else if (rawPrice.includes(',')) {
@@ -159,7 +145,7 @@ function parseCSV(csvText) {
         const price = parseFloat(rawPrice);
 
         if (name && !isNaN(price)) {
-            products.push({ id, brand, name, price, image });
+            products.push({ id, brand, name, price, image: '' });
         }
     }
 
