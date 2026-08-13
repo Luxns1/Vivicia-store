@@ -1,5 +1,5 @@
 const PHONE_NUMBER = "558591251320"; 
-const GOOGLE_SHEETS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR7PJLBEA-DSFQYrozFbAJgvL00ZEHptPlNWIvdjM2m5m0WeCj_gm-P6fj-Xw7_sg7SMYz_kg6JIlao/pub?gid=0&single=true&output=csv";
+const GOOGLE_SHEETS_CSV_URL = ""; // Deixado vazio para priorizar o arquivo local sem erros de requisição
 
 let cart = [];
 let allProducts = [];       
@@ -73,7 +73,6 @@ async function loadProducts() {
     try {
         let csvText = "";
 
-        // Tenta carregar primeiro da URL do Google Sheets publicada
         if (GOOGLE_SHEETS_CSV_URL && GOOGLE_SHEETS_CSV_URL !== "") {
             try {
                 const sheetResponse = await fetch(GOOGLE_SHEETS_CSV_URL);
@@ -85,7 +84,6 @@ async function loadProducts() {
             }
         }
 
-        // Se falhar, tenta o arquivo local com o nome correto codificado para URL
         if (!csvText || csvText.trim().length === 0) {
             const response = await fetch('Produtos%20disponiveis(Pro%20site).csv');
             if (!response.ok) {
@@ -121,20 +119,19 @@ function parseCSV(csvText) {
 
     if (lines.length <= 1) return [];
 
-    const delimiter = ';';
     const products = [];
 
-    // Ignora a linha 0 (cabeçalho) e percorre as linhas de dados usando índice fixo
+    // Ignora a linha 0 (cabeçalho) e percorre as linhas considerando ponto e vírgula (;)
     for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(delimiter).map(v => v.replace(/^["']|["']$/g, '').trim());
+        const values = lines[i].split(';').map(v => v.replace(/^["']|["']$/g, '').trim());
         
-        // Coluna 0: ID | Coluna 1: MARCA | Coluna 2: PRODUTO | Coluna 3: VALOR (DE VENDA)
+        // Mapeamento correto com base nas suas colunas: ID, MARCA, PRODUTO, VALOR (DE VENDA)
         const id = values[0] || String(i);
         const brand = values[1] || 'Vivícia';
         const name = values[2] || '';
         let rawPrice = values[3] || '0';
 
-        // Tratamento do preço
+        // Tratamento robusto do preço monetário brasileiro (ex: R$ 12,00 ou 12.00)
         rawPrice = rawPrice.replace('R$', '').replace(/\s/g, '');
         if (rawPrice.includes(',') && rawPrice.includes('.')) {
             rawPrice = rawPrice.replace(/\./g, '').replace(',', '.');
