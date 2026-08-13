@@ -4,7 +4,7 @@ const GOOGLE_SHEETS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1v
 let cart = [];
 let allProducts = [];       
 let selectedBrand = 'todas'; 
-let searchQuery = '';      
+let searchQuery = '';       
 
 document.addEventListener('DOMContentLoaded', () => {
     loadProducts();
@@ -71,18 +71,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function loadProducts() {
     try {
-        const response = await fetch('/Produtos disponiveis(Pro site).csv');
+        let csvText = "";
 
-        if (!response.ok) {
-            console.error(`Erro ao carregar produtos.csv! Status HTTP: ${response.status}`);
-            return;
+        // Tenta carregar primeiro da URL do Google Sheets configurada (caso publicada)
+        if (GOOGLE_SHEETS_CSV_URL && GOOGLE_SHEETS_CSV_URL !== "") {
+            try {
+                const sheetResponse = await fetch(GOOGLE_SHEETS_CSV_URL);
+                if (sheetResponse.ok) {
+                    csvText = await sheetResponse.text();
+                }
+            } catch (e) {
+                console.warn("Não foi possível carregar do Google Sheets, tentando arquivo local...", e);
+            }
         }
 
-        const buffer = await response.arrayBuffer();
-        let csvText = new TextDecoder('utf-8').decode(buffer);
+        // Se falhar ou estiver vazio, tenta carregar do arquivo local
+        if (!csvText || csvText.trim().length === 0) {
+            const response = await fetch('/Produtos disponiveis(Pro site).csv');
+            if (!response.ok) {
+                console.error(`Erro ao carregar produtos.csv! Status HTTP: ${response.status}`);
+                return;
+            }
+            const buffer = await response.arrayBuffer();
+            csvText = new TextDecoder('utf-8').decode(buffer);
 
-        if (csvText.includes('\ufffd')) {
-            csvText = new TextDecoder('iso-8859-1').decode(buffer);
+            if (csvText.includes('\ufffd')) {
+                csvText = new TextDecoder('iso-8859-1').decode(buffer);
+            }
         }
 
         allProducts = parseCSV(csvText);
@@ -104,23 +119,23 @@ function parseCSV(csvText) {
 
     if (lines.length <= 1) return [];
 
-    const delimiter = ';';
+    const delimiter = lines[0].includes(';') ? ';' : ',';
     const headers = lines[0].split(delimiter).map(h => h.replace(/[\u1680\u180E\u2000-\u200B\u202F\u205F\u3000\uFEFF]/g, '').trim().toLowerCase());
 
     const products = [];
 
     for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(delimiter).map(v => v.trim());
+        const values = lines[i].split(delimiter).map(v => v.replace(/^["']|["']$/g, '').trim());
         let row = {};
 
         headers.forEach((header, idx) => {
             row[header] = values[idx] || '';
         });
 
-        const idKey = Object.keys(row).find(k => k.includes('id')) || '';
+        const idKey = Object.keys(row).find(k => k.includes('id') || k.includes('codigo')) || '';
         const brandKey = Object.keys(row).find(k => k.includes('marca')) || '';
-        const nameKey = Object.keys(row).find(k => k.includes('produto')) || '';
-        const priceKey = Object.keys(row).find(k => k.includes('valor') || k.includes('venda')) || '';
+        const nameKey = Object.keys(row).find(k => k.includes('produto') || k.includes('nome')) || '';
+        const priceKey = Object.keys(row).find(k => k.includes('valor') || k.includes('venda')  || k.includes('preco')) || '';
         const imageKey = Object.keys(row).find(k => k.includes('imagem') || k.includes('foto') || k.includes('img')) || '';
 
         const id = row[idKey] || String(i);

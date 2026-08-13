@@ -81,13 +81,13 @@ body {
     padding: 20px;
 }
 
-/* SEÇÃO DE FILTROS E BUSCA (ATUALIZADO PARA GRID) */
+/* SEÇÃO DE FILTROS E BUSCA */
 .filter-section {
     margin-bottom: 25px;
-    display: grid;
-    grid-template-columns: 1fr auto;
+    display: flex;
+    justify-content: flex-start;
     align-items: center;
-    gap: 20px;
+    width: 100%;
 }
 
 .search-box-wrapper {
@@ -674,4 +674,50 @@ body {
 .timeline-step.active p {
     color: #b8863b;
     font-weight: 700;
+}
+
+/* ==================================================
+    ESTILOS DO MODAL DE DETALHES DO PRODUTO
+   ================================================== */
+.product-detail-body {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.product-detail-img-box {
+    text-align: center;
+    background: #fceeee;
+    border-radius: 8px;
+    padding: 10px;
+    max-height: 280px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.product-detail-img-box img {
+    max-height: 260px;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.product-detail-info-box {
+    background: #f9f9f9;
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 3px solid #dfb373;
+}
+
+.product-detail-info-box h4 {
+    font-size: 0.9rem;
+    color: #444;
+    margin-bottom: 5px;
+}
+
+.product-detail-info-box p {
+    font-size: 0.88rem;
+    color: #666;
+    line-height: 1.4;
 }

@@ -111,6 +111,35 @@
         </div>
     </div>
 
+    <!-- MODAL DE DETALHES DO PRODUTO (AO CLICAR NO CARD) -->
+    <div class="cart-modal-overlay" id="product-detail-modal">
+        <div class="cart-modal-content" style="max-width: 600px;">
+            <div class="cart-modal-header">
+                <h2>Detalhes do Produto ✨</h2>
+                <button class="close-modal-btn" id="close-detail-modal">&times;</button>
+            </div>
+            <div class="cart-modal-body product-detail-body">
+                <div class="product-detail-img-box">
+                    <img id="detail-img" src="" alt="Produto">
+                </div>
+                <div>
+                    <span id="detail-brand" style="font-size: 0.75rem; color: #b8863b; text-transform: uppercase; font-weight: 600;"></span>
+                    <h3 id="detail-name" style="font-size: 1.2rem; font-weight: 700; color: #111; margin: 4px 0 8px 0;"></h3>
+                    <strong id="detail-price" style="font-size: 1.3rem; color: #111; display: block; margin-bottom: 15px;"></strong>
+                </div>
+                <div class="product-detail-info-box">
+                    <h4>Informações:</h4>
+                    <p id="detail-desc">Produto de alta qualidade da Vivícia.</p>
+                </div>
+            </div>
+            <div class="cart-modal-footer">
+                <button class="btn-checkout-whatsapp" id="detail-btn-add" style="background-color: #d4a359; width: 100%; border: none; padding: 12px; color: #fff; font-weight: 600; border-radius: 6px; cursor: pointer;">
+                    Adicionar ao Carrinho 🛒
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL DE RASTREIO DE PEDIDO -->
     <div class="cart-modal-overlay" id="tracking-modal">
         <div class="cart-modal-content">
