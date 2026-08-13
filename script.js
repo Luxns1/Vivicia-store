@@ -1357,3 +1357,202 @@ function updateTimelineVisuals(currentStatus) {
     }
 
 }
+/*
+ * =========================================================
+ * MONTE SEU KIT
+ * =========================================================
+ */
+
+function setupCustomKit() {
+
+    const soapSelect = document.getElementById('custom-kit-soap');
+    const scrubSelect = document.getElementById('custom-kit-scrub');
+    const moisturizerSelect = document.getElementById('custom-kit-moisturizer');
+
+    if (!soapSelect || !scrubSelect || !moisturizerSelect) return;
+
+    const swissProducts = allProducts.filter(product =>
+        product.brand.toLowerCase().includes('swiss beauty')
+    );
+
+    const soaps = swissProducts.filter(product =>
+        product.type.toLowerCase().includes('sabonete') ||
+        product.name.toLowerCase().includes('sabonete')
+    );
+
+    const scrubs = swissProducts.filter(product =>
+        product.type.toLowerCase().includes('esfoliante') ||
+        product.name.toLowerCase().includes('esfoliante')
+    );
+
+    const moisturizers = swissProducts.filter(product =>
+        product.type.toLowerCase().includes('hidratante') ||
+        product.name.toLowerCase().includes('hidratante') ||
+        product.name.toLowerCase().includes('loção') ||
+        product.name.toLowerCase().includes('locao')
+    );
+
+    function populateSelect(select, products) {
+
+        select.innerHTML = '<option value="">Selecione uma opção</option>';
+
+        products.forEach(product => {
+
+            const option = document.createElement('option');
+
+            option.value = product.id;
+
+            option.textContent =
+                `${product.name} - R$ ${product.price.toFixed(2).replace('.', ',')}`;
+
+            select.appendChild(option);
+
+        });
+
+    }
+
+    populateSelect(soapSelect, soaps);
+    populateSelect(scrubSelect, scrubs);
+    populateSelect(moisturizerSelect, moisturizers);
+
+    soapSelect.addEventListener('change', updateCustomKit);
+    scrubSelect.addEventListener('change', updateCustomKit);
+    moisturizerSelect.addEventListener('change', updateCustomKit);
+
+    document
+        .getElementById('btn-add-custom-kit')
+        ?.addEventListener('click', addCustomKitToCart);
+
+}
+
+
+function updateCustomKit() {
+
+    const soapSelect =
+        document.getElementById('custom-kit-soap');
+
+    const scrubSelect =
+        document.getElementById('custom-kit-scrub');
+
+    const moisturizerSelect =
+        document.getElementById('custom-kit-moisturizer');
+
+    const soapSelected =
+        document.getElementById('custom-kit-soap-selected');
+
+    const scrubSelected =
+        document.getElementById('custom-kit-scrub-selected');
+
+    const moisturizerSelected =
+        document.getElementById('custom-kit-moisturizer-selected');
+
+    const totalElement =
+        document.getElementById('custom-kit-total-value');
+
+    const addButton =
+        document.getElementById('btn-add-custom-kit');
+
+    const soap =
+        allProducts.find(p => String(p.id) === soapSelect?.value);
+
+    const scrub =
+        allProducts.find(p => String(p.id) === scrubSelect?.value);
+
+    const moisturizer =
+        allProducts.find(p => String(p.id) === moisturizerSelect?.value);
+
+    if (soapSelected) {
+        soapSelected.innerText =
+            soap ? soap.name : 'Não selecionado';
+    }
+
+    if (scrubSelected) {
+        scrubSelected.innerText =
+            scrub ? scrub.name : 'Não selecionado';
+    }
+
+    if (moisturizerSelected) {
+        moisturizerSelected.innerText =
+            moisturizer ? moisturizer.name : 'Não selecionado';
+    }
+
+    const total =
+        (soap?.price || 0) +
+        (scrub?.price || 0) +
+        (moisturizer?.price || 0);
+
+    if (totalElement) {
+        totalElement.innerText =
+            `R$ ${total.toFixed(2).replace('.', ',')}`;
+    }
+
+    if (addButton) {
+        addButton.disabled =
+            !(soap && scrub && moisturizer);
+    }
+
+}
+
+
+function addCustomKitToCart() {
+
+    const soapId =
+        document.getElementById('custom-kit-soap')?.value;
+
+    const scrubId =
+        document.getElementById('custom-kit-scrub')?.value;
+
+    const moisturizerId =
+        document.getElementById('custom-kit-moisturizer')?.value;
+
+    const soap =
+        allProducts.find(p => String(p.id) === soapId);
+
+    const scrub =
+        allProducts.find(p => String(p.id) === scrubId);
+
+    const moisturizer =
+        allProducts.find(p => String(p.id) === moisturizerId);
+
+    if (!soap || !scrub || !moisturizer) {
+
+        alert('Selecione os 3 produtos para montar seu kit.');
+
+        return;
+
+    }
+
+    const kitPrice =
+        soap.price +
+        scrub.price +
+        moisturizer.price;
+
+    cart.push({
+
+        id: `kit-${Date.now()}`,
+
+        name:
+            `Kit Corporal - ${soap.name} + ${scrub.name} + ${moisturizer.name}`,
+
+        price: kitPrice,
+
+        quantity: 1
+
+    });
+
+    updateCartUI();
+
+    alert('Seu kit foi adicionado ao carrinho! 🛍️');
+
+}
+
+
+const originalLoadProducts = loadProducts;
+
+loadProducts = async function () {
+
+    await originalLoadProducts();
+
+    setupCustomKit();
+
+};
