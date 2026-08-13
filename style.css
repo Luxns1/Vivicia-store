@@ -344,12 +344,9 @@ body {
     padding: 5px 0 15px;
 }
 
-/* DUPLICAÇÃO VISUAL DO CARROSSEL */
+/* AJUSTE DO LOOP */
 .featured-promotions-grid::after {
-    content: "";
-    display: block;
-    width: 290px;
-    min-width: 290px;
+    display: none;
 }
 
 /* CARD */

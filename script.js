@@ -109,7 +109,6 @@ async function loadProducts() {
 
         const buffer = await response.arrayBuffer();
 
-        // UTF-8 preservando emojis
         let csvText;
 
         try {
@@ -140,6 +139,8 @@ async function loadProducts() {
 
         renderBrandFilters(allProducts);
         applyFilters();
+
+        setupPromotionCards();
 
     } catch (error) {
 
@@ -227,9 +228,6 @@ function parseCSV(csvText) {
 
         const description = (values[4] || '').trim();
 
-
-        // PREÇO
-
         let rawPrice = (values[5] || '').trim();
 
         rawPrice = rawPrice
@@ -261,9 +259,6 @@ function parseCSV(csvText) {
             price = 0;
         }
 
-
-        // IMAGEM
-
         let image = (values[6] || '').trim();
 
         image = image
@@ -277,7 +272,6 @@ function parseCSV(csvText) {
             image = `./Fotos dos produtos/${image}`;
 
         }
-
 
         if (name) {
 
@@ -299,6 +293,167 @@ function parseCSV(csvText) {
 
 }
 
+
+/*
+ * =========================================================
+ * PROMOÇÕES
+ * =========================================================
+ */
+
+function setupPromotionCards() {
+
+    const promoContainer = document.querySelector('.featured-promotions-grid');
+
+    if (!promoContainer || allProducts.length === 0) return;
+
+    const existingCards = Array.from(
+        promoContainer.querySelectorAll('.featured-promotion-card')
+    );
+
+    const uniqueCards = [];
+    const usedNames = new Set();
+
+    existingCards.forEach(card => {
+
+        const titleElement = card.querySelector('h3');
+
+        if (!titleElement) return;
+
+        const title = titleElement.innerText
+            .trim()
+            .toLowerCase();
+
+        if (!usedNames.has(title)) {
+
+            usedNames.add(title);
+            uniqueCards.push(card);
+
+        } else {
+
+            card.remove();
+
+        }
+
+    });
+
+    uniqueCards.forEach(card => {
+
+        const titleElement = card.querySelector('h3');
+
+        if (!titleElement) return;
+
+        const title = titleElement.innerText
+            .trim()
+            .toLowerCase();
+
+        let product = allProducts.find(p =>
+            p.name.trim().toLowerCase() === title
+        );
+
+        if (!product) {
+
+            product = allProducts.find(p => {
+
+                const productName =
+                    p.name.trim().toLowerCase();
+
+                return (
+                    productName.includes(title) ||
+                    title.includes(productName)
+                );
+
+            });
+
+        }
+
+        if (!product) return;
+
+        const existingImage =
+            card.querySelector('.promo-card-image');
+
+        if (existingImage) return;
+
+        const imageContainer =
+            document.createElement('div');
+
+        imageContainer.className =
+            'promo-card-image';
+
+        const image =
+            document.createElement('img');
+
+        const fallback =
+            getGenericImageForProduct(
+                product.name,
+                product.brand
+            );
+
+        image.src =
+            product.image || fallback;
+
+        image.alt =
+            product.name;
+
+        image.loading =
+            'lazy';
+
+        image.onerror = function() {
+
+            this.onerror = null;
+            this.src = fallback;
+
+        };
+
+        imageContainer.style.width = '100%';
+        imageContainer.style.height = '130px';
+        imageContainer.style.display = 'flex';
+        imageContainer.style.alignItems = 'center';
+        imageContainer.style.justifyContent = 'center';
+        imageContainer.style.marginBottom = '15px';
+        imageContainer.style.borderRadius = '10px';
+        imageContainer.style.overflow = 'hidden';
+        imageContainer.style.backgroundColor = '#fceeee';
+
+        image.style.width = '100%';
+        image.style.height = '100%';
+        image.style.objectFit = 'contain';
+
+        imageContainer.appendChild(image);
+
+        card.insertBefore(
+            imageContainer,
+            card.firstChild
+        );
+
+    });
+
+    const originalCards = Array.from(
+        promoContainer.querySelectorAll('.featured-promotion-card')
+    );
+
+    promoContainer
+        .querySelectorAll('.featured-promotion-card.promo-clone')
+        .forEach(card => card.remove());
+
+    originalCards.forEach(card => {
+
+        const clone =
+            card.cloneNode(true);
+
+        clone.classList.add('promo-clone');
+
+        promoContainer.appendChild(clone);
+
+    });
+
+}
+
+
+/*
+ * =========================================================
+ * IMAGENS GENÉRICAS
+ * =========================================================
+ */
 
 function getGenericImageForProduct(productName, brandName) {
 
@@ -471,7 +626,6 @@ function renderProducts(products) {
 
     });
 
-
     document.querySelectorAll('.product-card').forEach(card => {
 
         card.addEventListener('click', (e) => {
@@ -489,7 +643,6 @@ function renderProducts(products) {
         });
 
     });
-
 
     document.querySelectorAll('.btn-add-cart').forEach(button => {
         button.addEventListener('click', addToCart);
@@ -915,9 +1068,6 @@ async function searchOrderStatus() {
             throw new Error("Planilha vazia.");
         }
 
-
-        // Detecta se o Google Sheets entregou a planilha
-        // usando ";" ou "," como separador.
         const detectDelimiter = (line) => {
 
             let insideQuotes = false;
@@ -954,10 +1104,8 @@ async function searchOrderStatus() {
 
         };
 
-
         const delimiter =
             detectDelimiter(lines[0]);
-
 
         const parseLine = (line) => {
 
@@ -1001,7 +1149,6 @@ async function searchOrderStatus() {
 
         };
 
-
         const headers =
             parseLine(lines[0]).map(
                 h => h
@@ -1009,7 +1156,6 @@ async function searchOrderStatus() {
                     .trim()
                     .toLowerCase()
             );
-
 
         const idCol =
             headers.findIndex(h =>
@@ -1019,26 +1165,21 @@ async function searchOrderStatus() {
                 h === 'código de pedidos'
             );
 
-
         const statCol =
             headers.findIndex(h =>
                 h === 'status da entrega'
             );
 
-
         if (idCol === -1 || statCol === -1) {
             throw new Error("Colunas da planilha não encontradas.");
         }
 
-
         let orderStatus = null;
-
 
         for (let i = 1; i < lines.length; i++) {
 
             const cols =
                 parseLine(lines[i]);
-
 
             const rowId =
                 cols[idCol]
@@ -1047,7 +1188,6 @@ async function searchOrderStatus() {
                         .trim()
                         .toUpperCase()
                     : '';
-
 
             if (rowId === code) {
 
@@ -1064,7 +1204,6 @@ async function searchOrderStatus() {
 
         }
 
-
         if (!orderStatus) {
 
             if (resultDiv) {
@@ -1079,7 +1218,6 @@ async function searchOrderStatus() {
 
         }
 
-
         if (resultDiv) {
             resultDiv.style.display = 'block';
         }
@@ -1088,27 +1226,21 @@ async function searchOrderStatus() {
             errorDiv.style.display = 'none';
         }
 
-
         const orderIdSpan =
             document.getElementById('track-order-id');
-
 
         if (orderIdSpan) {
             orderIdSpan.innerText = '#' + code;
         }
 
-
         const statusBadge =
             document.getElementById('track-status-badge');
-
 
         if (statusBadge) {
             statusBadge.innerText = orderStatus;
         }
 
-
         updateTimelineVisuals(orderStatus);
-
 
     } catch (e) {
 
@@ -1183,4 +1315,4 @@ function updateTimelineVisuals(currentStatus) {
 
     }
 
-}
+}s
