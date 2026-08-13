@@ -4,205 +4,331 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>𝑽𝑰𝑽Í𝑪𝑰𝑨 - Charme que Transforma</title>
+
     <link rel="stylesheet" href="style.css">
+
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,500&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
+
 <body>
 
-    <!-- CABEÇALHO -->
     <header class="main-header">
         <div class="header-container">
-            <img src="Logo - Vivi.png" alt="Vivícia Logo" class="logo-img" onerror="this.style.display='none'">
+            <img src="Logo - Vivi.png"
+                 alt="Vivícia Logo"
+                 class="logo-img"
+                 onerror="this.style.display='none'">
+
             <div class="header-text-brand">
                 <h1 class="brand-title">Vivícia</h1>
                 <p class="brand-slogan">Charme que transforma</p>
                 <p class="brand-subtitle">Encontre seus produtos favoritos</p>
             </div>
-            <button id="btn-open-tracking" class="btn-tracking">📦 Acompanhar Pedido</button>
+
+            <button id="btn-open-tracking" class="btn-tracking" type="button">
+                📦 Acompanhar Pedido
+            </button>
         </div>
     </header>
 
-    <!-- CONTEÚDO PRINCIPAL -->
     <main class="container">
-        
-        <!-- SEÇÃO DE BUSCA NA EXTREMA DIREITA -->
-        <div style="display: flex; justify-content: flex-end; width: 100%; margin-bottom: 12px;">
-            <div class="search-box-wrapper" style="width: 300px; max-width: 100%; position: relative; margin: 0;">
-                <input type="text" id="search-input" placeholder="🔍 Buscar por produto" autocomplete="off" style="width: 100%; padding: 10px 35px 10px 12px; border: 1px solid #dfb373; border-radius: 8px; outline: none; background: #fff; box-sizing: border-box;">
-                <button id="btn-clear-search" class="btn-clear" style="display: none; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1rem;">✕</button>
+
+        <div class="search-area">
+            <div class="search-box-wrapper">
+                <input
+                    type="text"
+                    id="search-input"
+                    placeholder="🔍 Buscar por produto"
+                    autocomplete="off"
+                >
+
+                <button
+                    id="btn-clear-search"
+                    class="btn-clear"
+                    type="button"
+                    aria-label="Limpar busca"
+                >
+                    ✕
+                </button>
             </div>
         </div>
 
-        <!-- SEÇÃO DE FILTROS DE MARCAS -->
-        <section class="filter-section" style="margin-bottom: 15px;">
-            <div class="brand-filter-wrapper" id="brand-filters" style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-start;">
+        <section class="filter-section">
+            <div class="brand-filter-wrapper" id="brand-filters">
                 <!-- Botões gerados via JS -->
             </div>
         </section>
 
-        <div class="results-info" style="margin-bottom: 20px; text-align: center;">
+        <div class="results-info">
             <span id="results-count">Mostrando produtos...</span>
         </div>
 
-        <!-- GRID DE PRODUTOS -->
         <section class="products-section">
             <div class="product-grid" id="product-grid">
                 <!-- Produtos renderizados via JS -->
             </div>
-            <div id="no-products-msg" class="no-products" style="display: none;">
+
+            <div id="no-products-msg" class="no-products">
                 <p>Nenhum produto encontrado para essa busca. 🙁</p>
             </div>
         </section>
 
     </main>
 
-    <!-- BARRA FIXA INFERIOR DE CHECKOUT -->
     <div class="cart-bar">
         <div class="cart-bar-container">
-            <div class="cart-info" id="cart-info-trigger" style="cursor: pointer;">
+
+            <div class="cart-info" id="cart-info-trigger">
                 <div class="cart-icon-wrapper">
-                    🛒 <span class="cart-badge" id="cart-count">0</span>
+                    🛒
+                    <span class="cart-badge" id="cart-count">0</span>
                 </div>
+
                 <div class="cart-total-text">
                     <span>Total (clique p/ ver):</span>
                     <strong id="cart-total-value">R$ 0,00</strong>
                 </div>
             </div>
-            <button class="btn-checkout-whatsapp" id="btn-whatsapp">
+
+            <button class="btn-checkout-whatsapp" id="btn-whatsapp" type="button">
                 Confirmar via WhatsApp
             </button>
+
         </div>
     </div>
 
-    <!-- MODAL DO CARRINHO -->
     <div class="cart-modal-overlay" id="cart-modal">
         <div class="cart-modal-content">
+
             <div class="cart-modal-header">
                 <h2>Seu Carrinho 🛍️</h2>
-                <button class="close-modal-btn" id="close-modal">&times;</button>
+                <button class="close-modal-btn" id="close-modal" type="button">&times;</button>
             </div>
+
             <div class="cart-modal-body" id="cart-items-container">
                 <!-- Renderizado via JS -->
             </div>
+
             <div class="cart-modal-footer">
-                
-                <!-- CAMPO DE CEP -->
-                <div class="cart-address-wrapper" style="margin-bottom: 12px; text-align: left;">
-                    <label for="client-cep" style="font-size: 0.85rem; font-weight: 600; color: #444; display: block; margin-bottom: 5px;">CEP de Entrega:</label>
-                    <input type="text" id="client-cep" placeholder="Digite apenas os 8 números" maxlength="8" autocomplete="off"
-                           style="width: 100%; padding: 10px 12px; border: 1px solid #dfb373; border-radius: 8px; font-size: 0.9rem; outline: none; background-color: #fff; box-sizing: border-box;">
+
+                <div class="cart-address-wrapper">
+                    <label for="client-cep">CEP de Entrega:</label>
+
+                    <input
+                        type="text"
+                        id="client-cep"
+                        placeholder="Digite apenas os 8 números"
+                        maxlength="8"
+                        inputmode="numeric"
+                        autocomplete="off"
+                    >
                 </div>
 
-                <!-- CAMPO DE ENDEREÇO DE ENTREGA -->
-                <div class="cart-address-wrapper" style="margin-bottom: 15px; text-align: left;">
-                    <label for="client-address" style="font-size: 0.85rem; font-weight: 600; color: #444; display: block; margin-bottom: 5px;">Endereço (Preenchido pelo CEP + Número/Complemento):</label>
-                    <input type="text" id="client-address" placeholder="Ex: Rua Exemplo, 123, Apto 402" autocomplete="off"
-                           style="width: 100%; padding: 10px 12px; border: 1px solid #dfb373; border-radius: 8px; font-size: 0.9rem; outline: none; background-color: #fff; box-sizing: border-box;">
+                <div class="cart-address-wrapper">
+                    <label for="client-address">
+                        Endereço (Preenchido pelo CEP + Número/Complemento):
+                    </label>
+
+                    <input
+                        type="text"
+                        id="client-address"
+                        placeholder="Ex: Rua Exemplo, 123, Apto 402"
+                        autocomplete="off"
+                    >
                 </div>
 
                 <div class="modal-total-wrapper">
                     <span>Valor Total:</span>
                     <strong id="modal-total-value">R$ 0,00</strong>
                 </div>
-                <button class="btn-checkout-whatsapp" id="btn-whatsapp-modal">
+
+                <button class="btn-checkout-whatsapp" id="btn-whatsapp-modal" type="button">
                     Finalizar via WhatsApp
                 </button>
+
             </div>
         </div>
     </div>
 
-    <!-- MODAL DE DETALHES DO PRODUTO (AO CLICAR NO CARD) -->
     <div class="cart-modal-overlay" id="product-detail-modal">
-        <div class="cart-modal-content" style="max-width: 500px; text-align: left;">
+        <div class="cart-modal-content product-detail-modal-content">
+
             <div class="cart-modal-header">
                 <h2>Detalhes do Produto ✨</h2>
-                <button class="close-modal-btn" id="close-detail-modal">&times;</button>
+
+                <button
+                    class="close-modal-btn"
+                    id="close-detail-modal"
+                    type="button"
+                >
+                    &times;
+                </button>
             </div>
-            <div class="cart-modal-body product-detail-body" style="display: flex; flex-direction: column; gap: 10px;">
-                <div class="product-detail-img-box" style="text-align: center;">
-                    <img id="detail-img" src="" alt="Produto" style="max-width: 100%; height: 200px; object-fit: contain;">
+
+            <div class="cart-modal-body product-detail-body">
+
+                <div class="product-detail-img-box">
+                    <img
+                        id="detail-img"
+                        src=""
+                        alt="Produto"
+                    >
                 </div>
+
                 <div>
-                    <span id="detail-brand" style="font-size: 0.75rem; color: #b8863b; text-transform: uppercase; font-weight: 600;"></span>
-                    <h3 id="detail-name" style="font-size: 1.2rem; font-weight: 700; color: #111; margin: 4px 0 8px 0;"></h3>
-                    <strong id="detail-price" style="font-size: 1.3rem; color: #27ae60; display: block; margin-bottom: 10px;"></strong>
+                    <span id="detail-brand"></span>
+                    <h3 id="detail-name"></h3>
+                    <strong id="detail-price"></strong>
                 </div>
+
                 <div class="product-detail-info-box">
-                    <h4 style="font-size: 0.9rem; color: #444;">Descrição do Produto:</h4>
-                    <p id="detail-desc" style="color: #555; font-size: 0.9rem; line-height: 1.5; margin-top: 5px;">
-                        Produto de alta qualidade selecionado especialmente para o seu autocuidado e rotina de beleza.
+                    <h4>Descrição do Produto:</h4>
+
+                    <p id="detail-desc">
+                        Produto de alta qualidade selecionado especialmente
+                        para o seu autocuidado e rotina de beleza.
                     </p>
                 </div>
+
             </div>
-            <div class="cart-modal-footer" style="margin-top: 15px;">
-                <button class="btn-checkout-whatsapp" id="detail-btn-add" style="background-color: #8a3b50; width: 100%; border: none; padding: 12px; color: #fff; font-weight: 600; border-radius: 6px; cursor: pointer;">
+
+            <div class="cart-modal-footer">
+                <button
+                    class="btn-checkout-whatsapp detail-add-button"
+                    id="detail-btn-add"
+                    type="button"
+                >
                     Adicionar ao Carrinho 🛒
                 </button>
             </div>
+
         </div>
     </div>
 
-    <!-- MODAL DE RASTREIO DE PEDIDO -->
     <div class="cart-modal-overlay" id="tracking-modal">
         <div class="cart-modal-content">
+
             <div class="cart-modal-header">
                 <h2>Área do Cliente - Rastreio 📦</h2>
-                <button class="close-modal-btn" id="close-tracking-modal">&times;</button>
+
+                <button
+                    class="close-modal-btn"
+                    id="close-tracking-modal"
+                    type="button"
+                >
+                    &times;
+                </button>
             </div>
+
             <div class="cart-modal-body">
-                <p class="tracking-subtitle">Digite o código do seu pedido recebido no WhatsApp:</p>
+
+                <p class="tracking-subtitle">
+                    Digite o código do seu pedido recebido no WhatsApp:
+                </p>
+
                 <div class="tracking-search-box">
-                    <input type="text" id="tracking-input" placeholder="Ex: VV-1082" autocomplete="off">
-                    <button id="btn-search-tracking">Consultar</button>
+                    <input
+                        type="text"
+                        id="tracking-input"
+                        placeholder="Ex: VV-1082"
+                        autocomplete="off"
+                    >
+
+                    <button id="btn-search-tracking" type="button">
+                        Consultar
+                    </button>
                 </div>
 
-                <div id="tracking-result" style="display: none; margin-top: 25px;">
+                <div id="tracking-result">
                     <div class="order-info-header">
-                        <p>Pedido: <strong id="track-order-id">#VV-1082</strong></p>
-                        <p>Status: <span id="track-status-badge" class="badge">Em Processamento</span></p>
+                        <p>
+                            Pedido:
+                            <strong id="track-order-id">#VV-1082</strong>
+                        </p>
+
+                        <p>
+                            Status:
+                            <span id="track-status-badge" class="badge">
+                                Em Processamento
+                            </span>
+                        </p>
                     </div>
 
-                    <!-- LINHA DO TEMPO DO STATUS -->
                     <div class="timeline">
+
                         <div class="timeline-step step-1">
                             <div class="step-icon">📝</div>
                             <p>Recebido</p>
                         </div>
+
                         <div class="timeline-step step-2">
                             <div class="step-icon">📦</div>
                             <p>Em Separação</p>
                         </div>
+
                         <div class="timeline-step step-3">
                             <div class="step-icon">🛵</div>
                             <p>Saiu p/ Entrega</p>
                         </div>
+
                         <div class="timeline-step step-4">
                             <div class="step-icon">✅</div>
                             <p>Entregue</p>
                         </div>
+
                     </div>
                 </div>
-                
-                <div id="tracking-error" class="tracking-error-msg" style="display: none;">
-                    <p>Pedido não encontrado. Verifique o código enviado no seu WhatsApp.</p>
+
+                <div id="tracking-error" class="tracking-error-msg">
+                    <p>
+                        Pedido não encontrado.
+                        Verifique o código enviado no seu WhatsApp.
+                    </p>
                 </div>
+
             </div>
         </div>
     </div>
 
-    <!-- RODAPÉ APRIMORADO -->
     <footer class="main-footer">
-        <div class="footer-container" style="max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 8px;">
-            <p style="font-weight: 600; color: #b8863b;">Vivícia - Charme que transforma</p>
-            <div class="footer-links" style="display: flex; gap: 15px; font-size: 0.9rem;">
-                <a href="#" style="color: #555; text-decoration: none;">Sobre Nós</a> | 
-                <a href="https://wa.me/SEU_NUMERO_AQUI" target="_blank" style="color: #555; text-decoration: none;">WhatsApp (Dúvidas)</a> | 
-                <a href="https://instagram.com/SEU_INSTAGRAM" target="_blank" style="color: #555; text-decoration: none;">Instagram (@ViviciaOficial)</a>
+        <div class="footer-container">
+
+            <p class="footer-brand">
+                Vivícia - Charme que transforma
+            </p>
+
+            <div class="footer-links">
+                <a href="#">Sobre Nós</a>
+
+                <span>|</span>
+
+                <a
+                    href="https://wa.me/558591251320"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    WhatsApp (Dúvidas)
+                </a>
+
+                <span>|</span>
+
+                <a
+                    href="https://instagram.com/ViviciaOficial"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    Instagram (@ViviciaOficial)
+                </a>
             </div>
-            <p style="font-size: 0.8rem; color: #888; margin-top: 5px;">&copy; 2026 Vivícia. Todos os direitos reservados.</p>
+
+            <p class="footer-copy">
+                &copy; 2026 Vivícia. Todos os direitos reservados.
+            </p>
+
         </div>
     </footer>
 
     <script src="script.js" charset="UTF-8"></script>
+
 </body>
 </html>
