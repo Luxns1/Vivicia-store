@@ -901,16 +901,63 @@ async function searchOrderStatus() {
                 new TextDecoder('windows-1252').decode(buffer);
         }
 
+        csvText = csvText
+            .replace(/^\uFEFF/, '')
+            .replace(/\r\n/g, '\n')
+            .replace(/\r/g, '\n');
+
         const lines =
             csvText
-                .replace(/^\uFEFF/, '')
-                .replace(/\r/g, '')
                 .split('\n')
                 .filter(l => l.trim().length > 0);
 
         if (lines.length < 2) {
             throw new Error("Planilha vazia.");
         }
+
+
+        // Detecta se o Google Sheets entregou a planilha
+        // usando ";" ou "," como separador.
+        const detectDelimiter = (line) => {
+
+            let insideQuotes = false;
+            let semicolonCount = 0;
+            let commaCount = 0;
+
+            for (let i = 0; i < line.length; i++) {
+
+                const char = line[i];
+
+                if (char === '"') {
+
+                    if (insideQuotes && line[i + 1] === '"') {
+                        i++;
+                    } else {
+                        insideQuotes = !insideQuotes;
+                    }
+
+                } else if (!insideQuotes) {
+
+                    if (char === ';') {
+                        semicolonCount++;
+                    }
+
+                    if (char === ',') {
+                        commaCount++;
+                    }
+
+                }
+
+            }
+
+            return semicolonCount > commaCount ? ';' : ',';
+
+        };
+
+
+        const delimiter =
+            detectDelimiter(lines[0]);
+
 
         const parseLine = (line) => {
 
@@ -925,13 +972,17 @@ async function searchOrderStatus() {
                 if (char === '"') {
 
                     if (insideQuotes && line[i + 1] === '"') {
+
                         current += '"';
                         i++;
+
                     } else {
+
                         insideQuotes = !insideQuotes;
+
                     }
 
-                } else if (char === ';' && !insideQuotes) {
+                } else if (char === delimiter && !insideQuotes) {
 
                     cols.push(current.trim());
                     current = '';
@@ -950,6 +1001,7 @@ async function searchOrderStatus() {
 
         };
 
+
         const headers =
             parseLine(lines[0]).map(
                 h => h
@@ -957,6 +1009,7 @@ async function searchOrderStatus() {
                     .trim()
                     .toLowerCase()
             );
+
 
         const idCol =
             headers.findIndex(h =>
@@ -966,27 +1019,35 @@ async function searchOrderStatus() {
                 h === 'código de pedidos'
             );
 
+
         const statCol =
             headers.findIndex(h =>
                 h === 'status da entrega'
             );
 
+
         if (idCol === -1 || statCol === -1) {
             throw new Error("Colunas da planilha não encontradas.");
         }
 
+
         let orderStatus = null;
+
 
         for (let i = 1; i < lines.length; i++) {
 
-            const cols = parseLine(lines[i]);
+            const cols =
+                parseLine(lines[i]);
 
-            const rowId = cols[idCol]
-                ? cols[idCol]
-                    .replace(/["']/g, '')
-                    .trim()
-                    .toUpperCase()
-                : '';
+
+            const rowId =
+                cols[idCol]
+                    ? cols[idCol]
+                        .replace(/["']/g, '')
+                        .trim()
+                        .toUpperCase()
+                    : '';
+
 
             if (rowId === code) {
 
@@ -1003,6 +1064,7 @@ async function searchOrderStatus() {
 
         }
 
+
         if (!orderStatus) {
 
             if (resultDiv) {
@@ -1017,6 +1079,7 @@ async function searchOrderStatus() {
 
         }
 
+
         if (resultDiv) {
             resultDiv.style.display = 'block';
         }
@@ -1025,21 +1088,27 @@ async function searchOrderStatus() {
             errorDiv.style.display = 'none';
         }
 
+
         const orderIdSpan =
             document.getElementById('track-order-id');
+
 
         if (orderIdSpan) {
             orderIdSpan.innerText = '#' + code;
         }
 
+
         const statusBadge =
             document.getElementById('track-status-badge');
+
 
         if (statusBadge) {
             statusBadge.innerText = orderStatus;
         }
 
+
         updateTimelineVisuals(orderStatus);
+
 
     } catch (e) {
 
