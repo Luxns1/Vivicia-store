@@ -147,49 +147,70 @@ async function loadProducts() {
 
 function parseCSV(csvText) {
 
-    const lines = csvText
+    csvText = csvText
         .replace(/^\uFEFF/, '')
-        .replace(/\r/g, '')
-        .split('\n')
-        .filter(line => line.trim() !== '');
+        .replace(/\r\n/g, '\n')
+        .replace(/\r/g, '\n');
 
-    if (lines.length < 2) return [];
+    const rows = [];
+    let row = [];
+    let current = '';
+    let insideQuotes = false;
 
-    const products = [];
+    for (let i = 0; i < csvText.length; i++) {
 
-    for (let i = 1; i < lines.length; i++) {
+        const char = csvText[i];
 
-        const values = [];
-        let current = '';
-        let insideQuotes = false;
+        if (char === '"') {
 
-        for (let j = 0; j < lines[i].length; j++) {
-
-            const char = lines[i][j];
-
-            if (char === '"') {
-
-                if (insideQuotes && lines[i][j + 1] === '"') {
-                    current += '"';
-                    j++;
-                } else {
-                    insideQuotes = !insideQuotes;
-                }
-
-            } else if (char === ';' && !insideQuotes) {
-
-                values.push(current.trim());
-                current = '';
-
+            if (insideQuotes && csvText[i + 1] === '"') {
+                current += '"';
+                i++;
             } else {
-
-                current += char;
-
+                insideQuotes = !insideQuotes;
             }
+
+        } else if (char === ';' && !insideQuotes) {
+
+            row.push(current.trim());
+            current = '';
+
+        } else if (char === '\n' && !insideQuotes) {
+
+            row.push(current.trim());
+
+            if (row.some(value => value !== '')) {
+                rows.push(row);
+            }
+
+            row = [];
+            current = '';
+
+        } else {
+
+            current += char;
 
         }
 
-        values.push(current.trim());
+    }
+
+    if (current !== '' || row.length > 0) {
+
+        row.push(current.trim());
+
+        if (row.some(value => value !== '')) {
+            rows.push(row);
+        }
+
+    }
+
+    if (rows.length < 2) return [];
+
+    const products = [];
+
+    for (let i = 1; i < rows.length; i++) {
+
+        const values = rows[i];
 
         const id = (values[0] || String(i)).trim();
 
@@ -202,17 +223,14 @@ function parseCSV(csvText) {
         const description = (values[4] || '').trim();
 
 
-        // =========================
-        // PREÇO CORRIGIDO
-        // =========================
+        // PREÇO
 
         let rawPrice = (values[5] || '').trim();
 
         rawPrice = rawPrice
             .replace(/^["']|["']$/g, '')
             .replace(/R\$/gi, '')
-            .replace(/\s/g, '')
-            .trim();
+            .replace(/\s/g, '');
 
         let price = 0;
 
@@ -239,9 +257,7 @@ function parseCSV(csvText) {
         }
 
 
-        // =========================
-        // IMAGEM CORRIGIDA
-        // =========================
+        // IMAGEM
 
         let image = (values[6] || '').trim();
 
@@ -251,11 +267,9 @@ function parseCSV(csvText) {
 
         if (image) {
 
-            // produto-001.jpeg → 001.jpeg
             image = image.replace(/^produto-/i, '');
 
-            // Direciona para a pasta Fotos dos produtos
-            image = encodeURI(`./Fotos dos produtos/${image}`);
+            image = `./Fotos dos produtos/${image}`;
 
         }
 
