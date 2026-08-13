@@ -298,22 +298,31 @@ body {
     background-color: #b8863b;
 }
 
+
 /* =====================================================
    DESTAQUES / PROMOÇÕES
 ===================================================== */
 
-.promo-section {
+.featured-promotions {
     margin: 30px 0 40px;
     width: 100%;
     overflow: hidden;
 }
 
-.promo-section-title {
+.featured-promotions-header {
     text-align: center;
     margin-bottom: 22px;
 }
 
-.promo-section-title h2 {
+.featured-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #8a3b50;
+    margin-bottom: 5px;
+}
+
+.featured-promotions-header h2 {
     font-family: "Playfair Display", serif;
     font-size: 1.7rem;
     font-weight: 700;
@@ -321,32 +330,26 @@ body {
     margin-bottom: 5px;
 }
 
-.promo-section-title p {
+.featured-promotions-header p {
     font-family: "Poppins", sans-serif;
     font-size: 0.85rem;
     color: #777;
 }
 
-/* ÁREA DO CARROSSEL */
 
-.promo-carousel {
-    width: 100%;
-    overflow: hidden;
-    position: relative;
-}
+/* CARROSSEL */
 
-/* LINHA DOS CARDS */
-
-.promo-cards {
+.featured-promotions-grid {
     display: flex;
     gap: 20px;
     width: max-content;
-    animation: promo-carousel-move 25s linear infinite;
+    animation: featuredCarousel 25s linear infinite;
 }
+
 
 /* CARD */
 
-.promo-card {
+.featured-promotion-card {
     width: 290px;
     min-height: 200px;
     flex-shrink: 0;
@@ -372,14 +375,15 @@ body {
         box-shadow 0.25s ease;
 }
 
-.promo-card:hover {
+.featured-promotion-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
 }
 
-/* FAIXA DE OFERTA */
 
-.promo-card::before {
+/* FAIXA */
+
+.featured-promotion-card::before {
     content: "EM PROMOÇÃO";
 
     position: absolute;
@@ -400,9 +404,18 @@ body {
     transform: rotate(45deg);
 }
 
-/* TEXTO DO CARD */
 
-.promo-card-brand {
+/* CONTEÚDO */
+
+.featured-promotion-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.featured-promotion-tag {
+    display: block;
+
     font-size: 0.7rem;
 
     color: #b8863b;
@@ -416,7 +429,7 @@ body {
     margin-bottom: 8px;
 }
 
-.promo-card h3 {
+.featured-promotion-card h3 {
     font-family: "Playfair Display", serif;
 
     font-size: 1.2rem;
@@ -432,7 +445,7 @@ body {
     padding-right: 20px;
 }
 
-.promo-card p {
+.featured-promotion-card p {
     font-family: "Poppins", sans-serif;
 
     font-size: 0.8rem;
@@ -444,45 +457,10 @@ body {
     margin-bottom: 15px;
 }
 
-/* BOTÃO */
 
-.promo-card-button {
-    display: block;
+/* ANIMAÇÃO */
 
-    width: 100%;
-
-    background-color: #d4a359;
-
-    color: #fff;
-
-    border: none;
-
-    padding: 10px 12px;
-
-    border-radius: 6px;
-
-    font-family: "Poppins", sans-serif;
-
-    font-size: 0.8rem;
-
-    font-weight: 600;
-
-    text-align: center;
-
-    text-decoration: none;
-
-    cursor: pointer;
-
-    transition: background-color 0.2s ease;
-}
-
-.promo-card-button:hover {
-    background-color: #b8863b;
-}
-
-/* MOVIMENTAÇÃO DO CARROSSEL */
-
-@keyframes promo-carousel-move {
+@keyframes featuredCarousel {
     0% {
         transform: translateX(0);
     }
@@ -491,6 +469,7 @@ body {
         transform: translateX(-50%);
     }
 }
+
 
 /* =====================================================
    BARRA DO CARRINHO
@@ -571,7 +550,9 @@ body {
     background-color: #1eb855;
 }
 
+
 /* MODAIS */
+
 .cart-modal-overlay {
     position: fixed;
     top: 0;
@@ -721,7 +702,9 @@ body {
     color: #111;
 }
 
+
 /* DETALHES DO PRODUTO */
+
 .product-detail-modal-content {
     max-width: 500px;
     max-height: 90vh;
@@ -799,7 +782,9 @@ body {
     width: 100%;
 }
 
+
 /* RASTREIO */
+
 .tracking-subtitle {
     font-size: 0.95rem;
     color: #555;
@@ -871,7 +856,9 @@ body {
     font-weight: 600;
 }
 
+
 /* TIMELINE */
+
 .timeline {
     display: flex;
     justify-content: space-between;
@@ -944,7 +931,9 @@ body {
     font-weight: 700;
 }
 
+
 /* RODAPÉ */
+
 .main-footer {
     text-align: center;
     padding: 20px;
@@ -989,7 +978,9 @@ body {
     margin-top: 5px;
 }
 
+
 /* RESPONSIVIDADE */
+
 @media (min-width: 768px) {
 
     .header-container {
@@ -1004,6 +995,7 @@ body {
     }
 
 }
+
 
 @media (max-width: 767px) {
 
@@ -1084,40 +1076,41 @@ body {
         width: 100%;
     }
 
+
     /* PROMOÇÕES NO CELULAR */
 
-    .promo-section {
+    .featured-promotions {
         margin: 25px 0 30px;
     }
 
-    .promo-section-title {
+    .featured-promotions-header {
         margin-bottom: 18px;
     }
 
-    .promo-section-title h2 {
+    .featured-promotions-header h2 {
         font-size: 1.45rem;
     }
 
-    .promo-section-title p {
+    .featured-promotions-header p {
         font-size: 0.8rem;
     }
 
-    .promo-cards {
+    .featured-promotions-grid {
         gap: 14px;
         animation-duration: 20s;
     }
 
-    .promo-card {
+    .featured-promotion-card {
         width: 260px;
         min-height: 190px;
         padding: 18px;
     }
 
-    .promo-card h3 {
+    .featured-promotion-card h3 {
         font-size: 1.1rem;
     }
 
-    .promo-card p {
+    .featured-promotion-card p {
         font-size: 0.76rem;
     }
 
