@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const addressInput = document.getElementById('client-address');
                         if (addressInput) {
                             addressInput.value = `${data.logradouro}, Bairro: ${data.bairro}, ${data.localidade} - ${data.uf} (CEP: ${data.cep}) - `;
-                            addressInput.focus(); // Joga o cursor para o usuário apenas digitar o número
+                            addressInput.focus();
                         }
                     } else {
                         alert("CEP não encontrado. Verifique os números digitados.");
@@ -73,7 +73,7 @@ async function loadProducts() {
     try {
         let csvText = "";
 
-        // Tenta carregar primeiro da URL do Google Sheets configurada (caso publicada)
+        // Tenta carregar primeiro da URL do Google Sheets publicada
         if (GOOGLE_SHEETS_CSV_URL && GOOGLE_SHEETS_CSV_URL !== "") {
             try {
                 const sheetResponse = await fetch(GOOGLE_SHEETS_CSV_URL);
@@ -81,15 +81,16 @@ async function loadProducts() {
                     csvText = await sheetResponse.text();
                 }
             } catch (e) {
-                console.warn("Não foi possível carregar do Google Sheets, tentando arquivo local...", e);
+                console.warn("Google Sheets inacessível, tentando arquivo local...", e);
             }
         }
 
-        // Se falhar ou estiver vazio, tenta carregar do arquivo local
+        // Se falhar, tenta o arquivo local com o nome correto codificado para URL
         if (!csvText || csvText.trim().length === 0) {
-            const response = await fetch('/Produtos disponiveis(Pro site).csv');
+            const response = await fetch('Produtos%20disponiveis(Pro%20site).csv');
             if (!response.ok) {
-                console.error(`Erro ao carregar produtos.csv! Status HTTP: ${response.status}`);
+                console.error(`Erro ao carregar o CSV local! Status HTTP: ${response.status}`);
+                document.getElementById('product-grid').innerHTML = `<p style="text-align:center; width:100%; color:#8a3b50; padding:20px;">Erro ao carregar o arquivo CSV. Verifique se o nome exato é "Produtos disponiveis(Pro site).csv".</p>`;
                 return;
             }
             const buffer = await response.arrayBuffer();
@@ -103,14 +104,15 @@ async function loadProducts() {
         allProducts = parseCSV(csvText);
 
         if (allProducts.length === 0) {
-            console.error("Nenhum produto foi processado do CSV.");
+            console.error("O CSV foi carregado, mas nenhum produto foi processado.");
+            document.getElementById('product-grid').innerHTML = `<p style="text-align:center; width:100%; color:#8a3b50; padding:20px;">Nenhum produto válido encontrado no arquivo.</p>`;
             return;
         }
 
         renderBrandFilters(allProducts);
         applyFilters();
     } catch (error) {
-        console.error("Erro na leitura do CSV:", error);
+        console.error("Erro crítico na leitura dos produtos:", error);
     }
 }
 
@@ -120,7 +122,8 @@ function parseCSV(csvText) {
     if (lines.length <= 1) return [];
 
     const delimiter = lines[0].includes(';') ? ';' : ',';
-    const headers = lines[0].split(delimiter).map(h => h.replace(/[\u1680\u180E\u2000-\u200B\u202F\u205F\u3000\uFEFF]/g, '').trim().toLowerCase());
+    // Remove aspas, BOM e dá trim absoluto em cada cabeçalho para evitar problemas com espaços extras (ex: "MARCA ")
+    const headers = lines[0].split(delimiter).map(h => h.replace(/["\uFEFF]/g, '').trim().toLowerCase());
 
     const products = [];
 
@@ -132,16 +135,17 @@ function parseCSV(csvText) {
             row[header] = values[idx] || '';
         });
 
-        const idKey = Object.keys(row).find(k => k.includes('id') || k.includes('codigo')) || '';
-        const brandKey = Object.keys(row).find(k => k.includes('marca')) || '';
-        const nameKey = Object.keys(row).find(k => k.includes('produto') || k.includes('nome')) || '';
-        const priceKey = Object.keys(row).find(k => k.includes('valor') || k.includes('venda')  || k.includes('preco')) || '';
+        // Identifica as colunas com base no seu padrão exato do CSV
+        const idKey = Object.keys(row).find(k => k.includes('id') || k.includes('codigo')) || headers[0];
+        const brandKey = Object.keys(row).find(k => k.includes('marca')) || headers[1];
+        const nameKey = Object.keys(row).find(k => k.includes('produto') || k.includes('nome')) || headers[2];
+        const priceKey = Object.keys(row).find(k => k.includes('valor') || k.includes('venda') || k.includes('preco')) || headers[3];
         const imageKey = Object.keys(row).find(k => k.includes('imagem') || k.includes('foto') || k.includes('img')) || '';
 
         const id = row[idKey] || String(i);
         const brand = (row[brandKey] || 'Vivícia').trim();
         const name = (row[nameKey] || '').trim();
-        const image = (row[imageKey] || '').trim();
+        const image = imageKey ? (row[imageKey] || '').trim() : '';
         let rawPrice = row[priceKey] || '';
 
         rawPrice = rawPrice.replace('R$', '').replace(/\s/g, '');
