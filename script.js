@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('close-detail-modal')?.addEventListener('click', closeDetailModal);
+
     document.getElementById('product-detail-modal')?.addEventListener('click', (e) => {
         if (e.target.id === 'product-detail-modal') closeDetailModal();
     });
@@ -152,7 +153,6 @@ function parseCSV(csvText) {
         const type = values[2] || '';
         const name = values[3] || '';
         const description = values[4] || '';
-
         let rawPrice = values[5] || '0';
         const image = values[6] || '';
 
@@ -306,7 +306,7 @@ function renderProducts(products) {
 
         const fallbackImage = `https://placehold.co/400x350/f7e6e8/8a3b50?text=${encodeURIComponent(product.brand.toUpperCase())}`;
 
-        const productImage = product.image ? product.image : getGenericImageForProduct(product.name, product.brand);
+        const productImage = product.image || getGenericImageForProduct(product.name, product.brand);
 
         const cardHTML = `
 
@@ -350,13 +350,11 @@ function renderProducts(products) {
             if (e.target.classList.contains('btn-add-cart')) return;
 
             const id = card.getAttribute('data-id');
-            const name = card.getAttribute('data-name');
-            const price = parseFloat(card.getAttribute('data-price'));
-            const brand = card.querySelector('.product-brand').innerText;
-
             const product = allProducts.find(p => p.id === id);
 
-            openDetailModal(product || { id, name, brand, price });
+            if (product) {
+                openDetailModal(product);
+            }
 
         });
 
@@ -383,23 +381,21 @@ function openDetailModal(product) {
     const descElement = document.getElementById('detail-desc');
 
     if (descElement) {
-
-        descElement.innerText = product.description ||
-            `O ${product.name} da marca ${product.brand} foi desenvolvido com alto padrão de qualidade para garantir a melhor experiência em cuidados diários, oferecendo eficácia e ótimo rendimento.`;
-
+        descElement.innerText = product.description || 'Descrição não disponível.';
     }
 
     const imageElement = document.getElementById('detail-img');
 
     if (imageElement) {
 
-        const fallbackImage = getGenericImageForProduct(product.name, product.brand);
+        const fallbackImage = `https://placehold.co/400x350/f7e6e8/8a3b50?text=${encodeURIComponent(product.brand.toUpperCase())}`;
 
-        imageElement.src = product.image || fallbackImage;
+        imageElement.src = product.image || getGenericImageForProduct(product.name, product.brand);
         imageElement.alt = product.name;
 
         imageElement.onerror = function() {
             this.src = fallbackImage;
+            this.onerror = null;
         };
 
     }
@@ -647,10 +643,6 @@ function sendToWhatsApp() {
 
 }
 
-
-/* =========================================================
-   RASTREAMENTO PELO GOOGLE SHEETS
-========================================================= */
 
 async function searchOrderStatus() {
 
