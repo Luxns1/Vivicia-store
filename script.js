@@ -101,7 +101,8 @@ async function loadProducts() {
 
                 console.error(`Erro ao carregar o CSV local! Status HTTP: ${response.status}`);
 
-                document.getElementById('product-grid').innerHTML = `<p style="text-align:center; width:100%; color:#8a3b50; padding:20px;">Erro ao carregar o arquivo CSV. Verifique se o nome exato é "Produtos disponiveis(Pro site).csv".</p>`;
+                document.getElementById('product-grid').innerHTML =
+                    `<p style="text-align:center; width:100%; color:#8a3b50; padding:20px;">Erro ao carregar o arquivo CSV. Verifique se o nome exato é "Produtos disponiveis(Pro site).csv".</p>`;
 
                 return;
             }
@@ -121,7 +122,8 @@ async function loadProducts() {
 
             console.error("O CSV foi carregado, mas nenhum produto foi processado.");
 
-            document.getElementById('product-grid').innerHTML = `<p style="text-align:center; width:100%; color:#8a3b50; padding:20px;">Nenhum produto válido encontrado no arquivo.</p>`;
+            document.getElementById('product-grid').innerHTML =
+                `<p style="text-align:center; width:100%; color:#8a3b50; padding:20px;">Nenhum produto válido encontrado no arquivo.</p>`;
 
             return;
         }
@@ -138,7 +140,10 @@ async function loadProducts() {
 
 function parseCSV(csvText) {
 
-    const lines = csvText.replace(/\r/g, '').split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    const lines = csvText
+        .replace(/\r/g, '')
+        .split('\n')
+        .filter(l => l.trim().length > 0);
 
     if (lines.length <= 1) return [];
 
@@ -146,17 +151,21 @@ function parseCSV(csvText) {
 
     for (let i = 1; i < lines.length; i++) {
 
-        const values = lines[i].split(';').map(v => v.replace(/^["']|["']$/g, '').trim());
+        const values = lines[i]
+            .split(';')
+            .map(v => v.replace(/^["']|["']$/g, '').trim());
 
         const id = values[0] || String(i);
         const brand = values[1] || 'Vivícia';
         const type = values[2] || '';
         const name = values[3] || '';
         const description = values[4] || '';
-        let rawPrice = values[5] || '0';
-        const image = values[6] || '';
 
-        rawPrice = rawPrice.replace('R$', '').replace(/\s/g, '');
+        let rawPrice = values[5] || '0';
+
+        rawPrice = rawPrice
+            .replace('R$', '')
+            .replace(/\s/g, '');
 
         if (rawPrice.includes(',') && rawPrice.includes('.')) {
             rawPrice = rawPrice.replace(/\./g, '').replace(',', '.');
@@ -166,7 +175,9 @@ function parseCSV(csvText) {
 
         const price = parseFloat(rawPrice);
 
-        if (name && !isNaN(price)) {
+        const image = values[6] || '';
+
+        if (name) {
 
             products.push({
                 id,
@@ -174,12 +185,11 @@ function parseCSV(csvText) {
                 type,
                 name,
                 description,
-                price,
+                price: isNaN(price) ? 0 : price,
                 image
             });
 
         }
-
     }
 
     return products;
@@ -304,9 +314,12 @@ function renderProducts(products) {
 
     products.forEach(product => {
 
-        const fallbackImage = `https://placehold.co/400x350/f7e6e8/8a3b50?text=${encodeURIComponent(product.brand.toUpperCase())}`;
+        const fallbackImage =
+            `https://placehold.co/400x350/f7e6e8/8a3b50?text=${encodeURIComponent(product.brand.toUpperCase())}`;
 
-        const productImage = product.image || getGenericImageForProduct(product.name, product.brand);
+        const productImage = product.image
+            ? product.image
+            : getGenericImageForProduct(product.name, product.brand);
 
         const cardHTML = `
 
@@ -376,26 +389,29 @@ function openDetailModal(product) {
 
     document.getElementById('detail-name').innerText = product.name;
     document.getElementById('detail-brand').innerText = product.brand;
-    document.getElementById('detail-price').innerText = `R$ ${product.price.toFixed(2).replace('.', ',')}`;
+    document.getElementById('detail-price').innerText =
+        `R$ ${product.price.toFixed(2).replace('.', ',')}`;
 
     const descElement = document.getElementById('detail-desc');
 
     if (descElement) {
-        descElement.innerText = product.description || 'Descrição não disponível.';
+
+        descElement.innerText = product.description ||
+            `O ${product.name} da marca ${product.brand} foi desenvolvido com alto padrão de qualidade para garantir a melhor experiência em cuidados diários.`;
+
     }
 
     const imageElement = document.getElementById('detail-img');
 
     if (imageElement) {
 
-        const fallbackImage = `https://placehold.co/400x350/f7e6e8/8a3b50?text=${encodeURIComponent(product.brand.toUpperCase())}`;
+        imageElement.src = product.image ||
+            getGenericImageForProduct(product.name, product.brand);
 
-        imageElement.src = product.image || getGenericImageForProduct(product.name, product.brand);
         imageElement.alt = product.name;
 
         imageElement.onerror = function() {
-            this.src = fallbackImage;
-            this.onerror = null;
+            this.src = getGenericImageForProduct(product.name, product.brand);
         };
 
     }
@@ -682,7 +698,7 @@ async function searchOrderStatus() {
         }
 
         const headers = lines[0]
-            .split(',')
+            .split(';')
             .map(h => h.replace(/["\uFEFF]/g, '').trim().toLowerCase());
 
         const idCol = headers.findIndex(h =>
@@ -705,7 +721,7 @@ async function searchOrderStatus() {
         for (let i = 1; i < lines.length; i++) {
 
             const cols = lines[i]
-                .split(',')
+                .split(';')
                 .map(v => v.replace(/^["']|["']$/g, '').trim());
 
             const rowId = cols[idCol]
@@ -762,7 +778,12 @@ async function searchOrderStatus() {
 
 function updateTimelineVisuals(currentStatus) {
 
-    const stages = ['Recebido', 'Em Separação', 'Saiu p/ Entrega', 'Entregue'];
+    const stages = [
+        'Recebido',
+        'Em Separação',
+        'Saiu p/ Entrega',
+        'Entregue'
+    ];
 
     const currentIndex = stages.findIndex(
         s => s.toLowerCase() === currentStatus.toLowerCase()
