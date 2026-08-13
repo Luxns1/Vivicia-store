@@ -302,76 +302,113 @@ function parseCSV(csvText) {
 
 function setupPromotionCards() {
 
-    const promoContainer = document.querySelector('.featured-promotions-grid');
+    const promoContainer =
+        document.querySelector('.featured-promotions-grid');
 
     if (!promoContainer || allProducts.length === 0) return;
 
-    const existingCards = Array.from(
-        promoContainer.querySelectorAll('.featured-promotion-card')
+    /*
+     * IDs dos produtos que aparecem nas promoções.
+     *
+     * A ORDEM DOS CARDS NO HTML deve corresponder
+     * à ordem destes IDs.
+     *
+     * 1º card = 51
+     * 2º card = 52
+     * 3º card = 53
+     * 4º card = 54
+     * 5º card = 55
+     * 6º card = 56
+     */
+
+    const promotionIds = [
+        '51',
+        '52',
+        '53',
+        '54',
+        '55',
+        '56'
+    ];
+
+    const cards = Array.from(
+        promoContainer.querySelectorAll(
+            '.featured-promotion-card'
+        )
     );
 
-    const uniqueCards = [];
-    const usedNames = new Set();
+    /*
+     * Remove clones antigos caso a função seja executada
+     * novamente.
+     */
 
-    existingCards.forEach(card => {
+    promoContainer
+        .querySelectorAll('.featured-promotion-card.promo-clone')
+        .forEach(card => card.remove());
 
-        const titleElement = card.querySelector('h3');
+    /*
+     * Limita aos 6 cards principais.
+     */
 
-        if (!titleElement) return;
+    const originalCards = cards
+        .filter(card => !card.classList.contains('promo-clone'))
+        .slice(0, promotionIds.length);
 
-        const title = titleElement.innerText
-            .trim()
-            .toLowerCase();
+    originalCards.forEach((card, index) => {
 
-        if (!usedNames.has(title)) {
+        const productId = promotionIds[index];
 
-            usedNames.add(title);
-            uniqueCards.push(card);
-
-        } else {
-
-            card.remove();
-
-        }
-
-    });
-
-    uniqueCards.forEach(card => {
-
-        const titleElement = card.querySelector('h3');
-
-        if (!titleElement) return;
-
-        const title = titleElement.innerText
-            .trim()
-            .toLowerCase();
-
-        let product = allProducts.find(p =>
-            p.name.trim().toLowerCase() === title
+        const product = allProducts.find(
+            p => String(p.id).trim() === productId
         );
 
         if (!product) {
 
-            product = allProducts.find(p => {
+            console.warn(
+                `Produto da promoção com ID ${productId} não foi encontrado no CSV.`
+            );
 
-                const productName =
-                    p.name.trim().toLowerCase();
-
-                return (
-                    productName.includes(title) ||
-                    title.includes(productName)
-                );
-
-            });
+            return;
 
         }
 
-        if (!product) return;
+        /*
+         * Atualiza o título do card para o nome EXATO
+         * que está no CSV.
+         */
+
+        const titleElement =
+            card.querySelector('h3');
+
+        if (titleElement) {
+            titleElement.innerText = product.name;
+        }
+
+        /*
+         * Atualiza a descrição do card com a descrição
+         * do produto, caso exista.
+         */
+
+        const descriptionElement =
+            card.querySelector('p:not(.featured-promotion-tag)');
+
+        if (descriptionElement && product.description) {
+            descriptionElement.innerText = product.description;
+        }
+
+        /*
+         * Remove imagem anterior caso exista.
+         */
 
         const existingImage =
             card.querySelector('.promo-card-image');
 
-        if (existingImage) return;
+        if (existingImage) {
+            existingImage.remove();
+        }
+
+        /*
+         * Cria a imagem correta baseada no ID do CSV.
+         */
 
         const imageContainer =
             document.createElement('div');
@@ -425,17 +462,21 @@ function setupPromotionCards() {
             card.firstChild
         );
 
+        /*
+         * Guarda o ID correto no próprio card.
+         */
+
+        card.dataset.productId = product.id;
+
     });
 
-    const originalCards = Array.from(
-        promoContainer.querySelectorAll('.featured-promotion-card')
-    );
+    /*
+     * Cria os clones para o carrossel.
+     */
 
-    promoContainer
-        .querySelectorAll('.featured-promotion-card.promo-clone')
-        .forEach(card => card.remove());
+    const cardsForClone = originalCards.slice();
 
-    originalCards.forEach(card => {
+    cardsForClone.forEach(card => {
 
         const clone =
             card.cloneNode(true);
@@ -1315,4 +1356,4 @@ function updateTimelineVisuals(currentStatus) {
 
     }
 
-}s
+}
