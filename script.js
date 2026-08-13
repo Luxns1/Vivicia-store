@@ -91,39 +91,44 @@ async function loadProducts() {
 
     try {
 
-        let csvText = "";
+        const response = await fetch('Produtos%20disponiveis(Pro%20site).csv');
 
-        if (!csvText || csvText.trim().length === 0) {
+        if (!response.ok) {
 
-            const response = await fetch('Produtos%20disponiveis(Pro%20site).csv');
+            console.error(`Erro ao carregar o CSV local! Status HTTP: ${response.status}`);
 
-            if (!response.ok) {
+            const grid = document.getElementById('product-grid');
 
-                console.error(`Erro ao carregar o CSV local! Status HTTP: ${response.status}`);
-
-                document.getElementById('product-grid').innerHTML =
+            if (grid) {
+                grid.innerHTML =
                     `<p style="text-align:center; width:100%; color:#8a3b50; padding:20px;">Erro ao carregar o arquivo CSV. Verifique se o nome exato é "Produtos disponiveis(Pro site).csv".</p>`;
-
-                return;
             }
 
-            const buffer = await response.arrayBuffer();
+            return;
+        }
 
-            csvText = new TextDecoder('utf-8').decode(buffer);
+        const buffer = await response.arrayBuffer();
 
-            if (csvText.includes('\ufffd')) {
-                csvText = new TextDecoder('iso-8859-1').decode(buffer);
-            }
+        let csvText = new TextDecoder('utf-8').decode(buffer);
+
+        if (csvText.includes('\ufffd')) {
+            csvText = new TextDecoder('windows-1252').decode(buffer);
         }
 
         allProducts = parseCSV(csvText);
+
+        console.log("Produtos carregados:", allProducts);
 
         if (allProducts.length === 0) {
 
             console.error("O CSV foi carregado, mas nenhum produto foi processado.");
 
-            document.getElementById('product-grid').innerHTML =
-                `<p style="text-align:center; width:100%; color:#8a3b50; padding:20px;">Nenhum produto válido encontrado no arquivo.</p>`;
+            const grid = document.getElementById('product-grid');
+
+            if (grid) {
+                grid.innerHTML =
+                    `<p style="text-align:center; width:100%; color:#8a3b50; padding:20px;">Nenhum produto válido encontrado no arquivo.</p>`;
+            }
 
             return;
         }
@@ -132,7 +137,9 @@ async function loadProducts() {
         applyFilters();
 
     } catch (error) {
+
         console.error("Erro crítico na leitura dos produtos:", error);
+
     }
 
 }
@@ -141,41 +148,110 @@ async function loadProducts() {
 function parseCSV(csvText) {
 
     const lines = csvText
+        .replace(/^\uFEFF/, '')
         .replace(/\r/g, '')
         .split('\n')
-        .filter(l => l.trim().length > 0);
+        .filter(line => line.trim() !== '');
 
-    if (lines.length <= 1) return [];
+    if (lines.length < 2) return [];
 
     const products = [];
 
     for (let i = 1; i < lines.length; i++) {
 
-        const values = lines[i]
-            .split(';')
-            .map(v => v.replace(/^["']|["']$/g, '').trim());
+        const values = [];
+        let current = '';
+        let insideQuotes = false;
 
-        const id = values[0] || String(i);
-        const brand = values[1] || 'Vivícia';
-        const type = values[2] || '';
-        const name = values[3] || '';
-        const description = values[4] || '';
+        for (let j = 0; j < lines[i].length; j++) {
 
-        let rawPrice = values[5] || '0';
+            const char = lines[i][j];
 
-        rawPrice = rawPrice
-            .replace('R$', '')
-            .replace(/\s/g, '');
+            if (char === '"') {
 
-        if (rawPrice.includes(',') && rawPrice.includes('.')) {
-            rawPrice = rawPrice.replace(/\./g, '').replace(',', '.');
-        } else if (rawPrice.includes(',')) {
-            rawPrice = rawPrice.replace(',', '.');
+                if (insideQuotes && lines[i][j + 1] === '"') {
+                    current += '"';
+                    j++;
+                } else {
+                    insideQuotes = !insideQuotes;
+                }
+
+            } else if (char === ';' && !insideQuotes) {
+
+                values.push(current.trim());
+                current = '';
+
+            } else {
+
+                current += char;
+
+            }
+
         }
 
-        const price = parseFloat(rawPrice);
+        values.push(current.trim());
 
-        const image = values[6] || '';
+        const id = (values[0] || String(i)).trim();
+
+        const brand = (values[1] || 'Vivícia').trim();
+
+        const type = (values[2] || '').trim();
+
+        const name = (values[3] || '').trim();
+
+        const description = (values[4] || '').trim();
+
+        let rawPrice = (values[5] || '').trim();
+
+        let image = (values[6] || '').trim();
+
+        rawPrice = rawPrice
+            .replace(/^["']|["']$/g, '')
+            .replace(/R\$/gi, '')
+            .replace(/\s/g, '');
+
+        let price = 0;
+
+        if (rawPrice) {
+
+            if (rawPrice.includes(',') && rawPrice.includes('.')) {
+
+                rawPrice = rawPrice
+                    .replace(/\./g, '')
+                    .replace(',', '.');
+
+            } else if (rawPrice.includes(',')) {
+
+                rawPrice = rawPrice.replace(',', '.');
+
+            }
+
+            price = Number(rawPrice);
+
+        }
+
+        if (isNaN(price)) {
+            price = 0;
+        }
+
+        image = image
+            .replace(/^["']|["']$/g, '')
+            .trim();
+
+        if (image) {
+
+            image = image.replace(/\\/g, '/');
+
+            if (!image.startsWith('http://') &&
+                !image.startsWith('https://') &&
+                !image.startsWith('./') &&
+                !image.startsWith('/')) {
+
+                image = './' + image;
+
+            }
+
+        }
 
         if (name) {
 
@@ -185,11 +261,12 @@ function parseCSV(csvText) {
                 type,
                 name,
                 description,
-                price: isNaN(price) ? 0 : price,
+                price,
                 image
             });
 
         }
+
     }
 
     return products;
@@ -323,11 +400,20 @@ function renderProducts(products) {
 
         const cardHTML = `
 
-            <div class="product-card" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}" style="cursor: pointer;">
+            <div class="product-card"
+                data-id="${product.id}"
+                data-name="${product.name}"
+                data-price="${product.price}"
+                style="cursor: pointer;">
 
                 <div class="product-image-container">
 
-                    <img src="${productImage}" alt="${product.name}" class="product-image" loading="lazy" onerror="this.src='${fallbackImage}'">
+                    <img
+                        src="${productImage}"
+                        alt="${product.name}"
+                        class="product-image"
+                        loading="lazy"
+                        onerror="this.onerror=null;this.src='${fallbackImage}'">
 
                 </div>
 
@@ -339,11 +425,15 @@ function renderProducts(products) {
 
                     <div class="product-pricing">
 
-                        <span class="current-price">R$ ${product.price.toFixed(2).replace('.', ',')}</span>
+                        <span class="current-price">
+                            R$ ${product.price.toFixed(2).replace('.', ',')}
+                        </span>
 
                     </div>
 
-                    <button class="btn-add-cart">Adicionar ao Carrinho</button>
+                    <button class="btn-add-cart">
+                        Adicionar ao Carrinho
+                    </button>
 
                 </div>
 
@@ -363,6 +453,7 @@ function renderProducts(products) {
             if (e.target.classList.contains('btn-add-cart')) return;
 
             const id = card.getAttribute('data-id');
+
             const product = allProducts.find(p => p.id === id);
 
             if (product) {
@@ -388,7 +479,9 @@ function openDetailModal(product) {
     if (!modal) return;
 
     document.getElementById('detail-name').innerText = product.name;
+
     document.getElementById('detail-brand').innerText = product.brand;
+
     document.getElementById('detail-price').innerText =
         `R$ ${product.price.toFixed(2).replace('.', ',')}`;
 
@@ -411,7 +504,14 @@ function openDetailModal(product) {
         imageElement.alt = product.name;
 
         imageElement.onerror = function() {
-            this.src = getGenericImageForProduct(product.name, product.brand);
+
+            this.onerror = null;
+
+            this.src = getGenericImageForProduct(
+                product.name,
+                product.brand
+            );
+
         };
 
     }
@@ -425,14 +525,18 @@ function openDetailModal(product) {
             const existingItem = cart.find(item => item.id === product.id);
 
             if (existingItem) {
+
                 existingItem.quantity += 1;
+
             } else {
+
                 cart.push({
                     id: product.id,
                     name: product.name,
                     price: product.price,
                     quantity: 1
                 });
+
             }
 
             updateCartUI();
@@ -468,9 +572,18 @@ function addToCart(event) {
     const existingItem = cart.find(item => item.id === id);
 
     if (existingItem) {
+
         existingItem.quantity += 1;
+
     } else {
-        cart.push({ id, name, price, quantity: 1 });
+
+        cart.push({
+            id,
+            name,
+            price,
+            quantity: 1
+        });
+
     }
 
     updateCartUI();
@@ -487,9 +600,13 @@ function changeQuantity(id, change) {
     item.quantity += change;
 
     if (item.quantity <= 0) {
+
         removeFromCart(id);
+
     } else {
+
         updateCartUI();
+
     }
 
 }
@@ -511,20 +628,37 @@ function updateCartUI() {
     const modalTotalElement = document.getElementById('modal-total-value');
     const cartItemsContainer = document.getElementById('cart-items-container');
 
-    const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
-    const totalPrice = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    const totalItems = cart.reduce(
+        (acc, item) => acc + item.quantity,
+        0
+    );
 
-    const formattedTotal = `R$ ${totalPrice.toFixed(2).replace('.', ',')}`;
+    const totalPrice = cart.reduce(
+        (acc, item) => acc + (item.price * item.quantity),
+        0
+    );
 
-    if (cartCountElement) cartCountElement.innerText = totalItems;
-    if (cartTotalElement) cartTotalElement.innerText = formattedTotal;
-    if (modalTotalElement) modalTotalElement.innerText = formattedTotal;
+    const formattedTotal =
+        `R$ ${totalPrice.toFixed(2).replace('.', ',')}`;
+
+    if (cartCountElement) {
+        cartCountElement.innerText = totalItems;
+    }
+
+    if (cartTotalElement) {
+        cartTotalElement.innerText = formattedTotal;
+    }
+
+    if (modalTotalElement) {
+        modalTotalElement.innerText = formattedTotal;
+    }
 
     if (cartItemsContainer) {
 
         if (cart.length === 0) {
 
-            cartItemsContainer.innerHTML = `<p class="cart-empty-text">Seu carrinho está vazio.</p>`;
+            cartItemsContainer.innerHTML =
+                `<p class="cart-empty-text">Seu carrinho está vazio.</p>`;
 
         } else {
 
@@ -536,19 +670,33 @@ function updateCartUI() {
 
                         <h4>${item.name}</h4>
 
-                        <p>R$ ${item.price.toFixed(2).replace('.', ',')} un.</p>
+                        <p>
+                            R$ ${item.price.toFixed(2).replace('.', ',')} un.
+                        </p>
 
                     </div>
 
                     <div class="cart-item-actions">
 
-                        <button class="qty-btn" onclick="changeQuantity('${item.id}', -1)">-</button>
+                        <button
+                            class="qty-btn"
+                            onclick="changeQuantity('${item.id}', -1)">
+                            -
+                        </button>
 
                         <span>${item.quantity}</span>
 
-                        <button class="qty-btn" onclick="changeQuantity('${item.id}', 1)">+</button>
+                        <button
+                            class="qty-btn"
+                            onclick="changeQuantity('${item.id}', 1)">
+                            +
+                        </button>
 
-                        <button class="remove-btn" onclick="removeFromCart('${item.id}')">🗑️</button>
+                        <button
+                            class="remove-btn"
+                            onclick="removeFromCart('${item.id}')">
+                            🗑️
+                        </button>
 
                     </div>
 
@@ -602,7 +750,10 @@ function sendToWhatsApp() {
     }
 
     const addressInput = document.getElementById('client-address');
-    const clientAddress = addressInput ? addressInput.value.trim() : '';
+
+    const clientAddress = addressInput
+        ? addressInput.value.trim()
+        : '';
 
     if (!clientAddress) {
 
@@ -616,40 +767,58 @@ function sendToWhatsApp() {
 
     }
 
-    const orderId = 'VV-' + Math.floor(1000 + Math.random() * 9000);
+    const orderId =
+        'VV-' + Math.floor(1000 + Math.random() * 9000);
 
     let total = 0;
 
-    let message = `🛍️ *NOVO PEDIDO (#${orderId}) - VIVÍCIA*\n\n`;
+    let message =
+        `🛍️ *NOVO PEDIDO (#${orderId}) - VIVÍCIA*\n\n`;
 
     message += "*Itens do Pedido:*\n";
 
     cart.forEach(item => {
 
-        const itemTotal = item.price * item.quantity;
+        const itemTotal =
+            item.price * item.quantity;
 
         total += itemTotal;
 
-        message += `• ${item.quantity}x ${item.name} - R$ ${itemTotal.toFixed(2).replace('.', ',')}\n`;
+        message +=
+            `• ${item.quantity}x ${item.name} - R$ ${itemTotal.toFixed(2).replace('.', ',')}\n`;
 
     });
 
-    message += `\n📍 *Endereço de Entrega:* ${clientAddress}\n`;
-    message += `💰 *Total:* R$ ${total.toFixed(2).replace('.', ',')}\n`;
-    message += `📦 *Código do Pedido:* ${orderId}\n\n`;
-    message += "Olá! Gostaria de finalizar o pagamento do meu pedido.";
+    message +=
+        `\n📍 *Endereço de Entrega:* ${clientAddress}\n`;
 
-    const encodedMessage = encodeURIComponent(message);
+    message +=
+        `💰 *Total:* R$ ${total.toFixed(2).replace('.', ',')}\n`;
 
-    const whatsappUrl = `https://wa.me/${PHONE_NUMBER}?text=${encodedMessage}`;
+    message +=
+        `📦 *Código do Pedido:* ${orderId}\n\n`;
+
+    message +=
+        "Olá! Gostaria de finalizar o pagamento do meu pedido.";
+
+    const encodedMessage =
+        encodeURIComponent(message);
+
+    const whatsappUrl =
+        `https://wa.me/${PHONE_NUMBER}?text=${encodedMessage}`;
 
     cart = [];
 
-    if (addressInput) addressInput.value = '';
+    if (addressInput) {
+        addressInput.value = '';
+    }
 
-    const cepInput = document.getElementById('client-cep');
+    const cepInput =
+        document.getElementById('client-cep');
 
-    if (cepInput) cepInput.value = '';
+    if (cepInput) {
+        cepInput.value = '';
+    }
 
     updateCartUI();
 
@@ -662,13 +831,19 @@ function sendToWhatsApp() {
 
 async function searchOrderStatus() {
 
-    const codeInput = document.getElementById('tracking-input');
-    const resultDiv = document.getElementById('tracking-result');
-    const errorDiv = document.getElementById('tracking-error');
+    const codeInput =
+        document.getElementById('tracking-input');
+
+    const resultDiv =
+        document.getElementById('tracking-result');
+
+    const errorDiv =
+        document.getElementById('tracking-error');
 
     if (!codeInput) return;
 
-    const code = codeInput.value.trim().toUpperCase();
+    const code =
+        codeInput.value.trim().toUpperCase();
 
     if (!code) {
 
@@ -680,37 +855,95 @@ async function searchOrderStatus() {
 
     try {
 
-        const response = await fetch(GOOGLE_SHEETS_CSV_URL + "&t=" + Date.now());
+        const response =
+            await fetch(
+                GOOGLE_SHEETS_CSV_URL + "&t=" + Date.now()
+            );
 
         if (!response.ok) {
             throw new Error("Erro ao consultar a planilha.");
         }
 
-        const csvText = await response.text();
+        const buffer =
+            await response.arrayBuffer();
 
-        const lines = csvText
-            .replace(/\r/g, '')
-            .split('\n')
-            .filter(l => l.trim().length > 0);
+        let csvText =
+            new TextDecoder('utf-8').decode(buffer);
+
+        if (csvText.includes('\ufffd')) {
+            csvText =
+                new TextDecoder('windows-1252').decode(buffer);
+        }
+
+        const lines =
+            csvText
+                .replace(/^\uFEFF/, '')
+                .replace(/\r/g, '')
+                .split('\n')
+                .filter(l => l.trim().length > 0);
 
         if (lines.length < 2) {
             throw new Error("Planilha vazia.");
         }
 
-        const headers = lines[0]
-            .split(';')
-            .map(h => h.replace(/["\uFEFF]/g, '').trim().toLowerCase());
+        const parseLine = (line) => {
 
-        const idCol = headers.findIndex(h =>
-            h === 'codigos de pedidos' ||
-            h === 'códigos de pedidos' ||
-            h === 'codigo de pedidos' ||
-            h === 'código de pedidos'
-        );
+            const cols = [];
+            let current = '';
+            let insideQuotes = false;
 
-        const statCol = headers.findIndex(h =>
-            h === 'status da entrega'
-        );
+            for (let i = 0; i < line.length; i++) {
+
+                const char = line[i];
+
+                if (char === '"') {
+
+                    if (insideQuotes && line[i + 1] === '"') {
+                        current += '"';
+                        i++;
+                    } else {
+                        insideQuotes = !insideQuotes;
+                    }
+
+                } else if (char === ';' && !insideQuotes) {
+
+                    cols.push(current.trim());
+                    current = '';
+
+                } else {
+
+                    current += char;
+
+                }
+
+            }
+
+            cols.push(current.trim());
+
+            return cols;
+
+        };
+
+        const headers =
+            parseLine(lines[0]).map(
+                h => h
+                    .replace(/["\uFEFF]/g, '')
+                    .trim()
+                    .toLowerCase()
+            );
+
+        const idCol =
+            headers.findIndex(h =>
+                h === 'codigos de pedidos' ||
+                h === 'códigos de pedidos' ||
+                h === 'codigo de pedidos' ||
+                h === 'código de pedidos'
+            );
+
+        const statCol =
+            headers.findIndex(h =>
+                h === 'status da entrega'
+            );
 
         if (idCol === -1 || statCol === -1) {
             throw new Error("Colunas da planilha não encontradas.");
@@ -720,17 +953,23 @@ async function searchOrderStatus() {
 
         for (let i = 1; i < lines.length; i++) {
 
-            const cols = lines[i]
-                .split(';')
-                .map(v => v.replace(/^["']|["']$/g, '').trim());
+            const cols = parseLine(lines[i]);
 
             const rowId = cols[idCol]
-                ? cols[idCol].toUpperCase()
+                ? cols[idCol]
+                    .replace(/["']/g, '')
+                    .trim()
+                    .toUpperCase()
                 : '';
 
             if (rowId === code) {
 
-                orderStatus = cols[statCol] || '';
+                orderStatus =
+                    cols[statCol]
+                        ? cols[statCol]
+                            .replace(/["']/g, '')
+                            .trim()
+                        : '';
 
                 break;
 
@@ -740,23 +979,35 @@ async function searchOrderStatus() {
 
         if (!orderStatus) {
 
-            if (resultDiv) resultDiv.style.display = 'none';
-            if (errorDiv) errorDiv.style.display = 'block';
+            if (resultDiv) {
+                resultDiv.style.display = 'none';
+            }
+
+            if (errorDiv) {
+                errorDiv.style.display = 'block';
+            }
 
             return;
 
         }
 
-        if (resultDiv) resultDiv.style.display = 'block';
-        if (errorDiv) errorDiv.style.display = 'none';
+        if (resultDiv) {
+            resultDiv.style.display = 'block';
+        }
 
-        const orderIdSpan = document.getElementById('track-order-id');
+        if (errorDiv) {
+            errorDiv.style.display = 'none';
+        }
+
+        const orderIdSpan =
+            document.getElementById('track-order-id');
 
         if (orderIdSpan) {
             orderIdSpan.innerText = '#' + code;
         }
 
-        const statusBadge = document.getElementById('track-status-badge');
+        const statusBadge =
+            document.getElementById('track-status-badge');
 
         if (statusBadge) {
             statusBadge.innerText = orderStatus;
@@ -766,10 +1017,18 @@ async function searchOrderStatus() {
 
     } catch (e) {
 
-        console.error("Erro ao consultar o Google Sheets:", e);
+        console.error(
+            "Erro ao consultar o Google Sheets:",
+            e
+        );
 
-        if (resultDiv) resultDiv.style.display = 'none';
-        if (errorDiv) errorDiv.style.display = 'block';
+        if (resultDiv) {
+            resultDiv.style.display = 'none';
+        }
+
+        if (errorDiv) {
+            errorDiv.style.display = 'block';
+        }
 
     }
 
@@ -785,27 +1044,45 @@ function updateTimelineVisuals(currentStatus) {
         'Entregue'
     ];
 
-    const currentIndex = stages.findIndex(
-        s => s.toLowerCase() === currentStatus.toLowerCase()
-    );
+    const currentIndex =
+        stages.findIndex(
+            s =>
+                s.toLowerCase() ===
+                currentStatus.toLowerCase()
+        );
 
-    const activeIdx = currentIndex !== -1 ? currentIndex : 0;
+    const activeIdx =
+        currentIndex !== -1
+            ? currentIndex
+            : 0;
 
     for (let i = 1; i <= 4; i++) {
 
-        const stepElement = document.querySelector(`.timeline-step.step-${i}`);
+        const stepElement =
+            document.querySelector(
+                `.timeline-step.step-${i}`
+            );
 
         if (!stepElement) continue;
 
-        stepElement.classList.remove('completed', 'current', 'active');
+        stepElement.classList.remove(
+            'completed',
+            'current',
+            'active'
+        );
 
         if (i - 1 < activeIdx) {
 
-            stepElement.classList.add('completed');
+            stepElement.classList.add(
+                'completed'
+            );
 
         } else if (i - 1 === activeIdx) {
 
-            stepElement.classList.add('current', 'active');
+            stepElement.classList.add(
+                'current',
+                'active'
+            );
 
         }
 
