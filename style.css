@@ -208,7 +208,6 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    box-sizing: border-box;
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -298,14 +297,13 @@ body {
     background-color: #b8863b;
 }
 
-
 /* =====================================================
    DESTAQUES / PROMOÇÕES
 ===================================================== */
 
 .featured-promotions {
-    margin: 30px 0 40px;
     width: 100%;
+    margin: 30px 0 40px;
     overflow: hidden;
 }
 
@@ -316,9 +314,10 @@ body {
 
 .featured-label {
     display: block;
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: 0.8rem;
     color: #8a3b50;
+    font-weight: 700;
+    letter-spacing: 1px;
     margin-bottom: 5px;
 }
 
@@ -331,11 +330,9 @@ body {
 }
 
 .featured-promotions-header p {
-    font-family: "Poppins", sans-serif;
     font-size: 0.85rem;
     color: #777;
 }
-
 
 /* CARROSSEL */
 
@@ -343,29 +340,37 @@ body {
     display: flex;
     gap: 20px;
     width: max-content;
-    animation: featuredCarousel 25s linear infinite;
+    animation: featured-carousel 25s linear infinite;
+    padding: 5px 0 15px;
 }
 
+/* DUPLICAÇÃO VISUAL DO CARROSSEL */
+.featured-promotions-grid::after {
+    content: "";
+    display: block;
+    width: 290px;
+    min-width: 290px;
+}
 
 /* CARD */
 
 .featured-promotion-card {
+    position: relative;
     width: 290px;
-    min-height: 200px;
-    flex-shrink: 0;
+    min-width: 290px;
+    min-height: 205px;
 
     background: #fff;
 
     border: 2px solid #dfb373;
-    border-radius: 14px;
+    border-radius: 16px;
 
-    padding: 22px;
+    padding: 24px 22px;
 
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start;
 
-    position: relative;
     overflow: hidden;
 
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
@@ -380,60 +385,59 @@ body {
     box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
 }
 
-
 /* FAIXA */
 
 .featured-promotion-card::before {
     content: "EM PROMOÇÃO";
 
     position: absolute;
+    top: 15px;
+    right: -42px;
 
-    top: 14px;
-    right: -38px;
+    width: 145px;
 
     background-color: #8a3b50;
     color: #fff;
 
-    padding: 5px 38px;
+    padding: 6px 0;
 
-    font-size: 0.62rem;
+    font-size: 0.6rem;
     font-weight: 700;
 
+    text-align: center;
     letter-spacing: 0.5px;
 
     transform: rotate(45deg);
 }
 
-
 /* CONTEÚDO */
 
 .featured-promotion-content {
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
-    height: 100%;
 }
 
 .featured-promotion-tag {
-    display: block;
+    display: inline-block;
+    width: fit-content;
 
-    font-size: 0.7rem;
+    background-color: #fceeee;
+    color: #8a3b50;
 
-    color: #b8863b;
+    padding: 5px 10px;
+    border-radius: 20px;
 
-    text-transform: uppercase;
+    font-size: 0.65rem;
+    font-weight: 700;
 
-    font-weight: 600;
-
-    letter-spacing: 0.5px;
-
-    margin-bottom: 8px;
+    margin-bottom: 15px;
 }
 
 .featured-promotion-card h3 {
     font-family: "Playfair Display", serif;
-
     font-size: 1.2rem;
-
     font-weight: 700;
 
     color: #1a1a1a;
@@ -446,30 +450,25 @@ body {
 }
 
 .featured-promotion-card p {
-    font-family: "Poppins", sans-serif;
-
     font-size: 0.8rem;
-
     color: #666;
 
     line-height: 1.5;
 
-    margin-bottom: 15px;
+    margin: 0;
 }
 
+/* MOVIMENTO */
 
-/* ANIMAÇÃO */
-
-@keyframes featuredCarousel {
+@keyframes featured-carousel {
     0% {
         transform: translateX(0);
     }
 
     100% {
-        transform: translateX(-50%);
+        transform: translateX(calc(-290px * 3 - 40px));
     }
 }
-
 
 /* =====================================================
    BARRA DO CARRINHO
@@ -549,7 +548,6 @@ body {
 .btn-checkout-whatsapp:hover {
     background-color: #1eb855;
 }
-
 
 /* MODAIS */
 
@@ -702,8 +700,7 @@ body {
     color: #111;
 }
 
-
-/* DETALHES DO PRODUTO */
+/* DETALHES */
 
 .product-detail-modal-content {
     max-width: 500px;
@@ -782,7 +779,6 @@ body {
     width: 100%;
 }
 
-
 /* RASTREIO */
 
 .tracking-subtitle {
@@ -855,7 +851,6 @@ body {
     font-size: 0.85rem;
     font-weight: 600;
 }
-
 
 /* TIMELINE */
 
@@ -931,7 +926,6 @@ body {
     font-weight: 700;
 }
 
-
 /* RODAPÉ */
 
 .main-footer {
@@ -978,7 +972,6 @@ body {
     margin-top: 5px;
 }
 
-
 /* RESPONSIVIDADE */
 
 @media (min-width: 768px) {
@@ -995,7 +988,6 @@ body {
     }
 
 }
-
 
 @media (max-width: 767px) {
 
@@ -1076,8 +1068,7 @@ body {
         width: 100%;
     }
 
-
-    /* PROMOÇÕES NO CELULAR */
+    /* PROMOÇÕES */
 
     .featured-promotions {
         margin: 25px 0 30px;
@@ -1102,8 +1093,9 @@ body {
 
     .featured-promotion-card {
         width: 260px;
-        min-height: 190px;
-        padding: 18px;
+        min-width: 260px;
+        min-height: 195px;
+        padding: 20px 18px;
     }
 
     .featured-promotion-card h3 {
@@ -1114,4 +1106,13 @@ body {
         font-size: 0.76rem;
     }
 
+    @keyframes featured-carousel {
+        0% {
+            transform: translateX(0);
+        }
+
+        100% {
+            transform: translateX(calc(-260px * 3 - 28px));
+        }
+    }
 }
