@@ -183,6 +183,7 @@ body {
     gap: 20px;
 }
 
+/* CARD DE PRODUTO UNIFICADO E CORRIGIDO */
 .product-card {
     background: #ffffff;
     border: 2px solid #dfb373;
@@ -191,6 +192,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    box-sizing: border-box;
 }
 
 .product-image-container {
@@ -211,9 +213,14 @@ body {
     object-fit: contain;
 }
 
+/* DETALHES DO CARD AJUSTADOS PARA ALINHAMENTO FLEXÍVEL */
 .product-details {
     margin-top: 15px;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: space-between;
 }
 
 .product-brand {
@@ -230,6 +237,12 @@ body {
     font-size: 1.05rem;
     font-weight: 600;
     margin-bottom: 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 2.4em;
 }
 
 .product-pricing {
@@ -608,7 +621,6 @@ body {
     padding: 0 10px;
 }
 
-/* Linha conectora de fundo */
 .timeline::before {
     content: '';
     position: absolute;
@@ -649,7 +661,6 @@ body {
     margin: 0;
 }
 
-/* Estados da Timeline controlados pelo JS */
 .timeline-step.completed .step-icon {
     background-color: #25d366;
     border-color: #25d366;

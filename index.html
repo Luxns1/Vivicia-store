@@ -113,27 +113,29 @@
 
     <!-- MODAL DE DETALHES DO PRODUTO (AO CLICAR NO CARD) -->
     <div class="cart-modal-overlay" id="product-detail-modal">
-        <div class="cart-modal-content" style="max-width: 600px;">
+        <div class="cart-modal-content" style="max-width: 500px; text-align: left;">
             <div class="cart-modal-header">
                 <h2>Detalhes do Produto ✨</h2>
                 <button class="close-modal-btn" id="close-detail-modal">&times;</button>
             </div>
-            <div class="cart-modal-body product-detail-body">
-                <div class="product-detail-img-box">
-                    <img id="detail-img" src="" alt="Produto">
+            <div class="cart-modal-body product-detail-body" style="display: flex; flex-direction: column; gap: 10px;">
+                <div class="product-detail-img-box" style="text-align: center;">
+                    <img id="detail-img" src="" alt="Produto" style="max-width: 100%; height: 200px; object-fit: contain;">
                 </div>
                 <div>
                     <span id="detail-brand" style="font-size: 0.75rem; color: #b8863b; text-transform: uppercase; font-weight: 600;"></span>
                     <h3 id="detail-name" style="font-size: 1.2rem; font-weight: 700; color: #111; margin: 4px 0 8px 0;"></h3>
-                    <strong id="detail-price" style="font-size: 1.3rem; color: #111; display: block; margin-bottom: 15px;"></strong>
+                    <strong id="detail-price" style="font-size: 1.3rem; color: #27ae60; display: block; margin-bottom: 10px;"></strong>
                 </div>
                 <div class="product-detail-info-box">
-                    <h4>Informações:</h4>
-                    <p id="detail-desc">Produto de alta qualidade da Vivícia.</p>
+                    <h4 style="font-size: 0.9rem; color: #444;">Descrição do Produto:</h4>
+                    <p id="detail-desc" style="color: #555; font-size: 0.9rem; line-height: 1.5; margin-top: 5px;">
+                        Produto de alta qualidade selecionado especialmente para o seu autocuidado e rotina de beleza.
+                    </p>
                 </div>
             </div>
-            <div class="cart-modal-footer">
-                <button class="btn-checkout-whatsapp" id="detail-btn-add" style="background-color: #d4a359; width: 100%; border: none; padding: 12px; color: #fff; font-weight: 600; border-radius: 6px; cursor: pointer;">
+            <div class="cart-modal-footer" style="margin-top: 15px;">
+                <button class="btn-checkout-whatsapp" id="detail-btn-add" style="background-color: #8a3b50; width: 100%; border: none; padding: 12px; color: #fff; font-weight: 600; border-radius: 6px; cursor: pointer;">
                     Adicionar ao Carrinho 🛒
                 </button>
             </div>
@@ -204,19 +206,3 @@
     <script src="script.js" charset="UTF-8"></script>
 </body>
 </html>
-
-<!-- Modal de Detalhes do Produto -->
-<div id="product-detail-modal" class="modal-overlay" style="display:none;">
-    <div class="modal-content" style="max-width: 500px; text-align: left;">
-        <button id="close-detail-modal" style="float: right; background: none; border: none; font-size: 20px; cursor: pointer;">&times;</button>
-        <h2 id="detail-product-name" style="margin-top: 10px; color: #8a3b50;"></h2>
-        <p><strong>Marca:</strong> <span id="detail-product-brand"></span></p>
-        <p><strong>Preço:</strong> <span id="detail-product-price" style="color: #27ae60; font-weight: bold;"></span></p>
-        <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
-        <h3>Descrição do Produto</h3>
-        <p id="detail-product-desc" style="color: #555; line-height: 1.5; margin-top: 10px;">
-            Produto de alta qualidade selecionado especialmente para o seu autocuidado e rotina de beleza. Proporciona excelente fixação, toque suave e resultados incríveis.
-        </p>
-        <button id="detail-btn-add-cart" class="btn-add-cart" style="width: 100%; margin-top: 20px; padding: 12px; background-color: #8a3b50; color: white; border: none; border-radius: 5px; cursor: pointer;">Adicionar ao Carrinho</button>
-    </div>
-</div>
