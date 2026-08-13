@@ -201,14 +201,18 @@ function parseCSV(csvText) {
 
         const description = (values[4] || '').trim();
 
-        let rawPrice = (values[5] || '').trim();
 
-        let image = (values[6] || '').trim();
+        // =========================
+        // PREÇO CORRIGIDO
+        // =========================
+
+        let rawPrice = (values[5] || '').trim();
 
         rawPrice = rawPrice
             .replace(/^["']|["']$/g, '')
             .replace(/R\$/gi, '')
-            .replace(/\s/g, '');
+            .replace(/\s/g, '')
+            .trim();
 
         let price = 0;
 
@@ -234,24 +238,27 @@ function parseCSV(csvText) {
             price = 0;
         }
 
+
+        // =========================
+        // IMAGEM CORRIGIDA
+        // =========================
+
+        let image = (values[6] || '').trim();
+
         image = image
             .replace(/^["']|["']$/g, '')
             .trim();
 
         if (image) {
 
-            image = image.replace(/\\/g, '/');
+            // produto-001.jpeg → 001.jpeg
+            image = image.replace(/^produto-/i, '');
 
-            if (!image.startsWith('http://') &&
-                !image.startsWith('https://') &&
-                !image.startsWith('./') &&
-                !image.startsWith('/')) {
-
-                image = './' + image;
-
-            }
+            // Direciona para a pasta Fotos dos produtos
+            image = encodeURI(`./Fotos dos produtos/${image}`);
 
         }
+
 
         if (name) {
 
