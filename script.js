@@ -109,16 +109,7 @@ async function loadProducts() {
 
         const buffer = await response.arrayBuffer();
 
-        // UTF-8 preservando emojis
-        let csvText;
-
-        try {
-            csvText = new TextDecoder('utf-8', {
-                fatal: true
-            }).decode(buffer);
-        } catch (e) {
-            csvText = new TextDecoder('windows-1252').decode(buffer);
-        }
+        const csvText = new TextDecoder('utf-8').decode(buffer);
 
         allProducts = parseCSV(csvText);
 
